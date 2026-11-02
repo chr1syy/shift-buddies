@@ -15,9 +15,14 @@ npm run build
 
 Devserver und `npm run preview -- --port 5173 --strictPort` binden an Loopback. Einen anderen freien Port verwenden, falls 5173 belegt ist.
 
-**Aktuelles Paket: implementiert, Compiler geprüft, konkrete Browser-Sichtdurchgänge; Testfreigabe durch Mira steht aus.** Im aktuellen Auftrag werden keine Tests ergänzt oder ausgeführt. Die bestehenden Testdateien einschließlich `tests/solution.ts` beschreiben noch die alten Räume 3–6 und alte Vorwärts-Abweisung bei Bolt. Sie sind keine Abnahme dieses Pakets. Vorschläge für die anschließende gezielte Prüfung stehen im [Umsetzungs- und Lösungsbericht](docs/2026-11-02-kooperation.md).
+**Aktueller Spielstand geprüft und live:** https://shift-buddies.clippmann.de/ zeigt das Modultausch-/Kooperationspaket **`cf33fb3dd55da93b229cca2954b7dfcfec120f4e`**. Chris hat Prüfung und Update dieser bestehenden Vorschau ausdrücklich beauftragt. 29 Regeltests, Typecheck/Build und jeweils acht lokale Produktions-/öffentliche Chromium-Browsertests bestanden. Die Spielquellen blieben unverändert; alte Testlösungen wurden angepasst. [Release, Belege, Rückfall und Grenzen](docs/2026-11-02-deployment-kooperation.md).
 
-Die frühere Live-Vorschau **https://shift-buddies.clippmann.de/** bleibt auf ihrem veröffentlichten Stand. Dieses Paket wurde **nicht deployt**. Weitere Deploys und itch.io-Veröffentlichung brauchen einen Auftrag. Historische Releaseberichte in `docs/` gelten für ihre jeweiligen SHAs.
+```bash
+npm test
+npm run test:browser
+```
+
+Der Standard-Browsertest startet einen lokalen Devserver. Die Releaseabnahme lief gegen einen stabilen Produktionsbuild und anschließend die öffentliche HTTPS-Adresse. Weitere Deploys und itch.io-Veröffentlichung brauchen einen Auftrag. Historische Releaseberichte in `docs/` gelten für ihre jeweiligen SHAs.
 
 ## Spielen
 
@@ -62,8 +67,8 @@ Alle Räume sind direkt anwählbar; Raumwahl leert Undo. Raum 1 verlangt Pip am 
 - `src/game/rules.ts`: Reine TypeScript-Zustände und Übergänge ohne DOM/Phaser/Timer. Raumdaten, Schaltkreise, Körpergrenzen, Ziehen/Schieben, Strom, Undo. Die bestehende Aktion `pull` bedeutet intern E+Richtung: rückwärts Magnetziehen, bei Bolt vorwärts Kraftschieben. Keine zusätzliche Eingabe- oder Zustandsmaschine.
 - `src/main.ts`: Eine Phaser-Scene, gemeinsame Modulformen für beide Bots, Nase/Gesichter, Eingaben und HTML-Anzeige. Reihenfolge: Boden, Leitungen, Einrichtungen, Fracht/Bots; Zustandsbadges bleiben darüber lesbar. Bereitschaft und Effekte sind vorübergehende Darstellung.
 - `index.html` / `src/style.css`: Bedienung und vorhandenes Layout; keine zusätzlichen Abhängigkeiten.
-- `tests/`: Bestehende, aktuell **nicht ausgeführte und nicht angepasste** Regel-/Browsertests. Neue Räume und Schieben müssen nach ausdrücklicher Testfreigabe eingearbeitet werden.
-- `deploy/`: Historische Releasewerkzeuge und Belege; in diesem Paket nicht benutzt.
+- `tests/`: Aktualisierte Lösungen für alle sechs Räume, Regelregressionen für Körper-/Modulrollen und acht Browserprüfungen mit echter Tastaturbedienung; keine Debug-Zustandssetter.
+- `deploy/`: Bestehende Releasewerkzeuge, SHA-256-Manifeste und Releasebelege; nur die drei Builddateien werden öffentlich ausgeliefert.
 
 Layoutzeichen: `#` Wand, `.` Boden, `v` Schacht, `S` Sockel, `D` Tor, `P` schwere Platte, `X` Ausgang, `O` feste Keramik, `~` Grube, `B` Brücke. Bots und optionale Fracht starten an separat definierten Positionen.
 
