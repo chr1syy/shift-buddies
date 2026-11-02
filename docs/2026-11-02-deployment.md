@@ -1,5 +1,7 @@
 # Öffentlicher Testraum vom 02.11.2026
 
+> Historischer Erstdeploy. Die freigegebene Aktualisierung mit zwei Lernräumen steht in [Deployment der drei Räume](2026-11-02-deployment-lernraeume.md), einschließlich aktuellem Spiel-SHA und Rückfall auf diesen Vorgänger.
+
 Adresse: **https://shift-buddies.clippmann.de/**. Chris hat die Einrichtung genau dieser Subdomain einschließlich DNS, TLS und statischem Deployment ausdrücklich freigegeben. Keine weiteren Veröffentlichungen, bezahlten Dienste oder Nachrichten an Dritte.
 
 ## Quellstand und Hosting
