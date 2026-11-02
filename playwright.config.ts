@@ -1,5 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
+const publicURL = process.env.PLAYWRIGHT_BASE_URL;
+
 export default defineConfig({
   // Full keyboard solution + 71 individual undo presses on a shared Linux host.
   timeout: 90_000,
@@ -8,7 +10,7 @@ export default defineConfig({
   workers: 1,
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:4174",
+    baseURL: publicURL ?? "http://127.0.0.1:4174",
     viewport: { width: 1440, height: 1100 },
     headless: true,
     screenshot: "only-on-failure",
@@ -17,7 +19,7 @@ export default defineConfig({
       ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH }
       : {},
   },
-  webServer: {
+  webServer: publicURL ? undefined : {
     command: "npm run dev -- --port 4174 --strictPort",
     url: "http://127.0.0.1:4174",
     reuseExistingServer: false,

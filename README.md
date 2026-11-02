@@ -20,7 +20,7 @@ npm run build
 npm run preview -- --port 5173 --strictPort
 ```
 
-`dist/` wird nur lokal erzeugt. **Kein Deployment, keine Veröffentlichung.** Das spätere Ziel ist itch.io; dieser Prototyp ist noch kein veröffentlichungsfertiges Spiel.
+`dist/` enthält die gebauten öffentlichen Dateien. Der von Chris am 02.11.2026 ausdrücklich freigegebene Testraum ist unter **https://shift-buddies.clippmann.de/** erreichbar. Hosting, Quellstand, Prüfung, Wiederholung und Rückfall stehen in [docs/2026-11-02-deployment.md](docs/2026-11-02-deployment.md). Weitere Deployments brauchen einen Auftrag. Das spätere Ziel bleibt itch.io; dieser Prototyp ist noch kein fertiges Spiel.
 
 ## Spielen
 
@@ -68,6 +68,11 @@ npm run build
 # Einmalig den Testbrowser projektlokal herunterladen:
 PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npx playwright install chromium --only-shell
 PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm run test:browser
+
+# Denselben Browsertest gegen den veröffentlichten Raum ausführen,
+# ohne lokalen Server und ohne Zertifikatsprüfung zu umgehen:
+PLAYWRIGHT_BASE_URL=https://shift-buddies.clippmann.de \
+  PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm run test:browser
 ```
 
 Die elf Regeltests prüfen den gesamten Lösungsweg, alle 71 Undo-Snapshots, Neustart, Schacht/Platte, Magnetbedingungen, Tauschabstand, Kollisionen und die dauerhafte Stromverbindung. Eine unabhängige Flood-Fill-Prüfung sucht Laufwege um die vorgesehenen Sperren. Sie ist keine erschöpfende Suche über alle denkbaren Aktionen.
