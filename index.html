@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101825" />
+    <title>Shift Buddies · Der Technikraum</title>
+  </head>
+  <body>
+    <main class="app">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">GAME OFF 2026 · SPIELBARER TESTRAUM</p>
+          <h1>Shift <span>Buddies</span></h1>
+        </div>
+        <div class="room-label">
+          01 / DER TECHNIKRAUM<br /><span
+            >Zwei Körper. Zwei Module. Ein Ausgang.</span
+          >
+        </div>
+      </header>
+      <div class="workspace">
+        <section class="play-area" aria-label="Spielbereich">
+          <div class="room-toolbar">
+            <span id="door-status"></span><span id="move-count"></span>
+          </div>
+          <div
+            id="game"
+            tabindex="0"
+            role="application"
+            aria-label="Shift Buddies. Rasterbewegung mit WASD oder Pfeilen. Shift wechselt Roboter. T tauscht Module, E interagiert, Z macht rückgängig, R startet neu."
+          ></div>
+          <p
+            class="feedback"
+            id="feedback"
+            role="status"
+            aria-live="polite"
+          ></p>
+          <div class="actions">
+            <button id="interact" type="button">E · Interagieren</button
+            ><button id="swap" type="button">T · Module tauschen</button
+            ><button id="undo" type="button">Z · Undo</button
+            ><button id="restart" type="button">R · Neustart</button>
+          </div>
+        </section>
+        <aside aria-label="Roboter und Hilfe">
+          <div id="robots" class="robots"></div>
+          <section class="mission">
+            <p class="eyebrow">GEMEINSAM WEITER</p>
+            <h2>Beide zum Ausgang</h2>
+            <p id="objective"></p>
+            <ol id="progress"></ol>
+          </section>
+          <details>
+            <summary>Steuerung & Legende</summary>
+            <dl>
+              <dt>WASD / Pfeile</dt>
+              <dd>Ein Feld gehen / ausrichten</dd>
+              <dt>Shift</dt>
+              <dd>Aktiven Roboter wechseln</dd>
+              <dt>E</dt>
+              <dd>
+                Metallkiste vor dir zurückziehen; auf dem Anschluss verbinden /
+                lösen
+              </dd>
+              <dt>T</dt>
+              <dd>Module tauschen, wenn beide direkt nebeneinander stehen</dd>
+              <dt>Z / R</dt>
+              <dd>Letzte Aktion zurück / Raum neu</dd>
+            </dl>
+            <p>
+              ● Pip: klein, passt durch Schacht<br />■ Bolt: schwer, hält
+              Druckplatte<br /><span class="magnet">M · Magnet</span> /
+              <span class="power">⚡ · Strom</span>
+            </p>
+            <p>
+              Schraffur: Schacht · kreuzverstrebte Kiste: Metall · Ring:
+              Anschluss · Streifen: Tür · breite Bodenplatte: Druckplatte ·
+              grüne Felder: Ausgang
+            </p>
+            <p>
+              Pro Tastendruck eine Aktion. Nach einem Klick außerhalb zuerst das
+              Spielfeld anklicken.
+            </p>
+          </details>
+          <details>
+            <summary>Hinweis zum Lösungsweg</summary>
+            <p>
+              Mit Pip durch den Schacht nach oben. Links neben der Kiste nach
+              rechts schauen und zweimal E drücken. Zurück zu Bolt, mit T
+              tauschen. Pip verbindet sich mit Strom auf dem Anschluss. Shift zu
+              Bolt, durch die Tür auf die Platte. Pip lösen und nachholen. Erst
+              wenn Pip durch die Tür ist, darf Bolt die Platte verlassen.
+            </p>
+          </details>
+        </aside>
+      </div>
+      <footer>
+        Ein Raum zum Ausprobieren · ohne Zeitdruck · Z nimmt auch Modultausch
+        und Verbindungen zurück
+      </footer>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
