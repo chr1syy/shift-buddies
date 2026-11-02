@@ -47,3 +47,18 @@ export const solution = {
 } satisfies Record<string, Action[]>;
 
 export const fullSolution: Action[] = Object.values(solution).flat();
+
+// Two short introductions. Victory deliberately keeps the supporting buddy at
+// work: Bolt on the plate in room 1, Pip supplying power in room 2.
+export const bodySolution: Action[] = [
+  { type: "switch" }, ...walk("right", 2), { type: "switch" },
+  ...walk("up", 2), ...walk("right", 6),
+];
+export const moduleSolution: Action[] = [
+  ...walk("up", 3), ...walk("right", 2),
+  { type: "interact" }, { type: "interact" },
+  ...walk("down", 4), { type: "swap" },
+  ...walk("up", 3), ...walk("right", 2), ...walk("up", 1),
+  ...walk("right", 3), { type: "interact" },
+  { type: "switch" }, ...walk("right", 3),
+];

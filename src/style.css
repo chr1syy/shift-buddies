@@ -340,3 +340,8 @@ footer {
     margin-top: 6px;
   }
 }
+
+.room-choice { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 0 16px; font-size: 13px; }
+select { max-width: 100%; padding: 9px; border: 1px solid #426073; border-radius: 6px; background: #142638; color: #eaf0f5; font: inherit; }
+.room-choice button { padding: 9px 12px; border: 1px solid #81e4cf; border-radius: 6px; background: #214a44; color: #eaf0f5; cursor: pointer; }
+[hidden] { display: none !important; }

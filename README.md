@@ -1,6 +1,6 @@
 # Shift Buddies
 
-Chris’ Solo-Projekt für **Game Off 2026**, Motto **Shift**. Ein kleiner spielbarer Technikraum mit TypeScript, Phaser 3 und Vite für den PC-Browser. Zwei Roboter müssen zusammen den Ausgang erreichen. Alle Formen entstehen im Code, ohne externe Assets, Fonts oder Dienste.
+Chris’ Solo-Projekt für **Game Off 2026**, Motto **Shift**. Drei kleine spielbare Räume mit TypeScript, Phaser 3 und Vite für den PC-Browser. Zwei Roboter arbeiten mit verschiedenen Körpern und tauschbaren Modulen zusammen. Alle Formen entstehen im Code, ohne externe Assets, Fonts oder Dienste.
 
 ## Lokal starten
 
@@ -22,6 +22,14 @@ npm run preview -- --port 5173 --strictPort
 
 `dist/` enthält die gebauten öffentlichen Dateien. Der von Chris am 02.11.2026 ausdrücklich freigegebene Testraum ist unter **https://shift-buddies.clippmann.de/** erreichbar. Hosting, Quellstand, Prüfung, Wiederholung und Rückfall stehen in [docs/2026-11-02-deployment.md](docs/2026-11-02-deployment.md). Weitere Deployments brauchen einen Auftrag. Das spätere Ziel bleibt itch.io; dieser Prototyp ist noch kein fertiges Spiel.
 
+## Drei Räume
+
+1. **Klein & schwer:** Pip zum Ausgang bringen und mit Bolt die schwere Platte halten.
+2. **Energie teilen:** Den Anschluss versorgen und Bolt zum Ausgang bringen.
+3. **Technikraum:** Der ursprüngliche Testraum kombiniert die Mechaniken; beide Roboter müssen auf die Ausgangsfelder.
+
+Das Spiel beginnt im ersten Lernraum. Alle Räume sind über die Raumwahl direkt erreichbar. Nach einem Sieg erscheint in den Lernräumen **Weiter**. Raumwechsel beginnt den gewählten Raum neu und leert dessen Undo-Verlauf; R bleibt immer im aktuellen Raum. Details und Vorschläge für spätere Jam-Arbeit: [Feedbackrunde](docs/2026-11-02-lernraeume.md). Der aktuelle Releasebeleg steht in [Deployment der drei Räume](docs/2026-11-02-deployment-lernraeume.md).
+
 ## Spielen
 
 Das Spielfeld erhält beim Start den Tastaturfokus. Nach einem Klick auf Text bei Bedarf wieder das Spielfeld anklicken. Ein Tastendruck entspricht einer Aktion; Gedrückthalten wiederholt keine Schritte.
@@ -36,15 +44,15 @@ Das Spielfeld erhält beim Start den Tastaturfokus. Nach einem Klick auf Text be
 | Z             | Letzte Zustandsänderung zurücknehmen, auch Ausrichtung, Wechsel, Modultausch, Verbindung und Sieg                |
 | R             | Raum vollständig neu starten und Undo-Verlauf leeren                                                             |
 
-**Pip** ist der kleine türkise Kreis und passt durch den schraffierten Schacht. **Bolt** ist das breite sandfarbene Quadrat und aktiviert die schwere Druckplatte. Der aktive Roboter hat einen weißen Rahmen und einen Marker; seine Karte zeigt „AKTIV“. Die Modulabzeichen zeigen `M` / Magnet oder `ϟ` / Strom.
+**Pip** hat einen kleinen schmalen Körper mit Rädern und passt durch das schmale Schachtgitter. **Bolt** hat einen massiven breiten Körper mit Kettenfahrwerk und aktiviert die schwere Druckplatte. Der aktive Roboter hat einen weißen Rahmen und einen Marker; seine Karte zeigt „AKTIV“. Die Anbauten zeigen ein Hufeisen mit Polen oder eine Batterie mit Kontakt und Blitz. Die Metallkiste trägt dasselbe Hufeisen; verankerte achteckige Keramikblöcke mit Rissen sind fest und nicht magnetisch. E gibt dazu klares Feedback. Die sichtbare Shift-Schaltfläche wechselt denselben Roboter wie die Tastatur; alle Aktionsbuttons geben den Spielfokus zurück.
 
 Strom fließt nur, solange der Roboter mit Strommodul **auf dem Anschluss verbunden stehen bleibt**. Weggehen oder E löst die Verbindung. Der Roboterwechsel lässt sie bestehen. Die Tür ist offen, solange Strom anliegt **oder Bolt auf der Druckplatte steht**. Pip und die Kiste können die schwere Platte nicht halten. Die Tür rastet nicht ein; beim Schließen wird kein Roboter zerstört. Z und R helfen auch aus Sackgassen.
 
-Gewonnen ist erst, wenn **beide Roboter auf den beiden grünen Ausgangsfeldern** stehen.
+Im Technikraum ist erst gewonnen, wenn **beide Roboter auf den beiden grünen Ausgangsfeldern** stehen. Die Lernräume zeigen ihre kürzeren Ziele rechts unter „Deine Aufgabe“.
 
-## Nachvollziehbarer Lösungsweg
+## Nachvollziehbarer Lösungsweg im Technikraum
 
-Koordinaten sind nullbasiert `x / y`, wie auf den Roboterkarten. Die folgende Folge startet mit R. `×6` bedeutet sechs einzelne Tastendrücke. Sie enthält **71 Aktionen**, keine abgewiesenen Versuche.
+Koordinaten sind nullbasiert `x / y`, wie auf den Roboterkarten. In der Raumwahl zuerst den Technikraum wählen. Die folgende Folge startet mit R. `×6` bedeutet sechs einzelne Tastendrücke. Sie enthält **71 Aktionen**, keine abgewiesenen Versuche.
 
 | Schritt                        | Eingaben                            | Ergebnis                                                                                                      |
 | ------------------------------ | ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -75,23 +83,23 @@ PLAYWRIGHT_BASE_URL=https://shift-buddies.clippmann.de \
   PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm run test:browser
 ```
 
-Die elf Regeltests prüfen den gesamten Lösungsweg, alle 71 Undo-Snapshots, Neustart, Schacht/Platte, Magnetbedingungen, Tauschabstand, Kollisionen und die dauerhafte Stromverbindung. Eine unabhängige Flood-Fill-Prüfung sucht Laufwege um die vorgesehenen Sperren. Sie ist keine erschöpfende Suche über alle denkbaren Aktionen.
+Die 18 Regeltests prüfen den gesamten Lösungsweg, alle 71 Undo-Snapshots, Neustart, Schacht/Platte, Magnetbedingungen, Tauschabstand, Kollisionen und die dauerhafte Stromverbindung. Eine unabhängige Flood-Fill-Prüfung sucht Laufwege um die vorgesehenen Sperren. Sie ist keine erschöpfende Suche über alle denkbaren Aktionen.
 
-Die zwei Playwright-Tests starten ihren eigenen Loopback-Testserver auf Port 4174. Sie bedienen das Spiel über echte Tastatureingaben und sichtbare Buttons: kompletter Lösungsweg, Stromerhalt bei Shift, vollständiges Undo, Neustart, Fokus und schmaleres Fenster. Der Browser wird anschließend geschlossen. Screenshots liegen lokal unter `.cache/technikraum-start.png` und `.cache/technikraum-geloest.png`; Fehlerartefakte unter `test-results/`.
+Die drei Playwright-Tests starten ihren eigenen Loopback-Testserver auf Port 4174. Sie bedienen das Spiel über echte Tastatureingaben und sichtbare Buttons: kompletter Lösungsweg, Stromerhalt bei Shift, vollständiges Undo, Neustart, Fokus und schmaleres Fenster. Der Browser wird anschließend geschlossen. Screenshots liegen lokal unter `.cache/technikraum-start.png` und `.cache/technikraum-geloest.png`; Fehlerartefakte unter `test-results/`.
 
-Getestet wird Chromium headless unter Linux. Ein sichtbarer manueller Durchlauf durch Chris sowie Firefox, Safari, Mobilgeräte und itch.io-Einbettung stehen noch aus. Mausbuttons ergänzen die Tastatur; eine Touch-Bewegungssteuerung ist nicht enthalten. Vite weist auf das große Phaser-Bundle hin (rund 1,21 MB / 324 kB gzip); für diesen einzelnen lokalen Testraum ist das akzeptiert.
+Getestet wird Chromium headless unter Linux. Chris hat den ursprünglichen öffentlichen Technikraum manuell als gut spielbar bestätigt. Die neuen Lernräume sowie Firefox, Safari, Mobilgeräte und itch.io-Einbettung brauchen noch einen menschlichen Test. Mausbuttons ergänzen die Tastatur; eine Touch-Bewegungssteuerung ist nicht enthalten. Vite weist auf das große Phaser-Bundle hin (rund 1,21 MB / 325 kB gzip); die bestehende Größenwarnung bleibt eine bekannte Grenze des kleinen Prototyps.
 
 ## Kleine Lernhilfe: Wo anfangen?
 
-- **`src/game/rules.ts`** ist das eigentliche Spiel als reine TypeScript-Funktionen. `State` beschreibt Roboter, Kiste, aktive Figur und Verbindung. `transition(state, action)` berechnet den nächsten Zustand, ohne den alten zu verändern. `dispatch` ergänzt Undo und Neustart.
+- **`src/game/rules.ts`** ist das eigentliche Spiel als reine TypeScript-Funktionen. `State` beschreibt Raum, Roboter, optionale Kiste, aktive Figur und Verbindung. `ROOMS` enthält Layout, Startpunkte, Ziel und Hinweis der drei Räume. `transition(state, action)` berechnet den nächsten Zustand, ohne den alten zu verändern. `dispatch` ergänzt Undo und Neustart.
 - **`src/main.ts`** übersetzt Tastendrücke in Aktionen und zeichnet den Zustand mit einer einzigen Phaser-Scene. Phaser kümmert sich hier um Canvas und Eingaben; wir brauchen noch keine Physik, Spritesheets oder Szenenverwaltung. Die HTML-Anzeige liest denselben Zustand wie das Spielfeld.
 - **`src/style.css` und `index.html`** gestalten die Karten, Steuerung und deutsche Hilfe neben dem Canvas.
 - **`tests/solution.ts`** enthält die Lösung als kleine Aktionsfolgen. Regeltest und Browsertest führen dieselben Eingaben über unterschiedliche Ebenen aus.
 - **`tests/rules.test.ts`** lässt sich ohne Phaser oder Browser ausführen: Node 24 versteht diese TypeScript-Dateien direkt; `tsc` prüft separat die Typen.
 
-Ein guter erster Lernschritt: `initialState()` lesen, eine Bewegung durch `transition` verfolgen, dann den zugehörigen Regeltest ansehen. Zum Layoutlesen: Jede Zeichenfolge in `ROOM` ist eine Zeile; `#` Wand, `.` Boden, `v` Schacht, `S` Anschluss, `D` Tür, `P` Platte, `X` Ausgang. Die Anfangsposition der Kiste liegt separat im Zustand. Bei Layoutänderungen immer den Lösungsweg und die Sperren erneut prüfen.
+Ein guter erster Lernschritt: `initialState()` lesen, eine Bewegung durch `transition` verfolgen, dann den zugehörigen Regeltest ansehen. Zum Layoutlesen: Jede Zeichenfolge in `ROOM` ist eine Zeile; `#` Wand, `.` Boden, `v` Schacht, `S` Anschluss, `D` Tür, `P` Platte, `X` Ausgang, `O` fester Keramikblock. `ROOM` bleibt das Layout des ursprünglichen Technikraums. Die Anfangsposition der Kiste liegt separat im Zustand. Bei Layoutänderungen immer den Lösungsweg und die Sperren erneut prüfen.
 
-Bewusst begrenzt: ein Raum, keine Speicherung über Neuladen, keine Sounds, keine Animationen, keine weiteren Level. Undo-Verlauf lebt nur im aktuellen Browserlauf. Die Canvas-Darstellung ist noch nicht vollständig für Screenreader zugänglich.
+Bewusst begrenzt: drei Räume, keine Speicherung über Neuladen, keine Sounds, nur kurze visuelle Aktionsreaktionen. Weitere Jam-Entwicklung ist bisher ein Vorschlag. Undo-Verlauf lebt nur im aktuellen Browserlauf. Die Canvas-Darstellung ist noch nicht vollständig für Screenreader zugänglich.
 
 ## Lizenz
 

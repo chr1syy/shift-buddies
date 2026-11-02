@@ -11,9 +11,11 @@ import {
   isWon,
   tileAt,
   same,
+  ROOMS,
+  ROOM_ORDER,
 } from "../src/game/rules.ts";
-import type { Action, State, RobotId, Position } from "../src/game/rules.ts";
-import { solution, fullSolution } from "./solution.ts";
+import type { Action, State, RobotId, Position, RoomId } from "../src/game/rules.ts";
+import { solution, fullSolution, bodySolution, moduleSolution } from "./solution.ts";
 
 const play = (state: State, actions: Action[]): State =>
   actions.reduce((s, a) => transition(s, a).state, state);
@@ -188,16 +190,18 @@ function reachable(
   id: RobotId,
   crate: Position,
   doorOpen: boolean,
+  room: RoomId = "tech",
 ): Set<string> {
   const seen = new Set<string>();
   const todo = [start];
   while (todo.length) {
     const p = todo.pop()!;
     const key = `${p.x},${p.y}`;
-    const tile = tileAt(p);
+    const tile = tileAt(p, room);
     if (
       seen.has(key) ||
       tile === "#" ||
+      tile === "O" ||
       same(p, crate) ||
       (tile === "v" && id === "bolt") ||
       (tile === "D" && !doorOpen)
@@ -248,7 +252,7 @@ test("without the plate, releasing power strands Pip; plate release closes door 
   assert.equal(isDoorOpen(s), false);
   assert.equal(isWon(s), false);
   assert.equal(
-    reachable(s.robots.pip, "pip", s.crate, false).has("14,9"),
+    reachable(s.robots.pip, "pip", s.crate!, false).has("14,9"),
     false,
   );
   s = held();
@@ -272,4 +276,79 @@ test("one robot at exit does not win; won state accepts only undo or restart", (
     { type: "swap" },
   ] as Action[])
     assert.equal(transition(won, action).state, won);
+});
+
+for (const [room, route] of [["bodies", bodySolution], ["modules", moduleSolution], ["tech", fullSolution]] as const) {
+  test(`${room}: valid grid, complete solution, every undo snapshot and local restart`, () => {
+    assert.equal(ROOMS[room].grid.length, 13);
+    assert.ok(ROOMS[room].grid.every(row => row.length === 17));
+    let session = newSession(room);
+    const snapshots = [session.state];
+    for (const action of route) {
+      const before = session.state.actions;
+      session = dispatch(session, action);
+      assert.equal(session.state.actions, before + 1, JSON.stringify(action));
+      snapshots.push(session.state);
+    }
+    assert.equal(isWon(session.state), true);
+    assert.equal(session.state.actions, route.length);
+    const restarted = dispatch(session, { type: "restart" });
+    assert.deepEqual(restarted.state, initialState(room));
+    assert.equal(restarted.history.length, 0);
+    for (let i = snapshots.length - 2; i >= 0; i--) {
+      session = dispatch(session, { type: "undo" });
+      assert.deepEqual(session.state, snapshots[i]);
+    }
+    assert.equal(session.history.length, 0);
+  });
+}
+
+test("room selection discards previous undo and restart stays in the chosen room", () => {
+  let session = dispatch(newSession("tech"), right);
+  for (const room of ROOM_ORDER) {
+    session = dispatch(session, { type: "room", room });
+    assert.deepEqual(session, newSession(room));
+    session = dispatch(session, { type: "switch" });
+    session = dispatch(session, { type: "restart" });
+    assert.deepEqual(session.state, initialState(room));
+    assert.deepEqual(dispatch(session, { type: "undo" }).state, initialState(room));
+  }
+});
+
+test("body lesson requires Pip's shaft, Bolt's plate, and a switch; no module trick", () => {
+  const s = initialState("bodies");
+  assert.equal(reachable(s.robots.pip, "pip", { x: -1, y: -1 }, false, "bodies").has("8,5"), false);
+  assert.equal(reachable(s.robots.bolt, "bolt", { x: -1, y: -1 }, true, "bodies").has("8,5"), false);
+  assert.equal(reachable(s.robots.pip, "pip", { x: -1, y: -1 }, true, "bodies").has("8,5"), true);
+  assert.equal(isWon(play(s, bodySolution.filter(a => a.type !== "switch"))), false);
+  const atExit = position(s, "pip", 8, 5);
+  assert.equal(isWon(atExit), false);
+  assert.equal(isWon(position(atExit, "bolt", 5, 7)), true);
+});
+
+test("module lesson requires two metal pulls, Pip's body, exchange and power", () => {
+  const s = initialState("modules");
+  for (const x of [6, 5])
+    assert.equal(reachable(s.robots.pip, "pip", { x, y: 2 }, true, "modules").has("8,2"), false);
+  assert.equal(reachable(s.robots.pip, "pip", { x: 4, y: 2 }, true, "modules").has("8,2"), true);
+  assert.equal(reachable(s.robots.bolt, "bolt", { x: 4, y: 2 }, true, "modules").has("8,2"), false);
+  assert.equal(reachable(s.robots.bolt, "bolt", { x: 4, y: 2 }, false, "modules").has("7,6"), false);
+  for (const type of ["interact", "swap", "switch"])
+    assert.equal(isWon(play(s, moduleSolution.filter(a => a.type !== type))), false);
+  const solved = play(s, moduleSolution);
+  assert.equal(isPowered(solved), true);
+  assert.equal(isWon({ ...solved, connected: null }), false);
+});
+
+test("anchored ceramic blocks movement and magnet E gives an explicit immutable rejection", () => {
+  let s = initialState("modules");
+  s = transition(s, { type: "move", direction: "left" }).state;
+  assert.equal(s.robots.pip.x, 3);
+  const result = transition(s, interact);
+  assert.equal(result.state, s);
+  assert.match(result.message, /verankert und nicht magnetisch/);
+  assert.deepEqual(result.state.crate, { x: 6, y: 2 });
+  assert.equal(tileAt({ x: 2, y: 5 }, s.room), "O");
+  const session = { ...newSession("modules"), state: s };
+  assert.equal(dispatch(session, interact).history.length, 0);
 });
