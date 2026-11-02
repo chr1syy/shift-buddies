@@ -462,7 +462,8 @@ class RoomScene extends Phaser.Scene {
       g.lineStyle(2, 0xffffff).strokeRoundedRect(x - 24, y - 24, 48, 48, 5);
       g.fillStyle(0xffffff).fillTriangle(x - 22, y - 22, x - 14, y - 22, x - 22, y - 14);
     }
-    // Rotate the actual chassis, eyes and drive, while module symbols stay legible.
+    // The face and drive rotate with the chassis. The module stays upright
+    // at its rotating rear mount, leaving the face clear in every direction.
     g.save().translateCanvas(x, y).rotateCanvas(angle);
     g.fillStyle(0x08111b);
     if (pip) {
@@ -487,10 +488,12 @@ class RoomScene extends Phaser.Scene {
       g.fillStyle(0x8b7358).fillRect(-13, 9, 26, 5);
     }
     g.restore();
-    g.fillStyle(COLORS[r.module], 0.14).fillCircle(x, y + 3, 15);
-    g.fillStyle(0x263b48).fillRoundedRect(x - 10, y - 5, 20, 23, 4);
-    this.drawModule(x, y + 4, r.module);
-    g.fillStyle(COLORS[r.module]).fillCircle(x - 10, y + 7, 2).fillCircle(x + 10, y + 7, 2);
+    const mx = x - Math.sin(angle) * 9;
+    const my = y + Math.cos(angle) * 9;
+    g.fillStyle(COLORS[r.module], 0.14).fillCircle(mx, my - 1, 15);
+    g.fillStyle(0x263b48).fillRoundedRect(mx - 10, my - 9, 20, 23, 4);
+    this.drawModule(mx, my, r.module);
+    g.fillStyle(COLORS[r.module]).fillCircle(mx - 10, my + 3, 2).fillCircle(mx + 10, my + 3, 2);
   }
 
   private reaction(before: State, command: Command): void {

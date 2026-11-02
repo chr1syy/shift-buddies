@@ -370,3 +370,46 @@ test("in-flight Shift/restart/room, rotation views, supplied and occupied bridge
   await page.locator("#mute").click();
   await expect(page.locator("#mute")).toHaveAttribute("aria-pressed", "false");
 });
+
+// Check the rendered face, not just a direction attribute. The two pale eyes
+// must remain visible at the chassis front under both screen-upright modules.
+test("both modules leave both robots' eyes readable in all four directions", async ({ page }) => {
+  await ready(page);
+  const failures: string[] = [];
+  const directions = [["ArrowRight", "right", 1, 0], ["ArrowUp", "up", 0, -1],
+    ["ArrowLeft", "left", -1, 0], ["ArrowDown", "down", 0, 1]] as const;
+  for (const distribution of ["initial", "swapped"] as const) {
+    if (distribution === "swapped") {
+      await page.keyboard.press("Shift"); // back to Pip
+      await keys(page, [{ type: "move", direction: "right" }, { type: "swap" }]);
+    }
+    for (const id of ["pip", "bolt"] as const) {
+      if (id === "bolt") await page.keyboard.press("Shift");
+      const card = page.getByTestId(`robot-${id}`);
+      for (const [key, direction, dx, dy] of directions) {
+        await page.keyboard.press(key);
+        await expect(page.locator("#game")).toHaveAttribute("data-animating", "false");
+        await expect(card).toHaveAttribute("data-facing", direction);
+        await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
+        const cx = Number(await card.getAttribute("data-x")) * 50 + 25;
+        const cy = Number(await card.getAttribute("data-y")) * 50 + 25;
+        const eyes = await page.locator("canvas").evaluate((canvas: HTMLCanvasElement, { cx, cy, dx, dy }) => {
+          const context = canvas.getContext("2d")!;
+          return [-3.5, 3.5].map(side => {
+            const x = Math.round(cx + dx * 10 - dy * side);
+            const y = Math.round(cy + dy * 10 + dx * side);
+            const pixels = context.getImageData(x - 1, y - 1, 3, 3).data;
+            let visible = 0;
+            for (let i = 0; i < pixels.length; i += 4)
+              if (pixels[i] > 225 && pixels[i + 1] > 230 && pixels[i + 2] > 230) visible++;
+            return visible;
+          });
+        }, { cx, cy, dx, dy });
+        const module = await card.getAttribute("data-module");
+        if (eyes.some(count => count < 4)) failures.push(`${id}/${module}/${direction}: eye pixels ${eyes}`);
+        await page.locator("canvas").screenshot({ path: `.cache/review-facing-2026-11-02/${id}-${module}-${direction}.png` });
+      }
+    }
+  }
+  expect(failures, "Each eye should retain its bright core within the 3×3 sample").toEqual([]);
+});
