@@ -3,8 +3,8 @@ import { defineConfig } from "@playwright/test";
 const publicURL = process.env.PLAYWRIGHT_BASE_URL;
 
 export default defineConfig({
-  // Full keyboard solution + 71 individual undo presses on a shared Linux host.
-  timeout: 90_000,
+  // Real drive animations, full keyboard solutions and individual undo presses.
+  timeout: 180_000,
   testDir: "./tests",
   testMatch: "browser.spec.ts",
   workers: 1,

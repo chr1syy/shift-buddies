@@ -1,106 +1,65 @@
 # Shift Buddies
 
-Chris’ Solo-Projekt für **Game Off 2026**, Motto **Shift**. Drei kleine spielbare Räume mit TypeScript, Phaser 3 und Vite für den PC-Browser. Zwei Roboter arbeiten mit verschiedenen Körpern und tauschbaren Modulen zusammen. Alle Formen entstehen im Code, ohne externe Assets, Fonts oder Dienste.
+Chris’ Solo-Projekt für **Game Off 2026**, Motto **Shift**. Sechs kleine kooperative Werkstatträtsel in TypeScript und Phaser 3 für den PC-Browser. Pip und Bolt haben verschiedene Körper und tauschen Magnet und Batterie. Formen, Animationen und ein optionales Zuggeräusch entstehen im Code; keine externen Assets, Fonts oder neuen Dienste.
 
-## Lokal starten
+## Starten und prüfen
 
-Voraussetzung: **Node.js 24+ mit npm**. Geprüft mit Node 24.22.1.
+Node.js 24+ und npm (geprüft mit 24.22.1):
 
 ```bash
 npm ci --cache .cache/npm
 npm run dev -- --port 5173 --strictPort
-```
-
-Dann **http://127.0.0.1:5173/** öffnen. Der Server lauscht nur auf Loopback. Zum Stoppen im eigenen Terminal `Ctrl+C` drücken. Für einen bereits im Hintergrund gestarteten Abnahmeserver stehen PID und Log in `.cache/acceptance-server.pid` und `.cache/acceptance-server.log`.
-
-Produktionsdateien erzeugen und lokal ansehen:
-
-```bash
+npm test
 npm run build
-npm run preview -- --port 5173 --strictPort
+PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npx playwright install chromium --only-shell
+PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm run test:browser
 ```
 
-`dist/` enthält die gebauten öffentlichen Dateien. Der von Chris am 02.11.2026 ausdrücklich freigegebene Testraum ist unter **https://shift-buddies.clippmann.de/** erreichbar. Hosting, Quellstand, Prüfung, Wiederholung und Rückfall stehen in [docs/2026-11-02-deployment.md](docs/2026-11-02-deployment.md). Weitere Deployments brauchen einen Auftrag. Das spätere Ziel bleibt itch.io; dieser Prototyp ist noch kein fertiges Spiel.
+Der Devserver bindet nur an Loopback. Für einen Produktionsbuild: `npm run preview -- --port 5173 --strictPort`. Falls Port 5173 bereits belegt ist, einen freien Port verwenden. Tests starten ihren eigenen Devserver auf 4174 und beenden ihn anschließend.
 
-## Drei Räume
-
-1. **Klein & schwer:** Pip zum Ausgang bringen und mit Bolt die schwere Platte halten.
-2. **Energie teilen:** Den Anschluss versorgen und Bolt zum Ausgang bringen.
-3. **Technikraum:** Der ursprüngliche Testraum kombiniert die Mechaniken; beide Roboter müssen auf die Ausgangsfelder.
-
-Das Spiel beginnt im ersten Lernraum. Alle Räume sind über die Raumwahl direkt erreichbar. Nach einem Sieg erscheint in den Lernräumen **Weiter**. Raumwechsel beginnt den gewählten Raum neu und leert dessen Undo-Verlauf; R bleibt immer im aktuellen Raum. Details und Vorschläge für spätere Jam-Arbeit: [Feedbackrunde](docs/2026-11-02-lernraeume.md). Der aktuelle Releasebeleg steht in [Deployment der drei Räume](docs/2026-11-02-deployment-lernraeume.md).
+Live-Vorschau: **https://shift-buddies.clippmann.de/**. Der Ausbau vom 02.11.2026 einschließlich Update dieser Vorschau wurde ausdrücklich freigegeben. Weitere Deploys brauchen einen Auftrag. Kein itch.io-Release. Der aktuelle Ergebnisbericht steht in [docs/2026-11-02-ausbau.md](docs/2026-11-02-ausbau.md); die historischen Dreiraumbelege bleiben in `docs/` erhalten.
 
 ## Spielen
 
-Das Spielfeld erhält beim Start den Tastaturfokus. Nach einem Klick auf Text bei Bedarf wieder das Spielfeld anklicken. Ein Tastendruck entspricht einer Aktion; Gedrückthalten wiederholt keine Schritte.
+| Taste | Wirkung |
+| --- | --- |
+| WASD / Pfeile | Ein Feld fahren, dabei drehen; ein blockierter Versuch richtet den Bot aus |
+| Shift | Roboter wechseln; eine Stromverbindung bleibt bestehen |
+| T | Module zwischen direkt benachbarten Buddies tauschen; bestehende Verbindung lösen |
+| E halten + Gegenrichtung | Mit Magnet rückwärts von der **benachbarten Kiste vor dem Bot** wegfahren; Blick bleibt zur Kiste |
+| E mit Batterie | Auf einem Anschluss verbinden / lösen |
+| Z / R | Letzte Zustandsänderung einschließlich Blickrichtung zurück / aktuellen Raum neu starten |
+| Enter | Nur nach Sieg und mit vorhandenem Folgeraum weiter; alternativ Weiter anklicken |
 
-| Taste         | Wirkung                                                                                                          |
-| ------------- | ---------------------------------------------------------------------------------------------------------------- |
-| WASD / Pfeile | Ein Rasterfeld gehen; bei einem Hindernis dorthin ausrichten                                                     |
-| Shift         | Zwischen Pip und Bolt wechseln, ohne eine Stromverbindung zu lösen                                               |
-| T             | Module tauschen, wenn beide direkt nebeneinander stehen; diagonal reicht nicht                                   |
-| E mit Magnet  | Die Metallkiste direkt vor dem Roboter ein Feld zurückziehen. Hinter dem Roboter muss Platz sein. Kein Schieben. |
-| E mit Strom   | Auf dem Anschluss verbinden oder lösen                                                                           |
-| Z             | Letzte Zustandsänderung zurücknehmen, auch Ausrichtung, Wechsel, Modultausch, Verbindung und Sieg                |
-| R             | Raum vollständig neu starten und Undo-Verlauf leeren                                                             |
+**Magnet:** E allein zeigt Ziehbereitschaft und bewegt nichts. Beim Halten von E bewegen seitliche/vorwärts gerichtete Eingaben nichts und drehen den Bot nicht. E loslassen, neu zur Kiste ausrichten, wieder E halten und rückwärts fahren. Hinter dem Bot muss ein freies begehbares Feld liegen. Kein Schieben, kein diagonales Ziehen. Pro neuem Richtungstastendruck genau ein Feld; OS-Keyrepeat wird ignoriert. Loslassen, Fokus-/Fensterverlust, Shift, T, Z, R und Raumwahl löschen Ziehbereitschaft. Der E-Button erklärt diese Steuerung; er zieht keine Kiste und rastet nicht ein.
 
-**Pip** hat einen kleinen schmalen Körper mit Rädern und passt durch das schmale Schachtgitter. **Bolt** hat einen massiven breiten Körper mit Kettenfahrwerk und aktiviert die schwere Druckplatte. Der aktive Roboter hat einen weißen Rahmen und einen Marker; seine Karte zeigt „AKTIV“. Die Anbauten zeigen ein Hufeisen mit Polen oder eine Batterie mit Kontakt und Blitz. Die Metallkiste trägt dasselbe Hufeisen; verankerte achteckige Keramikblöcke mit Rissen sind fest und nicht magnetisch. E gibt dazu klares Feedback. Die sichtbare Shift-Schaltfläche wechselt denselben Roboter wie die Tastatur; alle Aktionsbuttons geben den Spielfokus zurück.
+**Körper und Schaltkreise:** Pip passt durch schmale Gitter. Bolt und die Metallkiste drücken schwere Platten ein; Pip ist zu leicht. Die Batterie versorgt genau den Anschluss unter ihrem Träger, solange er verbunden stehen bleibt. Wegfahren, E oder Modultausch lösen sie. Leitungen und passende A/B-Bezeichnungen zeigen zugeordnete Türen. Türen schließen ohne Einrasten; ein Bot auf einer schließenden Tür darf sie verlassen. Eine Brücke bleibt bei Stromausfall über ihre ganze Spanne ausgefahren, solange ein Bot oder eine Kiste darauf steht. Nach dem Verlassen fährt sie ein; eine leere unversorgte Brücke und die Grube sind nicht begehbar. Kein Fallen, kein Zerstören.
 
-Strom fließt nur, solange der Roboter mit Strommodul **auf dem Anschluss verbunden stehen bleibt**. Weggehen oder E löst die Verbindung. Der Roboterwechsel lässt sie bestehen. Die Tür ist offen, solange Strom anliegt **oder Bolt auf der Druckplatte steht**. Pip und die Kiste können die schwere Platte nicht halten. Die Tür rastet nicht ein; beim Schließen wird kein Roboter zerstört. Z und R helfen auch aus Sackgassen.
+Die Fahrdarstellung läuft 160 ms zwischen eindeutigen Rasterzuständen. Neue Aktionen beenden die vorherige Darstellung am gültigen Zielfeld, bevor sie ausgeführt werden; Undo/Restart/Raumwahl verwerfen die Darstellung. Es gibt keine versteckte Eingabeschlange. Reduzierte Bewegung schaltet Interpolation und Aktionsringe ab, auch bei einem Wechsel der Systemeinstellung. **Ton ist anfangs aus**; „Ton: an“ aktiviert nach Browserinteraktion ein kurzes leises synthetisches Zuggeräusch. Es gibt keinen Download und kein Autoplay.
 
-Im Technikraum ist erst gewonnen, wenn **beide Roboter auf den beiden grünen Ausgangsfeldern** stehen. Die Lernräume zeigen ihre kürzeren Ziele rechts unter „Deine Aufgabe“.
+## Die sechs Räume und ihre Lösungen
 
-## Nachvollziehbarer Lösungsweg im Technikraum
+Alle Räume sind direkt anwählbar. Raumwahl beginnt neu und leert Undo, R bleibt im gewählten Raum. Raum 1 verlangt Pip am Ausgang und Bolt auf der Platte, Raum 2 Bolt am Ausgang und eine aktive Versorgung, danach jeweils beide auf den zwei grünen Ausgangsfeldern.
 
-Koordinaten sind nullbasiert `x / y`, wie auf den Roboterkarten. In der Raumwahl zuerst den Technikraum wählen. Die folgende Folge startet mit R. `×6` bedeutet sechs einzelne Tastendrücke. Sie enthält **71 Aktionen**, keine abgewiesenen Versuche.
+Die ausführbaren Lösungsfolgen in [tests/solution.ts](tests/solution.ts) sind zugleich Tastatureingaben der Browsertests. Koordinaten sind nullbasiert `x/y`. `×n` bedeutet n einzelne Tastendrücke. `E+←` heißt E halten, Pfeil links drücken, E loslassen.
 
-| Schritt                        | Eingaben                            | Ergebnis                                                                                                      |
-| ------------------------------ | ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| 1. Platz schaffen              | `→ ↑×6 →×2 E E`                     | Pip zieht mit Magnet die Kiste von `6/2` nach `4/2`; Pip steht `3/2`.                                         |
-| 2. Tauschen, Strom anschließen | `↓×6 T ↑×5 →×2 ↑ →×3 E`             | T neben Bolt auf `4/8`; Pip trägt danach Strom. Über die kleine Ausweichnische zu Anschluss `8/2`, verbunden. |
-| 3. Bolt übernimmt              | `Shift →×5 ↑ →×3`                   | Bolt durch die offene Tür auf Druckplatte `12/7`. Pip versorgt dabei weiter.                                  |
-| 4. Pip nachholen               | `Shift E ←×3 ↓ ←×2 ↓×4 →×8 ↓×2 →×3` | Pip löst sich, geht durch den Schacht und durch die von Bolt offengehaltene Tür bis Ausgang `14/9`.           |
-| 5. Gemeinsam hinaus            | `Shift →×3 ↓×2`                     | Bolt verlässt die Platte und erreicht `15/9`. Die Tür schließt hinter beiden; geschafft.                      |
+1. **Klein & schwer:** `Shift →×2 Shift ↑×2 →×6`. Bolt hält `5/7`, Pip fährt durch den Schacht zum Ausgang `8/5`.
+2. **Energie teilen:** `↑×3 →×2 E+← E+← ↓×4 T ↑×3 →×2 ↑ →×3 E Shift →×3`. Pip zieht die Kiste zweimal, tauscht mit Bolt und versorgt `8/2`; Bolt erreicht `7/6`.
+3. **Technikraum:** `→ ↑×6 →×2 E+← E+←`; dann `↓×6 T ↑×5 →×2 ↑ →×3 E`; dann `Shift →×5 ↑ →×3`; dann `Shift E ←×3 ↓ ←×2 ↓×4 →×8 ↓×2 →×3`; schließlich `Shift →×3 ↓×2`. Erst Kiste räumen und Batterie für Pip, dann hält Bolt `12/7`, damit Pip nachkommen kann. Ausgänge `14/9` und `15/9`.
+4. **Schwere Fracht:** `E+↓ →×7 ↓ Shift →×3 ↑ →×6 ↓`. Kiste von `5/4` auf Platte `5/5` ziehen, Pip zu `12/7`, Bolt zu `13/7`. Die Kiste hält die Tür, auch wenn Bolt geht.
+5. **Getrennte Wege:** `↓×2 T ↑×4 E Shift →×4`; dann `Shift E ↓×4 →×4 T`; dann `Shift ↑ → ↑ E`; dann `Shift →×7 ↑ E+↓ ↓`; schließlich `Shift E ↓×2 →×3 ↓ →×3 ↓`. Pip versorgt A, Bolt hält Platte A; im Mittelraum Batterie an Bolt übergeben. Bolt versorgt B, Pip richtet sich durch den blockierten ↑-Versuch zur Kiste aus und zieht sie auf Platte B. Ausgänge `14/9` und `15/9`.
+6. **Brückendienst:** `T ↑×2 → E Shift → ↑×2 →×4 ↓×4`; dann `Shift E ← ↓×4 →×5 ↑ →×5`; schließlich `Shift ↑ →×3 ↓ →`. Pip versorgt die Brücke `7/5`; Bolt quert und hält die Rückwegplatte `10/9`. Pip löst die Versorgung und kommt durch die untere Tür. Ausgänge `14/8` und `14/9`.
 
-Warum beide Körper und Module nötig sind: Der Schacht ist der einzige Zugang zum Anschluss. Die Kiste sperrt dessen schmalen Gang; erst nach zweimaligem Zurückziehen ist die Ausweichnische nutzbar. Bolt kann den Anschluss auch mit Strommodul nicht erreichen. Pip muss deshalb nach dem Ziehen zurück zum Modultausch. Hinter der Tür muss Bolt die Versorgung mit der Platte übernehmen, damit Pip sich lösen und nachkommen kann. Wer mit Bolt direkt zum Ausgang läuft, lässt Pip vor der wieder geschlossenen Tür zurück.
+## Nachvollziehbarer Code
 
-## Prüfen
+- `src/game/rules.ts`: Reine TypeScript-Zustände und Übergänge ohne DOM/Phaser/Timer. `ROOMS` enthält Layout und Lernziel. Gemeinsame `Circuit`-Daten verbinden Anschlüsse/Platten mit Türen/Brücken; keine raumspezifischen Bewegungsszenen. Die Brückensicherung wird aus der Belegung abgeleitet und ist dadurch zusammen mit Undo immer konsistent.
+- `src/main.ts`: Eine Phaser-Scene, gemeinsame Modulformen, echte Chassis-Drehung, Fahrdarstellung, Eingaben und HTML-Anzeige. Eingabebereitschaft und Animation sind vorübergehende Darstellung, keine versteckten Puzzle-Zustände.
+- `tests/rules.test.ts`: Lösungen und alle Undo-Snapshots, Körper/Module, Kollisionen, Ziehrichtung, Schaltkreiszuordnung, Brückensicherung und unabhängige Laufwegsuchen. Kein Beweis über jeden denkbaren Zustandsraum.
+- `tests/browser.spec.ts`: Echte Tastatur-/Fokuseingaben, sechs Raumlösungen, Enter/Repeat, Ziehen/Release/Blur, Kontextwechsel während Animation, reduzierte Bewegung, Ton-Opt-in und Screenshots. Öffentlich wiederholbar mit `PLAYWRIGHT_BASE_URL=https://shift-buddies.clippmann.de`.
+- `deploy/render-nginx.py` / `deploy/check-public.py`: Enger VHost mit exakten Builddateien und öffentliche TLS-/Hash-/Pfadprüfung. Immutable Releases und passender VHost-Rückfall bleiben erhalten.
 
-Der tatsächliche Prüfstand dieses Auftrags steht in [docs/2026-11-02-abnahme.md](docs/2026-11-02-abnahme.md).
+Layoutzeichen: `#` Wand, `.` Boden, `v` Schacht, `S` Anschluss, `D` Tür, `P` schwere Platte, `X` Ausgang, `O` feste Keramik, `~` Grube, `B` elektrisch ausfahrbare Brücke. Roboter und optionale Metallkiste starten an separat angegebenen Positionen.
 
-```bash
-npm run typecheck
-npm test
-npm run build
+Bewusste Grenzen: keine Speicherung, Gegner, Inventare oder Touch-Bewegung. Headless-Chromium-Prüfung unter Linux ersetzt keinen menschlichen Spieltest. Firefox, Safari und itch.io-Einbettung sind noch offen. Die bekannte Vite-Warnung zur Phaser-Bundlegröße bleibt. Der Canvas ist noch nicht vollständig für Screenreader zugänglich.
 
-# Einmalig den Testbrowser projektlokal herunterladen:
-PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npx playwright install chromium --only-shell
-PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm run test:browser
-
-# Denselben Browsertest gegen den veröffentlichten Raum ausführen,
-# ohne lokalen Server und ohne Zertifikatsprüfung zu umgehen:
-PLAYWRIGHT_BASE_URL=https://shift-buddies.clippmann.de \
-  PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm run test:browser
-```
-
-Die 18 Regeltests prüfen den gesamten Lösungsweg, alle 71 Undo-Snapshots, Neustart, Schacht/Platte, Magnetbedingungen, Tauschabstand, Kollisionen und die dauerhafte Stromverbindung. Eine unabhängige Flood-Fill-Prüfung sucht Laufwege um die vorgesehenen Sperren. Sie ist keine erschöpfende Suche über alle denkbaren Aktionen.
-
-Die drei Playwright-Tests starten ihren eigenen Loopback-Testserver auf Port 4174. Sie bedienen das Spiel über echte Tastatureingaben und sichtbare Buttons: kompletter Lösungsweg, Stromerhalt bei Shift, vollständiges Undo, Neustart, Fokus und schmaleres Fenster. Der Browser wird anschließend geschlossen. Screenshots liegen lokal unter `.cache/technikraum-start.png` und `.cache/technikraum-geloest.png`; Fehlerartefakte unter `test-results/`.
-
-Getestet wird Chromium headless unter Linux. Chris hat den ursprünglichen öffentlichen Technikraum manuell als gut spielbar bestätigt. Die neuen Lernräume sowie Firefox, Safari, Mobilgeräte und itch.io-Einbettung brauchen noch einen menschlichen Test. Mausbuttons ergänzen die Tastatur; eine Touch-Bewegungssteuerung ist nicht enthalten. Vite weist auf das große Phaser-Bundle hin (rund 1,21 MB / 325 kB gzip); die bestehende Größenwarnung bleibt eine bekannte Grenze des kleinen Prototyps.
-
-## Kleine Lernhilfe: Wo anfangen?
-
-- **`src/game/rules.ts`** ist das eigentliche Spiel als reine TypeScript-Funktionen. `State` beschreibt Raum, Roboter, optionale Kiste, aktive Figur und Verbindung. `ROOMS` enthält Layout, Startpunkte, Ziel und Hinweis der drei Räume. `transition(state, action)` berechnet den nächsten Zustand, ohne den alten zu verändern. `dispatch` ergänzt Undo und Neustart.
-- **`src/main.ts`** übersetzt Tastendrücke in Aktionen und zeichnet den Zustand mit einer einzigen Phaser-Scene. Phaser kümmert sich hier um Canvas und Eingaben; wir brauchen noch keine Physik, Spritesheets oder Szenenverwaltung. Die HTML-Anzeige liest denselben Zustand wie das Spielfeld.
-- **`src/style.css` und `index.html`** gestalten die Karten, Steuerung und deutsche Hilfe neben dem Canvas.
-- **`tests/solution.ts`** enthält die Lösung als kleine Aktionsfolgen. Regeltest und Browsertest führen dieselben Eingaben über unterschiedliche Ebenen aus.
-- **`tests/rules.test.ts`** lässt sich ohne Phaser oder Browser ausführen: Node 24 versteht diese TypeScript-Dateien direkt; `tsc` prüft separat die Typen.
-
-Ein guter erster Lernschritt: `initialState()` lesen, eine Bewegung durch `transition` verfolgen, dann den zugehörigen Regeltest ansehen. Zum Layoutlesen: Jede Zeichenfolge in `ROOM` ist eine Zeile; `#` Wand, `.` Boden, `v` Schacht, `S` Anschluss, `D` Tür, `P` Platte, `X` Ausgang, `O` fester Keramikblock. `ROOM` bleibt das Layout des ursprünglichen Technikraums. Die Anfangsposition der Kiste liegt separat im Zustand. Bei Layoutänderungen immer den Lösungsweg und die Sperren erneut prüfen.
-
-Bewusst begrenzt: drei Räume, keine Speicherung über Neuladen, keine Sounds, nur kurze visuelle Aktionsreaktionen. Weitere Jam-Entwicklung ist bisher ein Vorschlag. Undo-Verlauf lebt nur im aktuellen Browserlauf. Die Canvas-Darstellung ist noch nicht vollständig für Screenreader zugänglich.
-
-## Lizenz
-
-MIT-Lizenz, Copyright (c) 2026 Chris. Siehe [LICENSE](LICENSE). Abhängigkeiten behalten ihre jeweiligen Lizenzen.
+MIT-Lizenz, Copyright (c) 2026 Chris; siehe [LICENSE](LICENSE). Abhängigkeiten behalten ihre Lizenzen.

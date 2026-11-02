@@ -9,8 +9,13 @@ import {
   newSession,
   isPowered,
   isPlateHeld,
-  isDoorOpen,
   isWon,
+  circuits,
+  circuitOn,
+  isBridgeOpen,
+  isDoorOpen,
+  same,
+  facingTarget,
   tileAt,
 } from "./game/rules.ts";
 import type {
@@ -37,18 +42,42 @@ const element = <T extends HTMLElement = HTMLElement>(id: string): T =>
   document.getElementById(id) as T;
 const gameElement = element("game");
 let session: Session = newSession("bodies");
+let pullHeld = false;
+let muted = true;
+let audio: AudioContext | undefined;
+const nextRoom = (): RoomId | undefined => ROOM_ORDER[ROOM_ORDER.indexOf(session.state.room) + 1];
+const reducedMotion = (): boolean => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function pullSound(): void {
+  if (muted || !audio || audio.state !== "running") return;
+  const oscillator = audio.createOscillator();
+  const gain = audio.createGain();
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(150, audio.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(85, audio.currentTime + 0.11);
+  gain.gain.setValueAtTime(0.035, audio.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.13);
+  oscillator.connect(gain).connect(audio.destination);
+  oscillator.start(); oscillator.stop(audio.currentTime + 0.14);
+  oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+}
 
 function updateHud(): void {
   const s = session.state;
   element("feedback").textContent = session.message;
   element("move-count").textContent = `${s.actions} Aktionen`;
-  element("door-status").textContent =
-    `TÜR ${isDoorOpen(s) ? "OFFEN" : "ZU"} · ${isPowered(s) ? "Strom verbunden" : isPlateHeld(s) ? "Bolt hält die Platte" : "Keine Versorgung"}`;
+  element("door-status").textContent = circuits(s.room).map(c =>
+    `${c.name || "TÜR"} ${circuitOn(s, c) ? "OFFEN" : c.bridges.some(b => isBridgeOpen(s, b)) ? "BESETZT · SICHER" : "ZU"}`).join(" · ")
+    + ` · ${isPowered(s) ? "Strom verbunden" : isPlateHeld(s) ? tileAt(s.robots.bolt, s.room) === "P" ? "Bolt hält die Platte" : "Kiste hält die Platte" : "Keine Versorgung"}`;
+  gameElement.dataset.pulling = String(pullHeld);
+  gameElement.dataset.won = String(isWon(s));
+  gameElement.dataset.crate = s.crate ? `${s.crate.x},${s.crate.y}` : "";
+  element("pull-status").textContent = pullHeld ? "∪ Ziehbereit · Gegenrichtung drücken · E loslassen zum Drehen" : "∪ Magnet: E halten + rückwärts · ⚡ Batterie: E verbinden / lösen";
+  element("pull-status").classList.toggle("ready", pullHeld);
   element<HTMLButtonElement>("undo").disabled = session.history.length === 0;
   element("robots").innerHTML = (["pip", "bolt"] as RobotId[])
     .map((id) => {
       const r = s.robots[id];
-      return `<section class="robot-card ${s.active === id ? "active" : ""}" data-testid="robot-${id}" data-x="${r.x}" data-y="${r.y}" data-module="${r.module}" data-connected="${s.connected === id}"><div class="robot-top"><span class="robot-name">${id === "pip" ? "●" : "■"} ${NAMES[id]}</span><span class="active-tag">${s.active === id ? "AKTIV · SHIFT ↔" : "BUDDY"}</span></div><p>${id === "pip" ? "Kleiner Körper · passt durch Schächte" : "Schwerer Körper · hält Druckplatten"}</p><span class="module ${r.module}">${r.module === "magnet" ? "∪ · Hufeisenmagnet" : "⚡ · Batterie"}${s.connected === id ? " · verbunden" : ""}</span><span class="coords">Feld ${r.x} / ${r.y}</span></section>`;
+      return `<section class="robot-card ${s.active === id ? "active" : ""}" data-testid="robot-${id}" data-x="${r.x}" data-y="${r.y}" data-facing="${r.facing}" data-module="${r.module}" data-connected="${s.connected === id}"><div class="robot-top"><span class="robot-name">${id === "pip" ? "●" : "■"} ${NAMES[id]}</span><span class="active-tag">${s.active === id ? "AKTIV · SHIFT ↔" : "BUDDY"}</span></div><p>${id === "pip" ? "Kleiner Körper · passt durch Schächte" : "Schwerer Körper · hält Druckplatten"}</p><span class="module ${r.module}">${r.module === "magnet" ? "∪ · Hufeisenmagnet" : "⚡ · Batterie"}${s.connected === id ? " · verbunden" : ""}</span><span class="coords">Feld ${r.x} / ${r.y}</span></section>`;
     })
     .join("");
   const room = ROOMS[s.room];
@@ -56,7 +85,7 @@ function updateHud(): void {
   element("room-title").textContent = room.title;
   element<HTMLSelectElement>("room-select").value = s.room;
   element("mission-title").textContent = "Deine Aufgabe";
-  element("objective").textContent = isWon(s) ? "Geschafft! Du kannst weitergehen oder den Raum erneut probieren." : room.objective;
+  element("objective").textContent = isWon(s) ? nextRoom() ? "Geschafft! Enter oder Weiter führt zum nächsten Raum." : "Alle sechs Räume geschafft! Danke für euren Werkstattdienst. Raumwahl zum Weiterspielen, R zum Neustart." : room.objective;
   element("room-hint").textContent = room.hint;
   const goals: [boolean, string][] = s.room === "bodies"
     ? [[tileAt(s.robots.pip, s.room) === "X", "Pip am Ausgang"], [isPlateHeld(s), "Bolt hält die schwere Platte"]]
@@ -64,13 +93,25 @@ function updateHud(): void {
       ? [[isPowered(s), "Anschluss versorgt"], [tileAt(s.robots.bolt, s.room) === "X", "Bolt am Ausgang"]]
       : [[tileAt(s.robots.pip, s.room) === "X", "Pip am Ausgang"], [tileAt(s.robots.bolt, s.room) === "X", "Bolt am Ausgang"]];
   element("progress").innerHTML = goals.map(([done, text]) => `<li class="${done ? "done" : ""}">${text}</li>`).join("");
-  element<HTMLButtonElement>("next-room").hidden = !isWon(s) || s.room === "tech";
+  element<HTMLButtonElement>("next-room").hidden = !isWon(s) || !nextRoom();
 
 }
 
 class RoomScene extends Phaser.Scene {
   private graphics!: Phaser.GameObjects.Graphics;
   private labels: Phaser.GameObjects.Text[] = [];
+  private preserveLabels = false;
+  private motion?: { before: State; progress: number; pull: boolean };
+  private drive?: Phaser.Tweens.Tween;
+  private effects = new Set<Phaser.GameObjects.Graphics>();
+
+  private settle(): void {
+    this.drive?.stop(); this.drive = undefined; this.motion = undefined;
+    for (const effect of this.effects) { this.tweens.killTweensOf(effect); effect.destroy(); }
+    this.effects.clear();
+    gameElement.dataset.animating = "false";
+  }
+  update(): void { if (this.motion) this.redraw(true); }
 
   create(): void {
     this.graphics = this.add.graphics();
@@ -86,27 +127,46 @@ class RoomScene extends Phaser.Scene {
       ArrowRight: "right",
       KeyD: "right",
     };
-    this.input.keyboard?.on("keydown", (event: KeyboardEvent) => {
-      if (event.repeat || event.ctrlKey || event.altKey || event.metaKey)
-        return;
-      if (
-        document.activeElement !== gameElement &&
-        document.activeElement !== document.body
-      )
-        return;
+    // Enter belongs to progression only on the field or its own Next button.
+    // Prevent native button activation so one keydown cannot advance twice.
+    document.addEventListener("keydown", event => {
+      if (event.code !== "Enter" || event.ctrlKey || event.altKey || event.metaKey) return;
+      if (![gameElement, document.body, element("next-room")].includes(document.activeElement as HTMLElement)) return;
+      event.preventDefault();
+      if (!event.repeat && isWon(session.state) && nextRoom()) this.advance();
+    }, true);
+    // DOM order matters: Phaser queues keydown until the next frame. Handling
+    // down/up together here prevents fast E+direction/releases crossing frames.
+    window.addEventListener("keydown", (event: KeyboardEvent) => {
+      if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
+      if (document.activeElement !== gameElement && document.activeElement !== document.body) return;
       let command: Command | undefined;
-      if (keys[event.code])
-        command = { type: "move", direction: keys[event.code] };
-      else if (event.code === "ShiftLeft" || event.code === "ShiftRight")
-        command = { type: "switch" };
-      else if (event.code === "KeyE") command = { type: "interact" };
+      if (keys[event.code]) command = { type: pullHeld ? "pull" : "move", direction: keys[event.code] };
+      else if (event.code === "ShiftLeft" || event.code === "ShiftRight") command = { type: "switch" };
+      else if (event.code === "KeyE") {
+        pullHeld = session.state.robots[session.state.active].module === "magnet" && !isWon(session.state);
+        command = { type: "interact" };
+      }
       else if (event.code === "KeyT") command = { type: "swap" };
       else if (event.code === "KeyZ") command = { type: "undo" };
       else if (event.code === "KeyR") command = { type: "restart" };
-      if (command) {
-        event.preventDefault();
-        this.act(command);
+      if (command) { event.preventDefault(); this.act(command); }
+    });
+    const release = (): void => { pullHeld = false; updateHud(); this.redraw(); };
+    window.addEventListener("keyup", event => { if (event.code === "KeyE") release(); });
+    window.addEventListener("blur", () => { this.settle(); release(); });
+    gameElement.addEventListener("blur", release);
+    document.addEventListener("visibilitychange", () => { if (document.hidden) { this.settle(); release(); } });
+    window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => { this.settle(); this.redraw(); });
+    element("mute").addEventListener("click", () => {
+      muted = !muted;
+      element("mute").setAttribute("aria-pressed", String(!muted));
+      element("mute").textContent = muted ? "Ton: aus" : "Ton: an";
+      if (!muted) {
+        audio ??= new AudioContext();
+        void audio.resume().catch(() => { muted = true; element("mute").textContent = "Ton: aus"; element("mute").setAttribute("aria-pressed", "false"); });
       }
+      gameElement.focus({ preventScroll: true });
     });
     for (const id of ["switch", "interact", "swap", "undo", "restart"] as const) {
       element(id).addEventListener("click", () => {
@@ -118,11 +178,7 @@ class RoomScene extends Phaser.Scene {
       this.act({ type: "room", room: element<HTMLSelectElement>("room-select").value as RoomId });
       gameElement.focus({ preventScroll: true });
     });
-    element("next-room").addEventListener("click", () => {
-      const next = ROOM_ORDER[ROOM_ORDER.indexOf(session.state.room) + 1];
-      if (next && isWon(session.state)) this.act({ type: "room", room: next });
-      gameElement.focus({ preventScroll: true });
-    });
+    element("next-room").addEventListener("click", () => this.advance());
     gameElement.addEventListener("pointerdown", () =>
       gameElement.focus({ preventScroll: true }),
     );
@@ -130,13 +186,35 @@ class RoomScene extends Phaser.Scene {
     gameElement.focus({ preventScroll: true });
   }
 
+  private advance(): void {
+    const next = nextRoom();
+    if (next && isWon(session.state)) this.act({ type: "room", room: next });
+    gameElement.focus({ preventScroll: true });
+  }
+
   private act(command: Command): void {
+    this.settle();
+    if (["switch", "swap", "undo", "restart", "room"].includes(command.type)) pullHeld = false;
     const before = session.state;
     session = dispatch(session, command);
-    updateHud();
-    this.redraw();
-    if (session.state !== before && (command.type === "swap" || command.type === "interact"))
-      this.reaction(before, command);
+    const after = session.state;
+    const moving = before.room === after.room && (["pip", "bolt"] as const).some(id =>
+      !same(before.robots[id], after.robots[id]) || before.robots[id].facing !== after.robots[id].facing);
+    if (moving && (command.type === "move" || command.type === "pull") && !reducedMotion()) {
+      this.motion = { before, progress: 0, pull: command.type === "pull" };
+      gameElement.dataset.animating = "true";
+      this.drive = this.tweens.add({ targets: this.motion, progress: 1, duration: 160, ease: "Sine.easeInOut",
+        onComplete: () => { this.settle(); this.redraw(); } });
+    }
+    if (command.type === "pull" && before !== after) pullSound();
+    updateHud(); this.redraw();
+    if (after !== before && (command.type === "swap" || command.type === "interact")) this.reaction(before, command);
+  }
+
+  private visual(p: { x: number; y: number }, previous?: { x: number; y: number }): { x: number; y: number } {
+    const t = this.motion?.progress ?? 1;
+    return { x: ((previous?.x ?? p.x) * (1 - t) + p.x * t) * TILE + 25,
+      y: ((previous?.y ?? p.y) * (1 - t) + p.y * t) * TILE + 25 };
   }
 
   private text(
@@ -146,6 +224,7 @@ class RoomScene extends Phaser.Scene {
     color = "#b5c9d7",
     size = 12,
   ): void {
+    if (this.preserveLabels) return;
     this.labels.push(
       this.add
         .text(x, y, value, {
@@ -158,17 +237,20 @@ class RoomScene extends Phaser.Scene {
     );
   }
 
-  private redraw(): void {
+  private redraw(preserveLabels = false): void {
+    this.preserveLabels = preserveLabels;
     this.graphics.clear();
-    this.labels.forEach((label) => label.destroy());
-    this.labels = [];
+    if (!preserveLabels) {
+      this.labels.forEach((label) => label.destroy());
+      this.labels = [];
+    }
     const g = this.graphics;
     const s = session.state;
     ROOMS[s.room].grid.forEach((row, y) =>
       [...row].forEach((tile, x) => {
         const px = x * TILE;
         const py = y * TILE;
-        g.fillStyle(tile === "#" ? COLORS.wall : COLORS.floor).fillRect(
+        g.fillStyle(tile === "#" ? COLORS.wall : (x + y) % 2 ? COLORS.floor : 0x1b2e3b).fillRect(
           px,
           py,
           TILE,
@@ -181,7 +263,8 @@ class RoomScene extends Phaser.Scene {
           TILE - 2,
         );
         if (tile === "#") {
-          g.fillStyle(0x2d4055).fillRect(px + 9, py + 10, 5, 3);
+          g.fillStyle((x + y) % 3 === 0 ? 0x354250 : 0x2b3a49).fillRoundedRect(px + 4, py + 4, 42, 40, 5);
+          g.fillStyle(0x667079, 0.4).fillCircle(px + 10, py + 10, 2).fillCircle(px + 40, py + 38, 2);
           return;
         }
         if (tile === "v") {
@@ -191,36 +274,48 @@ class RoomScene extends Phaser.Scene {
           for (let i = 5; i < TILE; i += 9)
             g.lineBetween(px + 13, py + i, px + 37, py + i);
         }
+        if (tile === "~" || tile === "B") {
+          g.fillStyle(0x080f17).fillRect(px, py, TILE, TILE);
+          g.lineStyle(2, 0x465462).lineBetween(px + 3, py, px + 3, py + 50).lineBetween(px + 47, py, px + 47, py + 50);
+          if (tile === "B") {
+            const open = isBridgeOpen(s, { x, y });
+            g.fillStyle(open ? 0x637f7c : 0x38424c).fillRect(px + 3, py + 3, open ? 44 : 8, 44);
+            g.lineStyle(2, open ? COLORS.pip : 0xa88b5b);
+            for (let i = 8; i < 48; i += 10) g.lineBetween(px + 4, py + i, px + (open ? 46 : 11), py + i);
+            this.text(px + 25, py - 12, open ? "BRÜCKE AN" : "BRÜCKE AUS", open ? "#81e4cf" : "#e6b579", 9);
+          }
+        }
         if (tile === "S") {
           g.lineStyle(3, COLORS.power).strokeCircle(px + 25, py + 25, 17);
-          g.fillStyle(isPowered(s) ? COLORS.power : 0x6e684e).fillCircle(
+          g.fillStyle(isPowered(s, { x, y }) ? COLORS.power : 0x6e684e).fillCircle(
             px + 25,
             py + 25,
             7,
           );
-          this.text(px + 25, py - 10, "ANSCHLUSS", "#ffe290", 10);
+          if (!circuits(s.room).some(c => c.name && c.sockets.some(p => same(p, { x, y }))))
+            this.text(px + 25, py - 10, "ANSCHLUSS", "#ffe290", 10);
         }
         if (tile === "D") {
-          const color = isDoorOpen(s) ? 0x81e4cf : 0xfa9b88;
+          const color = isDoorOpen(s, { x, y }) ? 0x81e4cf : 0xfa9b88;
           g.fillStyle(color, 0.18).fillRect(px, py, TILE, TILE);
           g.lineStyle(4, color)
             .lineBetween(px + 2, py + 2, px + 48, py + 2)
             .lineBetween(px + 2, py + 48, px + 48, py + 48);
-          if (!isDoorOpen(s))
+          if (!isDoorOpen(s, { x, y }))
             for (let i = 11; i < 49; i += 12)
               g.lineBetween(px + i, py + 5, px + i, py + 45);
         }
         if (tile === "P") {
-          g.fillStyle(isPlateHeld(s) ? 0x32685e : 0x605444).fillRoundedRect(
+          g.fillStyle(isPlateHeld(s, { x, y }) ? 0x32685e : 0x605444).fillRoundedRect(
             px + 5,
-            py + 8,
+            py + (isPlateHeld(s, { x, y }) ? 13 : 8),
             40,
-            35,
+            isPlateHeld(s, { x, y }) ? 28 : 35,
             4,
           );
           g.lineStyle(
             2,
-            isPlateHeld(s) ? COLORS.pip : COLORS.bolt,
+            isPlateHeld(s, { x, y }) ? COLORS.pip : COLORS.bolt,
           ).strokeRoundedRect(px + 5, py + 8, 40, 35, 4);
           // Twin track imprints match Bolt's broad undercarriage.
           g.fillStyle(COLORS.bolt).fillRoundedRect(px + 8, py + 12, 9, 27, 3).fillRoundedRect(px + 33, py + 12, 9, 27, 3);
@@ -248,7 +343,7 @@ class RoomScene extends Phaser.Scene {
       }),
     );
     this.text(425, 43, ROOMS[s.room].title.toUpperCase(), "#d9e7ef", 18);
-    this.text(425, 70, s.room === "tech" ? "Körper und Module zusammen einsetzen." : "Ein kurzer Raum zum Ausprobieren.", "#a3b8c9", 12);
+    this.text(425, 70, "WERKSTATTDIENST · Gemeinsam findet ihr einen Weg.", "#a3b8c9", 12);
     if (s.room === "tech") {
       this.text(225, 317, "WERKSTATT / MODULTAUSCH", "#7795ac", 12);
       this.text(78, 225, "SCHACHT →", "#aecdc7", 11);
@@ -258,13 +353,33 @@ class RoomScene extends Phaser.Scene {
       this.text(265, 225, "SCHMALER SCHACHT", "#aecdc7", 11);
       this.text(310, 425, "SCHWERE PLATTE", "#e6b579", 11);
       this.text(510, 275, "← AUSGANG", "#81e4cf", 11);
-    } else {
+    } else if (s.room === "modules") {
       this.text(65, 275, "FEST →", "#c5b69e", 10);
       this.text(384, 375, "AUSGANG ↑", "#81e4cf", 11);
     }
+    // A few warm service lamps soften the steel workshop without hiding tiles.
+    ROOMS[s.room].grid.forEach((row, y) => [...row].forEach((tile, x) => {
+      if (tile === "#" && tileAt({ x, y: y + 1 }, s.room) === "." && x % 4 === 2) {
+        const px = x * TILE + 25, py = (y + 1) * TILE;
+        g.fillStyle(0xffd79b, 0.035).fillCircle(px, py + 24, 43);
+        g.fillStyle(0x665746).fillRoundedRect(px - 13, py - 9, 26, 7, 2);
+        g.fillStyle(0xffd79b).fillRect(px - 9, py - 6, 18, 3);
+      }
+    }));
+    // Supply lines are shared by every circuit, including A/B and the bridge.
+    for (const c of circuits(s.room)) {
+      const on = circuitOn(s, c);
+      for (const source of [...c.sockets, ...c.plates]) for (const target of [...c.doors, ...c.bridges]) {
+        g.lineStyle(on ? 3 : 2, on ? COLORS.power : 0x6c6b58, on ? 0.7 : 0.35);
+        g.lineBetween(source.x * TILE + 25, source.y * TILE + 25, source.x * TILE + 25, target.y * TILE + 25)
+          .lineBetween(source.x * TILE + 25, target.y * TILE + 25, target.x * TILE + 25, target.y * TILE + 25);
+      }
+      if (c.name) for (const source of [...c.sockets, ...c.plates, ...c.doors])
+        this.text(source.x * TILE + 25, source.y * TILE - 8, c.name, "#ffe290", 10);
+    }
     if (s.crate) {
-      const cx = s.crate.x * TILE + 25;
-      const cy = s.crate.y * TILE + 25;
+      const { x: cx, y: cy } = this.visual(s.crate, this.motion?.before.crate ?? undefined);
+      g.fillStyle(0x050a10, 0.35).fillEllipse(cx + 2, cy + 18, 43, 15);
       g.fillStyle(0x6f899a).fillRoundedRect(cx - 20, cy - 20, 40, 40, 3);
       g.lineStyle(2, 0xd3e0e7).strokeRoundedRect(cx - 20, cy - 20, 40, 40, 3);
       g.lineStyle(2, 0x344a5b).lineBetween(cx - 17, cy - 12, cx + 17, cy - 12).lineBetween(cx - 17, cy + 13, cx + 17, cy + 13);
@@ -272,11 +387,20 @@ class RoomScene extends Phaser.Scene {
         g.fillStyle(0xe1ebef).fillCircle(cx + dx, cy + dy, 2);
       this.drawModule(cx, cy, "magnet");
     }
+    const active = s.robots[s.active];
+    const from = this.motion?.before.robots[s.active];
+    if ((pullHeld || this.motion?.pull) && active.module === "magnet" && s.crate && same(facingTarget(active), s.crate)) {
+      const bot = this.visual(active, from), crate = this.visual(s.crate, this.motion?.before.crate ?? undefined);
+      if (Math.abs(bot.x - crate.x) + Math.abs(bot.y - crate.y) < 60) {
+        g.lineStyle(10, COLORS.magnet, 0.13).lineBetween(bot.x, bot.y, crate.x, crate.y);
+        g.lineStyle(2, COLORS.magnet, 0.9).lineBetween(bot.x, bot.y, crate.x, crate.y);
+      }
+    }
     for (const id of ["pip", "bolt"] as RobotId[]) this.drawRobot(s, id);
     if (isWon(s)) {
       // Phaser text objects render above Graphics; hide floor annotations
       // before adding the victory text so they cannot cross the dialog.
-      this.labels.forEach((label) => label.setVisible(false));
+      if (!preserveLabels) this.labels.forEach((label) => label.setVisible(false));
       g.fillStyle(0x0b1c29, 0.96).fillRoundedRect(150, 240, 550, 150, 18);
       g.lineStyle(2, COLORS.pip).strokeRoundedRect(150, 240, 550, 150, 18);
       this.text(425, 280, "ZUSAMMEN GESCHAFFT!", "#81e4cf", 27);
@@ -290,7 +414,7 @@ class RoomScene extends Phaser.Scene {
       this.text(
         425,
         357,
-        "R  Noch einmal     ·     Z  Letzten Schritt zurück",
+        nextRoom() ? "ENTER  Nächster Raum     ·     R  Neustart     ·     Z  Zurück" : "Alle sechs Räume geschafft!  ·  Danke, Buddies!  ·  R / Z",
         "#a5b9c9",
         13,
       );
@@ -323,57 +447,71 @@ class RoomScene extends Phaser.Scene {
   private drawRobot(s: State, id: RobotId): void {
     const r = s.robots[id];
     const g = this.graphics;
-    const x = r.x * TILE + 25;
-    const y = r.y * TILE + 25;
-    if (s.connected === id) {
-      g.lineStyle(3, COLORS.power).strokeCircle(x, y, 24);
-      g.lineStyle(3, COLORS.power).lineBetween(x + 11, y - 10, x + 20, y - 10);
-    }
+    const { x, y } = this.visual(r, this.motion?.before.robots[id]);
+    const angles = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 };
+    const target = angles[r.facing];
+    const start = angles[this.motion?.before.robots[id].facing ?? r.facing];
+    const difference = Phaser.Math.Angle.Wrap(target - start);
+    const angle = start + difference * (this.motion?.progress ?? 1);
+    const pip = id === "pip";
+    const rolling = this.motion && !same(this.motion.before.robots[id], r);
+    const phase = rolling ? ((this.motion!.progress * (this.motion!.pull ? -30 : 30)) % 6 + 6) % 6 : 0;
+    g.fillStyle(0x040a10, 0.4).fillEllipse(x + 2, y + 17, pip ? 31 : 49, 16);
+    if (s.connected === id) g.lineStyle(3, COLORS.power).strokeCircle(x, y, 24);
     if (s.active === id) {
       g.lineStyle(2, 0xffffff).strokeRoundedRect(x - 24, y - 24, 48, 48, 5);
       g.fillStyle(0xffffff).fillTriangle(x - 22, y - 22, x - 14, y - 22, x - 22, y - 14);
     }
-    const pip = id === "pip";
+    // Rotate the actual chassis, eyes and drive, while module symbols stay legible.
+    g.save().translateCanvas(x, y).rotateCanvas(angle);
     g.fillStyle(0x08111b);
     if (pip) {
-      g.fillRoundedRect(x - 11, y + 7, 5, 13, 2).fillRoundedRect(x + 6, y + 7, 5, 13, 2);
-      g.lineStyle(1, 0x93b4b9).lineBetween(x - 9, y + 10, x - 9, y + 17).lineBetween(x + 9, y + 10, x + 9, y + 17);
+      g.fillRoundedRect(-13, -7, 6, 20, 3).fillRoundedRect(7, -7, 6, 20, 3);
+      g.lineStyle(2, 0x849da0).lineBetween(-10, -4 + phase, -10, 2 + phase).lineBetween(10, -4 + phase, 10, 2 + phase);
     } else {
-      g.fillRoundedRect(x - 22, y + 1, 11, 21, 4).fillRoundedRect(x + 11, y + 1, 11, 21, 4);
-      g.lineStyle(2, 0xad926d);
-      for (let dy = 5; dy < 22; dy += 5)
-        g.lineBetween(x - 21, y + dy, x - 12, y + dy).lineBetween(x + 12, y + dy, x + 21, y + dy);
+      g.fillRoundedRect(-22, -18, 11, 38, 5).fillRoundedRect(11, -18, 11, 38, 5);
+      g.lineStyle(2, 0xa08b6c);
+      for (let dy = -20; dy < 18; dy += 6) {
+        if (dy + phase < -16 || dy + phase > 18) continue;
+        g.lineBetween(-21, dy + phase, -12, dy + phase).lineBetween(12, dy + phase, 21, dy + phase);
+      }
     }
-    g.fillStyle(COLORS[id]).fillRoundedRect(x - (pip ? 8 : 16), y + 1, pip ? 16 : 32, pip ? 16 : 18, pip ? 6 : 3);
-    g.fillStyle(0x102532).fillRoundedRect(x - (pip ? 6 : 11), y + 4, pip ? 12 : 22, 7, 2);
-    g.fillStyle(0xe7fcff).fillRect(x - 4, y + 6, 2, 2).fillRect(x + 2, y + 6, 2, 2);
-    g.lineStyle(3, 0xa3b4c2).lineBetween(x, y + 1, x, y - 4);
-    this.drawModule(x, y - 10, r.module);
-    // A separate compass at top right stays clear of the central module,
-    // lower body, and top-left active marker in all four directions.
-    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[r.facing];
-    const fx = x + 18 + dx * 3, fy = y - 13 + dy * 3;
-    g.fillStyle(0xffffff).fillTriangle(fx + dx * 2, fy + dy * 2,
-      fx - dx * 3 + dy * 3, fy - dy * 3 - dx * 3,
-      fx - dx * 3 - dy * 3, fy - dy * 3 + dx * 3);
+    g.fillStyle(COLORS[id]).fillRoundedRect(pip ? -8 : -16, pip ? -15 : -18, pip ? 16 : 32, pip ? 31 : 36, pip ? 7 : 4);
+    g.lineStyle(2, pip ? 0xb3f3e3 : 0xf2d0a2).lineBetween(pip ? -5 : -12, 12, pip ? 5 : 12, 12);
+    g.fillStyle(0x102532).fillRoundedRect(pip ? -7 : -13, -14, pip ? 14 : 26, 9, 3);
+    g.fillStyle(0xe7fcff).fillCircle(-3.5, -10, pip ? 2.2 : 2).fillCircle(3.5, -10, pip ? 2.2 : 2);
+    if (pip) {
+      g.lineStyle(2, 0xa1c8c0).lineBetween(0, -15, 4, -21);
+      g.fillStyle(COLORS.pip).fillCircle(4, -21, 2);
+    } else {
+      g.fillStyle(0x8b7358).fillRect(-13, 9, 26, 5);
+    }
+    g.restore();
+    g.fillStyle(COLORS[r.module], 0.14).fillCircle(x, y + 3, 15);
+    g.fillStyle(0x263b48).fillRoundedRect(x - 10, y - 5, 20, 23, 4);
+    this.drawModule(x, y + 4, r.module);
+    g.fillStyle(COLORS[r.module]).fillCircle(x - 10, y + 7, 2).fillCircle(x + 10, y + 7, 2);
   }
 
   private reaction(before: State, command: Command): void {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const effect = this.add.graphics().setDepth(10);
+    this.effects.add(effect);
     const robots = command.type === "swap" ? ["pip", "bolt"] as const : [before.active];
     for (const id of robots) {
       const r = session.state.robots[id];
       effect.lineStyle(3, command.type === "swap" ? 0xffffff : COLORS[before.robots[id].module], 0.85)
         .strokeCircle(r.x * TILE + 25, r.y * TILE + 25, 22);
     }
-    this.tweens.add({ targets: effect, alpha: 0, duration: 450, onComplete: () => effect.destroy() });
+    this.tweens.add({ targets: effect, alpha: 0, duration: 450, onComplete: () => { effect.destroy(); this.effects.delete(effect); } });
   }
 
 }
 
 new Phaser.Game({
-  type: Phaser.AUTO,
+  // This room uses vector Graphics only. Canvas avoids software-WebGL overhead
+  // on browsers without a GPU and keeps the small workshop inexpensive to draw.
+  type: Phaser.CANVAS,
   parent: "game",
   width: ROOM[0].length * TILE,
   height: ROOM.length * TILE,
@@ -381,5 +519,5 @@ new Phaser.Game({
   scene: RoomScene,
   render: { antialias: true },
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-  input: { keyboard: true },
+  input: { keyboard: false },
 });

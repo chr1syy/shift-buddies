@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#101825" />
-    <title>Shift Buddies · Drei kleine Räume</title>
+    <title>Shift Buddies · Sechs Werkstatträume</title>
   </head>
   <body>
     <main class="app">
       <header class="masthead">
         <div>
-          <p class="eyebrow">GAME OFF 2026 · DREI KLEINE RÄUME</p>
+          <p class="eyebrow">GAME OFF 2026 · SECHS WERKSTATTRÄUME</p>
           <h1>Shift <span>Buddies</span></h1>
         </div>
         <div class="room-label"><span id="room-title"></span><br />Zwei Körper. Zwei Module.</div>
@@ -21,6 +21,9 @@
           <option value="bodies">01 · Klein & schwer</option>
           <option value="modules">02 · Energie teilen</option>
           <option value="tech">03 · Technikraum (ursprünglicher Testraum)</option>
+          <option value="freight">04 · Schwere Fracht</option>
+          <option value="routes">05 · Getrennte Wege</option>
+          <option value="bridge">06 · Brückendienst</option>
         </select>
         <button id="next-room" type="button" hidden>Weiter zum nächsten Raum →</button>
       </nav>
@@ -41,12 +44,14 @@
             role="status"
             aria-live="polite"
           ></p>
+          <p id="pull-status" class="pull-status"></p>
           <div class="actions">
             <button id="switch" type="button">Shift · Roboter wechseln</button>
             <button id="interact" type="button">E · Interagieren</button
             ><button id="swap" type="button">T · Module tauschen</button
             ><button id="undo" type="button">Z · Undo</button
             ><button id="restart" type="button">R · Neustart</button>
+            <button id="mute" type="button" aria-pressed="false">Ton: aus</button>
           </div>
         </section>
         <aside aria-label="Roboter und Hilfe">
@@ -66,9 +71,9 @@
               <dd>Aktiven Roboter wechseln</dd>
               <dt>E</dt>
               <dd>
-                Metallkiste vor dir zurückziehen; auf dem Anschluss verbinden /
-                lösen
+                Magnet: E halten + rückwärts von der Kiste wegfahren. Seitwärts bleibt der Bot stehen; E loslassen zum Drehen. Batterie: auf dem Anschluss verbinden / lösen
               </dd>
+              <dt>Enter</dt><dd>Nach einem Sieg zum nächsten Raum</dd>
               <dt>T</dt>
               <dd>Module tauschen, wenn beide direkt nebeneinander stehen</dd>
               <dt>Z / R</dt>
@@ -76,13 +81,13 @@
             </dl>
             <p>
               Pip: schmale Räder, passt durch Schacht<br />Bolt: breites Kettenfahrwerk, hält
-              Druckplatte<br /><span class="magnet">∪ · Hufeisenmagnet</span> /
+              Druckplatte (auch Metallkisten sind schwer genug)<br /><span class="magnet">∪ · Hufeisenmagnet</span> /
               <span class="power">⚡ · Batterie</span>
             </p>
             <p>
               Schmales Gitter: Schacht · genietete Kiste mit Hufeisen: Metall · verankerter, rissiger Achteckblock: feste Keramik · Ring:
               Anschluss · Streifen: Tür · breite Bodenplatte: Druckplatte ·
-              grüne Felder: Ausgang
+              Querstreben: ausfahrbare Brücke (besetzt bleibt sie sicher) · grüne Felder: Ausgang
             </p>
             <p>
               Pro Tastendruck eine Aktion. Nach einem Klick außerhalb zuerst das
@@ -96,7 +101,7 @@
         </aside>
       </div>
       <footer>
-        Drei Räume zum Ausprobieren · ohne Zeitdruck · Z nimmt auch Modultausch
+        Sechs Räume zum Ausprobieren · ohne Zeitdruck · Z nimmt auch Modultausch
         und Verbindungen zurück
       </footer>
     </main>

@@ -16,10 +16,11 @@ export type Action =
   | { type: "move"; direction: Direction }
   | { type: "switch" }
   | { type: "swap" }
-  | { type: "interact" };
+  | { type: "interact" }
+  | { type: "pull"; direction: Direction };
 export type Result = { state: State; message: string };
 
-// # wall, . floor, v narrow shaft, S socket, D door, P heavy plate, X exit.
+// # wall, . floor, v narrow shaft, S socket, D door, P heavy plate, X exit, O ceramic, ~ pit, B bridge.
 export const ROOM = [
   "#################",
   "#################",
@@ -36,9 +37,17 @@ export const ROOM = [
   "#################",
 ] as const;
 
-export type RoomId = "bodies" | "modules" | "tech";
-export const ROOM_ORDER: readonly RoomId[] = ["bodies", "modules", "tech"];
+export type RoomId = "bodies" | "modules" | "tech" | "freight" | "routes" | "bridge";
+export const ROOM_ORDER: readonly RoomId[] = ["bodies", "modules", "tech", "freight", "routes", "bridge"];
+export type Circuit = Readonly<{
+  name: string;
+  sockets: readonly Position[];
+  plates: readonly Position[];
+  doors: readonly Position[];
+  bridges: readonly Position[];
+}>;
 type RoomDefinition = Readonly<{
+  circuits?: readonly Circuit[];
   title: string;
   objective: string;
   hint: string;
@@ -72,7 +81,7 @@ export const ROOMS: Record<RoomId, RoomDefinition> = {
   modules: {
     title: "02 / Energie teilen",
     objective: "Versorge den Anschluss und bring Bolt zum Ausgang.",
-    hint: "Der Magnet zieht Metall zu dir. Verankerte Blöcke bleiben fest. Module wechseln mit T nur zwischen Nachbarn; Strom braucht E am Anschluss.",
+    hint: "Magnet zur Kiste ausrichten, E halten und rückwärts fahren. Seitwärts bleibt er stehen. Verankerte Blöcke bleiben fest. Module wechseln mit T nur zwischen Nachbarn; Strom braucht E am Anschluss.",
     grid: [
       "#################",
       "#################",
@@ -97,6 +106,62 @@ export const ROOMS: Record<RoomId, RoomDefinition> = {
     grid: ROOM,
     pip: { x: 2, y: 8 }, bolt: { x: 4, y: 8 }, crate: { x: 6, y: 2 },
   },
+  freight: {
+    title: "04 / Schwere Fracht",
+    objective: "Lass die Metallkiste die Platte halten und bring beide Buddies hinaus.",
+    hint: "Auch Metallkisten sind schwer genug. Schau nach oben zur Kiste, halte E und fahre nach unten. Bolt kann dann seinen Posten verlassen.",
+    grid: [
+      "#################", "#################", "#################", "#################",
+      "##......#.....###",
+      "##...P..#.....###",
+      "##......D.....###",
+      "##......#...XX###",
+      "##......#.....###",
+      "#################", "#################", "#################", "#################",
+    ],
+    pip: { x: 5, y: 5 }, bolt: { x: 4, y: 7 }, crate: { x: 5, y: 4 },
+  },
+  routes: {
+    title: "05 / Getrennte Wege",
+    objective: "Nutze Anschluss A, dann B. Bring beide Buddies auf die Ausgangsfelder.",
+    hint: "A liegt hinter Pips Schacht. Bolt hält danach Platte A für Pip. Tauscht im Mittelraum: Bolt versorgt B, Pip zieht die Kiste auf Platte B und löst ihn ab.",
+    grid: [
+      "#################", "#################", "#################",
+      "###S#############",
+      "###v#############",
+      "#.....#..S.#....#",
+      "#.....#....#....#",
+      "#.....D.P..D..P.#",
+      "#.....#....#....#",
+      "#.....#....#..XX#",
+      "#################", "#################", "#################",
+    ],
+    pip: { x: 3, y: 5 }, bolt: { x: 4, y: 7 }, crate: { x: 14, y: 6 },
+    circuits: [
+      { name: "A", sockets: [{ x: 3, y: 3 }], plates: [{ x: 8, y: 7 }], doors: [{ x: 6, y: 7 }], bridges: [] },
+      { name: "B", sockets: [{ x: 9, y: 5 }], plates: [{ x: 14, y: 7 }], doors: [{ x: 11, y: 7 }], bridges: [] },
+    ],
+  },
+  bridge: {
+    title: "06 / Brückendienst",
+    objective: "Versorge die Brücke, halte drüben den Rückweg offen und bring beide hinaus.",
+    hint: "Pip übernimmt die Batterie. Bolt fährt über die Brücke zur Rückwegplatte. Eine besetzte Brücke bleibt sicher ausgefahren, bis sie frei ist; die Platte öffnet den unteren Weg für Pip.",
+    grid: [
+      "#################", "#################", "#################", "#################",
+      "##.....~.......##",
+      "##...S.B.......##",
+      "##.....~.......##",
+      "##.....~.......##",
+      "##.....~......X##",
+      "##.....D..P...X##",
+      "#################", "#################", "#################",
+    ],
+    pip: { x: 4, y: 7 }, bolt: { x: 5, y: 7 }, crate: null,
+    circuits: [
+      { name: "BRÜCKE", sockets: [{ x: 5, y: 5 }], plates: [], doors: [], bridges: [{ x: 7, y: 5 }] },
+      { name: "RÜCKWEG", sockets: [], plates: [{ x: 10, y: 9 }], doors: [{ x: 7, y: 9 }], bridges: [] },
+    ],
+  },
 };
 
 const DELTA: Record<Direction, Position> = {
@@ -105,6 +170,9 @@ const DELTA: Record<Direction, Position> = {
   left: { x: -1, y: 0 },
   right: { x: 1, y: 0 },
 };
+export const facingTarget = (robot: Robot): Position => ({
+  x: robot.x + DELTA[robot.facing].x, y: robot.y + DELTA[robot.facing].y,
+});
 export const NAMES: Record<RobotId, string> = { pip: "Pip", bolt: "Bolt" };
 export const same = (a: Position, b: Position): boolean =>
   a.x === b.x && a.y === b.y;
@@ -129,13 +197,33 @@ export function initialState(room: RoomId = "tech"): State {
   };
 }
 
-export function isPowered(s: State): boolean {
+// Older one-circuit rooms use the same model as the explicitly wired new rooms.
+export function circuits(room: RoomId): readonly Circuit[] {
+  if (ROOMS[room].circuits) return ROOMS[room].circuits;
+  const find = (symbol: string): Position[] => ROOMS[room].grid.flatMap((row, y) =>
+    [...row].flatMap((tile, x) => tile === symbol ? [{ x, y }] : []));
+  return [{ name: "", sockets: find("S"), plates: find("P"), doors: find("D"), bridges: [] }];
+}
+export function isPowered(s: State, socket?: Position): boolean {
   if (!s.connected) return false;
   const robot = s.robots[s.connected];
-  return robot.module === "power" && tileAt(robot, s.room) === "S";
+  return robot.module === "power" && tileAt(robot, s.room) === "S" && (!socket || same(robot, socket));
 }
-export const isPlateHeld = (s: State): boolean => tileAt(s.robots.bolt, s.room) === "P";
-export const isDoorOpen = (s: State): boolean => isPowered(s) || isPlateHeld(s);
+export const isPlateHeld = (s: State, plate?: Position): boolean =>
+  [s.robots.bolt, s.crate].some(p => p && tileAt(p, s.room) === "P" && (!plate || same(p, plate)));
+export const circuitOn = (s: State, circuit: Circuit): boolean =>
+  circuit.sockets.some(p => isPowered(s, p)) || circuit.plates.some(p => isPlateHeld(s, p));
+export function isDoorOpen(s: State, door?: Position): boolean {
+  return circuits(s.room).some(c => (!door || c.doors.some(p => same(p, door))) && c.doors.length > 0 && circuitOn(s, c));
+}
+export function isBridgeOpen(s: State, bridge: Position): boolean {
+  const circuit = circuits(s.room).find(c => c.bridges.some(p => same(p, bridge)));
+  if (!circuit) return false;
+  // Occupancy interlock covers the entire span, including crates. No crushing,
+  // falling, or retracting under a passenger when power/supplier changes.
+  return circuitOn(s, circuit) || [...Object.values(s.robots), s.crate].some(
+    p => p && circuit.bridges.some(b => same(p, b)));
+}
 export const isWon = (s: State): boolean =>
   s.room === "bodies"
     ? tileAt(s.robots.pip, s.room) === "X" && isPlateHeld(s)
@@ -146,13 +234,15 @@ export const isWon = (s: State): boolean =>
 function blocked(s: State, id: RobotId, target: Position): string | null {
   const tile = tileAt(target, s.room);
   if (tile === "O") return "Der Keramikblock ist verankert und nicht magnetisch. Er bleibt fest.";
+  if (tile === "~") return "Hier ist die Wartungsgrube. Nur eine ausgefahrene Brücke trägt dich.";
+  if (tile === "B" && !isBridgeOpen(s, target)) return "Die Brücke braucht ihren Stromanschluss. Besetzt bleibt sie sicher ausgefahren.";
   if (tile === "#") return "Hier ist eine Wand.";
   if (tile === "v" && id === "bolt")
     return "Bolt ist zu breit. Nur Pip passt durch den Schacht.";
-  if (tile === "D" && !isDoorOpen(s))
-    return "Die Tür braucht Strom oder Bolt auf der Druckplatte.";
+  if (tile === "D" && !isDoorOpen(s, target))
+    return "Diese Tür braucht ihren zugeordneten Anschluss oder eine schwere Last auf ihrer Platte.";
   if (s.crate && same(target, s.crate))
-    return "Die Metallkiste blockiert. Mit Magnet davor ausrichten und E drücken; hinter dir muss Platz sein.";
+    return "Die Metallkiste blockiert. Magnet zur Kiste ausrichten, E halten und rückwärts fahren; hinter dir muss Platz sein.";
   if (same(target, s.robots[otherRobot(id)]))
     return "Hier steht dein Buddy. Shift wechselt, T tauscht benachbarte Module.";
   return null;
@@ -164,7 +254,7 @@ export function transition(s: State, action: Action): Result {
     return {
       state: s,
       message:
-        "Geschafft! Raumziel erreicht. Weiter geht es über die Raumwahl. R startet neu, Z geht zurück.",
+        "Geschafft! Raumziel erreicht. Enter oder Weiter führt zum nächsten Raum; am Ende hilft die Raumwahl. R startet neu, Z geht zurück.",
     };
   const id = s.active;
   const robot = s.robots[id];
@@ -198,6 +288,27 @@ export function transition(s: State, action: Action): Result {
       "Module getauscht. Pip und Bolt tragen jetzt das jeweils andere Modul.",
     );
   }
+  if (action.type === "interact" && robot.module === "magnet") {
+    const front = facingTarget(robot);
+    return reject(tileAt(front, s.room) === "O"
+      ? "Keine Magnetwirkung: Dieser Keramikblock ist verankert und nicht magnetisch."
+      : "Ziehbereit: Magnet direkt vor der Metallkiste ausrichten, E halten und rückwärts fahren. Seitwärts bleibt der Bot stehen.");
+  }
+  if (action.type === "pull") {
+    if (robot.module !== "magnet") return reject("Zum Ziehen brauchst du das Magnetmodul.");
+    const delta = DELTA[robot.facing];
+    const movement = DELTA[action.direction];
+    if (movement.x !== -delta.x || movement.y !== -delta.y)
+      return reject("Beim Ziehen nur rückwärts von der Kiste wegfahren. E loslassen, um dich neu auszurichten.");
+    const front = facingTarget(robot);
+    if (tileAt(front, s.room) === "O") return reject("Der Keramikblock ist verankert und nicht magnetisch.");
+    if (!s.crate || !same(front, s.crate))
+      return reject("Kein Metall direkt vor dem Magneten. E loslassen und zur benachbarten Kiste schauen.");
+    const back = { x: robot.x + movement.x, y: robot.y + movement.y };
+    if (blocked(s, id, back)) return reject("Kein Platz zum Zurückziehen. Hinter dir muss ein freies, begehbares Feld sein.");
+    return accept({ crate: { x: robot.x, y: robot.y }, robots: { ...s.robots, [id]: { ...robot, ...back } } },
+      "Magnet zieht: Du fährst rückwärts, die Metallkiste folgt. Der Blick bleibt zur Kiste.");
+  }
   if (action.type === "move") {
     const delta = DELTA[action.direction];
     const target = { x: robot.x + delta.x, y: robot.y + delta.y };
@@ -216,8 +327,8 @@ export function transition(s: State, action: Action): Result {
     if (!reason && tileAt(target, s.room) === "P")
       message =
         id === "bolt"
-          ? "Bolt hält die schwere Druckplatte. Die Tür bleibt offen — Pip kann nachkommen."
-          : "Pip ist zu leicht für diese Druckplatte. Hier wird Bolt gebraucht.";
+          ? "Bolt drückt die schwere Platte ein. Die zugeordnete Tür bleibt offen."
+          : "Pip ist zu leicht. Bolt oder eine Metallkiste halten diese Platte.";
     if (!reason && tileAt(target, s.room) === "S")
       message = "Anschluss erreicht. Mit Strommodul und E verbinden.";
     const result = accept(
@@ -238,30 +349,11 @@ export function transition(s: State, action: Action): Result {
     return accept(
       { connected },
       connected
-        ? "Strom verbunden. Die Tür ist offen. Shift wechselt den Buddy und lässt den Strom an."
-        : "Strom gelöst. Eine schwere Druckplatte braucht Bolt, um die Tür offen zu halten.",
+        ? "Strom verbunden. Der zugeordnete Weg ist offen. Shift wechselt den Buddy und lässt den Strom an."
+        : "Strom gelöst. Bolt oder eine Kiste können eine zugeordnete Platte halten. Besetzte Brücken bleiben sicher ausgefahren.",
     );
   }
-  const delta = DELTA[robot.facing];
-  const front = { x: robot.x + delta.x, y: robot.y + delta.y };
-  if (tileAt(front, s.room) === "O")
-    return reject("Keine Magnetwirkung: Dieser Keramikblock ist am Boden verankert und nicht magnetisch.");
-  if (!s.crate || !same(front, s.crate))
-    return reject(
-      "Magnet: direkt vor der Metallkiste zu ihr schauen und E drücken. Du ziehst sie ein Feld zurück.",
-    );
-  const back = { x: robot.x - delta.x, y: robot.y - delta.y };
-  if (blocked(s, id, back))
-    return reject(
-      "Kein Platz zum Zurückziehen. Hinter dir muss ein freies, begehbares Feld sein.",
-    );
-  return accept(
-    {
-      crate: { x: robot.x, y: robot.y },
-      robots: { ...s.robots, [id]: { ...robot, ...back } },
-    },
-    "Magnet zieht: Du gehst ein Feld zurück, die Metallkiste folgt.",
-  );
+  return reject("E halten und rückwärts fahren.");
 }
 
 export type Session = Readonly<{

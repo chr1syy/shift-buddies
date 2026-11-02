@@ -9,19 +9,23 @@ import {
   isDoorOpen,
   isPlateHeld,
   isWon,
+  isBridgeOpen,
+  circuits,
+  circuitOn,
   tileAt,
   same,
   ROOMS,
   ROOM_ORDER,
 } from "../src/game/rules.ts";
 import type { Action, State, RobotId, Position, RoomId } from "../src/game/rules.ts";
-import { solution, fullSolution, bodySolution, moduleSolution } from "./solution.ts";
+import { solution, fullSolution, bodySolution, moduleSolution, allSolutions } from "./solution.ts";
 
 const play = (state: State, actions: Action[]): State =>
   actions.reduce((s, a) => transition(s, a).state, state);
 const up: Action = { type: "move", direction: "up" };
 const right: Action = { type: "move", direction: "right" };
 const interact: Action = { type: "interact" };
+const pull: Action = { type: "pull", direction: "left" };
 const cleared = (): State => play(initialState(), solution.clearCrate);
 const powered = (): State => play(cleared(), solution.swapAndPower);
 const held = (): State => play(powered(), solution.boltToPlate);
@@ -125,7 +129,7 @@ test("magnet pulls only the facing metal crate with free space behind; no pushin
     s,
     "walking into crate never pushes it",
   );
-  const pulled = transition(s, interact).state;
+  const pulled = transition(s, pull).state;
   assert.deepEqual(pulled.crate, { x: 5, y: 2 });
   assert.equal(pulled.robots.pip.x, 4);
   assert.deepEqual(
@@ -134,7 +138,7 @@ test("magnet pulls only the facing metal crate with free space behind; no pushin
         ...s,
         robots: { ...s.robots, pip: { ...s.robots.pip, module: "power" } },
       },
-      interact,
+      pull,
     ).state.crate,
     s.crate,
   );
@@ -144,16 +148,16 @@ test("magnet pulls only the facing metal crate with free space behind; no pushin
         ...s,
         robots: { ...s.robots, pip: { ...s.robots.pip, facing: "down" } },
       },
-      interact,
+      pull,
     ).state.crate,
     s.crate,
   );
   const buddyBehind = position(s, "bolt", 4, 2);
-  assert.deepEqual(transition(buddyBehind, interact).state, buddyBehind);
+  assert.deepEqual(transition(buddyBehind, pull).state, buddyBehind);
   const wallBehind = { ...position(s, "pip", 3, 2), crate: { x: 4, y: 2 } };
-  assert.deepEqual(transition(wallBehind, interact).state, wallBehind);
+  assert.deepEqual(transition(wallBehind, pull).state, wallBehind);
   const noCrate = initialState();
-  assert.deepEqual(transition(noCrate, interact).state, noCrate);
+  assert.deepEqual(transition(noCrate, pull).state, noCrate);
 });
 
 test("swap requires orthogonal adjacency, and is exactly undoable", () => {
@@ -278,7 +282,7 @@ test("one robot at exit does not win; won state accepts only undo or restart", (
     assert.equal(transition(won, action).state, won);
 });
 
-for (const [room, route] of [["bodies", bodySolution], ["modules", moduleSolution], ["tech", fullSolution]] as const) {
+for (const [room, route] of Object.entries(allSolutions) as [RoomId, Action[]][]) {
   test(`${room}: valid grid, complete solution, every undo snapshot and local restart`, () => {
     assert.equal(ROOMS[room].grid.length, 13);
     assert.ok(ROOMS[room].grid.every(row => row.length === 17));
@@ -351,4 +355,91 @@ test("anchored ceramic blocks movement and magnet E gives an explicit immutable 
   assert.equal(tileAt({ x: 2, y: 5 }, s.room), "O");
   const session = { ...newSession("modules"), state: s };
   assert.equal(dispatch(session, interact).history.length, 0);
+});
+
+
+test("E alone, lateral/forward pull and wrong module never move or turn the bot", () => {
+  let s = position(initialState(), "pip", 5, 2);
+  s = { ...s, robots: { ...s.robots, pip: { ...s.robots.pip, facing: "right" } } };
+  for (const action of [interact, { type: "pull", direction: "up" }, { type: "pull", direction: "right" }] as Action[])
+    assert.equal(transition(s, action).state, s);
+  const result = transition(s, pull).state;
+  assert.equal(result.robots.pip.facing, "right");
+  assert.deepEqual(result.crate, { x: 5, y: 2 });
+  const powerBot = { ...s, robots: { ...s.robots, pip: { ...s.robots.pip, module: "power" as const } } };
+  assert.equal(transition(powerBot, pull).state, powerBot);
+});
+
+test("crate holds a plate, Pip does not; undo restores crate, plate and door", () => {
+  const before = newSession("freight");
+  assert.equal(isDoorOpen(before.state), false);
+  const after = dispatch(before, { type: "pull", direction: "down" });
+  assert.equal(isPlateHeld(after.state), true);
+  assert.equal(isDoorOpen(after.state), true);
+  assert.deepEqual(dispatch(after, { type: "undo" }).state, before.state);
+});
+
+test("separate circuits never power the other door; module swap disconnects", () => {
+  let s = position(initialState("routes"), "pip", 3, 3);
+  s = { ...s, connected: "pip", robots: { ...s.robots, pip: { ...s.robots.pip, module: "power" } } };
+  assert.equal(isDoorOpen(s, { x: 6, y: 7 }), true);
+  assert.equal(isDoorOpen(s, { x: 11, y: 7 }), false);
+  s = position(s, "pip", 9, 5);
+  assert.equal(isDoorOpen(s, { x: 6, y: 7 }), false);
+  assert.equal(isDoorOpen(s, { x: 11, y: 7 }), true);
+  s = position(s, "bolt", 8, 5);
+  const swapped = transition(s, { type: "swap" }).state;
+  assert.equal(swapped.connected, null);
+  assert.equal(isDoorOpen(swapped), false);
+});
+
+test("bridge occupancy interlock on power loss: E, departure, swap, crate and undo", () => {
+  const span = { x: 7, y: 5 };
+  let s = initialState("bridge");
+  s = position(s, "bolt", 5, 5);
+  s = position(s, "pip", 6, 5);
+  s = { ...s, active: "pip", connected: "bolt" };
+  assert.equal(isBridgeOpen(s, span), true);
+  const onboard = transition(s, right).state;
+  assert.equal(onboard.robots.pip.x, 7);
+  const lostPower = { ...onboard, active: "bolt" as const };
+  for (const action of [interact, { type: "move", direction: "down" }] as Action[]) {
+    const off = transition(lostPower, action).state;
+    assert.equal(isPowered(off), false);
+    assert.equal(isBridgeOpen(off, span), true);
+    const departed: State = transition({ ...off, active: "pip" }, right).state;
+    assert.equal(departed.robots.pip.x, 8);
+    assert.equal(isBridgeOpen(departed, span), false);
+    const session = dispatch({ state: off, history: [], message: "" }, { type: "switch" });
+    const moved = dispatch(session, right);
+    assert.deepEqual(dispatch(moved, { type: "undo" }).state, session.state);
+  }
+  const adjacentSupplier = position(lostPower, "bolt", 6, 5);
+  assert.equal(isBridgeOpen(transition(adjacentSupplier, { type: "swap" }).state, span), true);
+  assert.equal(isBridgeOpen({ ...initialState("bridge"), crate: span }, span), true);
+  assert.equal(isBridgeOpen(initialState("bridge"), span), false);
+});
+
+// Independent topology check for each new gate. With MORE freedom than actual
+// play (no partner collisions), a walker still cannot bypass its closed output.
+test("new rooms have no trivial walking bypass of freight, A/B or bridge/return", () => {
+  function flood(room: RoomId, start: Position, allowed: Set<string>): Set<string> {
+    const seen = new Set<string>(), todo = [start];
+    while (todo.length) {
+      const p = todo.pop()!, key = `${p.x},${p.y}`, tile = tileAt(p, room);
+      if (seen.has(key) || "#O~".includes(tile) || ((tile === "D" || tile === "B") && !allowed.has(key))) continue;
+      seen.add(key);
+      for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) todo.push({ x: p.x+dx, y: p.y+dy });
+    }
+    return seen;
+  }
+  assert.equal(flood("freight", ROOMS.freight.pip, new Set()).has("12,7"), false);
+  assert.equal(flood("routes", ROOMS.routes.pip, new Set()).has("8,7"), false);
+  assert.equal(flood("routes", { x: 8, y: 7 }, new Set(["6,7"])).has("14,9"), false);
+  assert.equal(flood("bridge", ROOMS.bridge.pip, new Set()).has("14,9"), false);
+  assert.equal(flood("bridge", ROOMS.bridge.pip, new Set(["7,5"])).has("14,9"), true);
+  const bridgeCircuits = circuits("bridge");
+  const held = position(initialState("bridge"), "bolt", 10, 9);
+  assert.equal(circuitOn(held, bridgeCircuits[0]), false);
+  assert.equal(circuitOn(held, bridgeCircuits[1]), true);
 });
