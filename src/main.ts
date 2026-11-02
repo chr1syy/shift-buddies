@@ -274,6 +274,9 @@ class RoomScene extends Phaser.Scene {
     }
     for (const id of ["pip", "bolt"] as RobotId[]) this.drawRobot(s, id);
     if (isWon(s)) {
+      // Phaser text objects render above Graphics; hide floor annotations
+      // before adding the victory text so they cannot cross the dialog.
+      this.labels.forEach((label) => label.setVisible(false));
       g.fillStyle(0x0b1c29, 0.96).fillRoundedRect(150, 240, 550, 150, 18);
       g.lineStyle(2, COLORS.pip).strokeRoundedRect(150, 240, 550, 150, 18);
       this.text(425, 280, "ZUSAMMEN GESCHAFFT!", "#81e4cf", 27);
