@@ -17,7 +17,7 @@ PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm run test:browser
 
 Der Devserver bindet nur an Loopback. Für einen Produktionsbuild: `npm run preview -- --port 5173 --strictPort`. Falls Port 5173 bereits belegt ist, einen freien Port verwenden. Tests starten ihren eigenen Devserver auf 4174 und beenden ihn anschließend.
 
-Live-Vorschau: **https://shift-buddies.clippmann.de/**. Der Ausbau vom 02.11.2026 einschließlich Update dieser Vorschau wurde ausdrücklich freigegeben. Weitere Deploys brauchen einen Auftrag. Kein itch.io-Release. Der aktuelle Ergebnisbericht steht in [docs/2026-11-02-ausbau.md](docs/2026-11-02-ausbau.md); die historischen Dreiraumbelege bleiben in `docs/` erhalten.
+Live-Vorschau: **https://shift-buddies.clippmann.de/**. Der Ausbau vom 02.11.2026 einschließlich Update dieser Vorschau wurde ausdrücklich freigegeben. Weitere Deploys brauchen einen Auftrag. Kein itch.io-Release. Die aktuelle Sichtkorrektur und Live-Abnahme stehen im [Sichtreview](docs/2026-11-02-sichtreview.md), die sechs Lösungen im [Ausbaubericht](docs/2026-11-02-ausbau.md); die historischen Dreiraumbelege bleiben in `docs/` erhalten.
 
 ## Spielen
 
