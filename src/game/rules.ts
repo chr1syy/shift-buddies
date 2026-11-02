@@ -17,6 +17,7 @@ export type Action =
   | { type: "switch" }
   | { type: "swap" }
   | { type: "interact" }
+  // Held E + direction: reverse pulls with magnet; Bolt's forward direction pushes.
   | { type: "pull"; direction: Direction };
 export type Result = { state: State; message: string };
 
@@ -24,16 +25,16 @@ export type Result = { state: State; message: string };
 export const ROOM = [
   "#################",
   "#################",
-  "###.....S########",
-  "###...###########",
+  "#################",
+  "###S#############",
   "###v#############",
-  "#.........#.....#",
-  "#.........#.....#",
-  "#.........D.P...#",
-  "#.........#.....#",
-  "#.........#...XX#",
-  "#..O......#.....#",
-  "#.........#.....#",
+  "#.....#.........#",
+  "#.....#.........#",
+  "#.....D.P.......#",
+  "#.....#.........#",
+  "#.....#.......XX#",
+  "#################",
+  "#################",
   "#################",
 ] as const;
 
@@ -101,65 +102,75 @@ export const ROOMS: Record<RoomId, RoomDefinition> = {
   },
   tech: {
     title: "03 / Der Technikraum",
-    objective: "Bring beide Buddies auf die zwei Ausgangsfelder.",
-    hint: "Körper bleiben, Module wechseln. Wer kann den Anschluss erreichen? Wer hält die Tür offen, wenn die Stromversorgung endet?",
+    objective: "Gib Pip die Batterie für den Schacht. Bolt hält drüben die Platte, damit beide den Ausgang erreichen.",
+    hint: "Tauscht neben Bolt. Pip versorgt den Anschluss hinter dem Schacht. Bolt fährt durch Tor A auf Platte A. Jetzt kann Pip den Strom lösen und nachkommen.",
     grid: ROOM,
-    pip: { x: 2, y: 8 }, bolt: { x: 4, y: 8 }, crate: { x: 6, y: 2 },
+    pip: { x: 3, y: 5 }, bolt: { x: 4, y: 7 }, crate: null,
+    circuits: [
+      { name: "A", sockets: [{ x: 3, y: 3 }], plates: [{ x: 8, y: 7 }], doors: [{ x: 6, y: 7 }], bridges: [] },
+    ],
   },
   freight: {
     title: "04 / Schwere Fracht",
-    objective: "Lass die Metallkiste die Platte halten und bring beide Buddies hinaus.",
-    hint: "Auch Metallkisten sind schwer genug. Schau nach oben zur Kiste, halte E und fahre nach unten. Bolt kann dann seinen Posten verlassen.",
+    objective: "Pip versorgt den Schachtanschluss. Bolt schiebt die Fracht in die Plattennische; dann können beide hinaus.",
+    hint: "Tauscht zuerst. Pip versorgt A hinter dem Schacht. Bolt fährt oben um die Kiste: nach unten ausrichten, E halten + ↓ schiebt sie in die Sackgasse auf A. Ziehen erreicht diese Nische nicht.",
     grid: [
-      "#################", "#################", "#################", "#################",
-      "##......#.....###",
-      "##...P..#.....###",
-      "##......D.....###",
-      "##......#...XX###",
-      "##......#.....###",
+      "#################", "#################",
+      "##....###########",
+      "##....###########",
+      "##.##P#S#########",
+      "##D####v#########",
+      "##.......#......#",
+      "##.......D......#",
+      "##.......#....XX#",
       "#################", "#################", "#################", "#################",
     ],
-    pip: { x: 5, y: 5 }, bolt: { x: 4, y: 7 }, crate: { x: 5, y: 4 },
+    pip: { x: 3, y: 7 }, bolt: { x: 4, y: 7 }, crate: { x: 5, y: 3 },
+    circuits: [
+      { name: "A", sockets: [{ x: 7, y: 4 }], plates: [{ x: 5, y: 4 }], doors: [{ x: 2, y: 5 }, { x: 9, y: 7 }], bridges: [] },
+    ],
   },
   routes: {
     title: "05 / Getrennte Wege",
-    objective: "Nutze Anschluss A, dann B. Bring beide Buddies auf die Ausgangsfelder.",
-    hint: "A liegt hinter Pips Schacht. Bolt hält danach Platte A für Pip. Tauscht im Mittelraum: Bolt versorgt B, Pip zieht die Kiste auf Platte B und löst ihn ab.",
+    objective: "Helft euch durch Tor A. Legt die Fracht auf B vor dem letzten Tor, damit beide hinauskommen.",
+    hint: "Pip versorgt A, Bolt übernimmt Platte A. Im Mittelraum kann Pip den Magneten zurückbekommen und die Kiste auf B ziehen. Bolt könnte sie auch schieben. Als dauerhafter Wachposten würde er am Ende fehlen.",
     grid: [
       "#################", "#################", "#################",
       "###S#############",
       "###v#############",
-      "#.....#..S.#....#",
       "#.....#....#....#",
-      "#.....D.P..D..P.#",
+      "#.....#....#....#",
+      "#.....D.PP.D....#",
       "#.....#....#....#",
       "#.....#....#..XX#",
       "#################", "#################", "#################",
     ],
-    pip: { x: 3, y: 5 }, bolt: { x: 4, y: 7 }, crate: { x: 14, y: 6 },
+    pip: { x: 3, y: 5 }, bolt: { x: 4, y: 7 }, crate: { x: 9, y: 6 },
     circuits: [
       { name: "A", sockets: [{ x: 3, y: 3 }], plates: [{ x: 8, y: 7 }], doors: [{ x: 6, y: 7 }], bridges: [] },
-      { name: "B", sockets: [{ x: 9, y: 5 }], plates: [{ x: 14, y: 7 }], doors: [{ x: 11, y: 7 }], bridges: [] },
+      { name: "B", sockets: [], plates: [{ x: 9, y: 7 }], doors: [{ x: 11, y: 7 }], bridges: [] },
     ],
   },
   bridge: {
     title: "06 / Brückendienst",
-    objective: "Versorge die Brücke, halte drüben den Rückweg offen und bring beide hinaus.",
-    hint: "Pip übernimmt die Batterie. Bolt fährt über die Brücke zur Rückwegplatte. Eine besetzte Brücke bleibt sicher ausgefahren, bis sie frei ist; die Platte öffnet den unteren Weg für Pip.",
+    objective: "Pip hilft Bolt über die Brücke. Bolt öffnet Pips Partnerweg. Drüben versorgt Pip Bolts Ausgangstor.",
+    hint: "Pip übernimmt die Batterie und versorgt die Brücke. Bolt hält drüben A. Pip folgt unten durch Tor A und den Schacht, versorgt Anschluss B und lässt Bolt durch das obere Tor nachkommen. Beide helfen einander vorwärts.",
     grid: [
       "#################", "#################", "#################", "#################",
       "##.....~.......##",
-      "##...S.B.......##",
+      "##...S.B..P....##",
       "##.....~.......##",
+      "##.....~####D####",
       "##.....~.......##",
-      "##.....~......X##",
-      "##.....D..P...X##",
-      "#################", "#################", "#################",
+      "##....Dv..S...X##",
+      "########......X##",
+      "#################", "#################",
     ],
     pip: { x: 4, y: 7 }, bolt: { x: 5, y: 7 }, crate: null,
     circuits: [
-      { name: "BRÜCKE", sockets: [{ x: 5, y: 5 }], plates: [], doors: [], bridges: [{ x: 7, y: 5 }] },
-      { name: "RÜCKWEG", sockets: [], plates: [{ x: 10, y: 9 }], doors: [{ x: 7, y: 9 }], bridges: [] },
+      { name: "C", sockets: [{ x: 5, y: 5 }], plates: [], doors: [], bridges: [{ x: 7, y: 5 }] },
+      { name: "A", sockets: [], plates: [{ x: 10, y: 5 }], doors: [{ x: 6, y: 9 }], bridges: [] },
+      { name: "B", sockets: [{ x: 10, y: 9 }], plates: [], doors: [{ x: 12, y: 7 }], bridges: [] },
     ],
   },
 };
@@ -231,19 +242,19 @@ export const isWon = (s: State): boolean =>
       ? isPowered(s) && tileAt(s.robots.bolt, s.room) === "X"
       : Object.values(s.robots).every((r) => tileAt(r, s.room) === "X");
 
-function blocked(s: State, id: RobotId, target: Position): string | null {
+function blocked(s: State, id: RobotId | "crate", target: Position): string | null {
   const tile = tileAt(target, s.room);
   if (tile === "O") return "Der Keramikblock ist verankert und nicht magnetisch. Er bleibt fest.";
   if (tile === "~") return "Hier ist die Wartungsgrube. Nur eine ausgefahrene Brücke trägt dich.";
   if (tile === "B" && !isBridgeOpen(s, target)) return "Die Brücke braucht ihren Stromanschluss. Besetzt bleibt sie sicher ausgefahren.";
   if (tile === "#") return "Hier ist eine Wand.";
-  if (tile === "v" && id === "bolt")
-    return "Bolt ist zu breit. Nur Pip passt durch den Schacht.";
+  if (tile === "v" && id !== "pip")
+    return "Nur Pip passt durch den Schacht. Bolt und die Fracht sind zu breit.";
   if (tile === "D" && !isDoorOpen(s, target))
     return "Diese Tür braucht ihren zugeordneten Anschluss oder eine schwere Last auf ihrer Platte.";
-  if (s.crate && same(target, s.crate))
-    return "Die Metallkiste blockiert. Magnet zur Kiste ausrichten, E halten und rückwärts fahren; hinter dir muss Platz sein.";
-  if (same(target, s.robots[otherRobot(id)]))
+  if (id !== "crate" && s.crate && same(target, s.crate))
+    return "Metallkiste: Magnet + E rückwärts zieht. Bolt + E vorwärts schiebt, mit jedem Modul. Erst zur Kiste ausrichten.";
+  if ((["pip", "bolt"] as const).some(bot => bot !== id && same(target, s.robots[bot])))
     return "Hier steht dein Buddy. Shift wechselt, T tauscht benachbarte Module.";
   return null;
 }
@@ -292,7 +303,17 @@ export function transition(s: State, action: Action): Result {
     const front = facingTarget(robot);
     return reject(tileAt(front, s.room) === "O"
       ? "Keine Magnetwirkung: Dieser Keramikblock ist verankert und nicht magnetisch."
-      : "Ziehbereit: Magnet direkt vor der Metallkiste ausrichten, E halten und rückwärts fahren. Seitwärts bleibt der Bot stehen.");
+      : `Magnet bereit: E + rückwärts zieht.${id === "bolt" ? " Bolt schiebt mit E + vorwärts." : " Nur Bolt kann vorwärts schieben."} E loslassen zum Drehen.`);
+  }
+  if (action.type === "pull" && id === "bolt" && action.direction === robot.facing) {
+    const front = facingTarget(robot);
+    if (!s.crate || !same(front, s.crate)) return reject("Keine Metallkiste direkt vor Bolt. E loslassen und zur Kiste ausrichten.");
+    const delta = DELTA[robot.facing];
+    const target = { x: front.x + delta.x, y: front.y + delta.y };
+    const reason = blocked(s, "crate", target);
+    if (reason) return reject(`Kein Platz für die Fracht. ${reason}`);
+    return accept({ crate: target, robots: { ...s.robots, bolt: { ...robot, ...front } }, connected: s.connected === id ? null : s.connected },
+      "Bolt schiebt mit Körperkraft. Beide fahren ein Feld vorwärts; jedes Modul bleibt nutzbar.");
   }
   if (action.type === "pull") {
     if (robot.module !== "magnet") return reject("Zum Ziehen brauchst du das Magnetmodul.");
@@ -304,6 +325,7 @@ export function transition(s: State, action: Action): Result {
     if (tileAt(front, s.room) === "O") return reject("Der Keramikblock ist verankert und nicht magnetisch.");
     if (!s.crate || !same(front, s.crate))
       return reject("Kein Metall direkt vor dem Magneten. E loslassen und zur benachbarten Kiste schauen.");
+    if (tileAt(robot, s.room) === "v") return reject("Die Fracht passt nicht in den Schacht. Ziehen braucht auch für die Kiste Platz.");
     const back = { x: robot.x + movement.x, y: robot.y + movement.y };
     if (blocked(s, id, back)) return reject("Kein Platz zum Zurückziehen. Hinter dir muss ein freies, begehbares Feld sein.");
     return accept({ crate: { x: robot.x, y: robot.y }, robots: { ...s.robots, [id]: { ...robot, ...back } } },
@@ -343,7 +365,7 @@ export function transition(s: State, action: Action): Result {
   if (robot.module === "power") {
     if (tileAt(robot, s.room) !== "S")
       return reject(
-        "Das Strommodul braucht den Anschluss: auf das Ringfeld stellen und E drücken.",
+        `Batterie: Auf dem Ringfeld mit E verbinden.${id === "bolt" ? " Zum Schieben E halten + vorwärts zur Kiste." : ""}`,
       );
     const connected = s.connected === id ? null : id;
     return accept(

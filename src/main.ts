@@ -71,13 +71,16 @@ function updateHud(): void {
   gameElement.dataset.pulling = String(pullHeld);
   gameElement.dataset.won = String(isWon(s));
   gameElement.dataset.crate = s.crate ? `${s.crate.x},${s.crate.y}` : "";
-  element("pull-status").textContent = pullHeld ? "∪ Ziehbereit · Gegenrichtung drücken · E loslassen zum Drehen" : "∪ Magnet: E halten + rückwärts · ⚡ Batterie: E verbinden / lösen";
+  const active = s.robots[s.active];
+  element("pull-status").textContent = pullHeld
+    ? `${active.module === "magnet" ? "∪ E + rückwärts: ziehen · " : ""}${s.active === "bolt" ? "■ E + vorwärts: schieben · " : ""}E loslassen zum Drehen`
+    : "∪ Magnet: E + rückwärts zieht · ■ Bolt: E + vorwärts schiebt · ⚡ Batterie: E verbindet / löst";
   element("pull-status").classList.toggle("ready", pullHeld);
   element<HTMLButtonElement>("undo").disabled = session.history.length === 0;
   element("robots").innerHTML = (["pip", "bolt"] as RobotId[])
     .map((id) => {
       const r = s.robots[id];
-      return `<section class="robot-card ${s.active === id ? "active" : ""}" data-testid="robot-${id}" data-x="${r.x}" data-y="${r.y}" data-facing="${r.facing}" data-module="${r.module}" data-connected="${s.connected === id}"><div class="robot-top"><span class="robot-name">${id === "pip" ? "●" : "■"} ${NAMES[id]}</span><span class="active-tag">${s.active === id ? "AKTIV · SHIFT ↔" : "BUDDY"}</span></div><p>${id === "pip" ? "Kleiner Körper · passt durch Schächte" : "Schwerer Körper · hält Druckplatten"}</p><span class="module ${r.module}">${r.module === "magnet" ? "∪ · Hufeisenmagnet" : "⚡ · Batterie"}${s.connected === id ? " · verbunden" : ""}</span><span class="coords">Feld ${r.x} / ${r.y}</span></section>`;
+      return `<section class="robot-card ${s.active === id ? "active" : ""}" data-testid="robot-${id}" data-x="${r.x}" data-y="${r.y}" data-facing="${r.facing}" data-module="${r.module}" data-connected="${s.connected === id}"><div class="robot-top"><span class="robot-name">${id === "pip" ? "●" : "■"} ${NAMES[id]}</span><span class="active-tag">${s.active === id ? "AKTIV · SHIFT ↔" : "BUDDY"}</span></div><p>${id === "pip" ? "Kleiner Körper · passt durch Schächte" : "Schwerer Körper · hält Platten und schiebt"}</p><span class="module ${r.module}">${r.module === "magnet" ? "∪ · Hufeisenmagnet" : "⚡ · Batterie"}${s.connected === id ? " · verbunden" : ""}</span><span class="coords">${({ up: "↑", down: "↓", left: "←", right: "→" })[r.facing]} · Feld ${r.x} / ${r.y}</span></section>`;
     })
     .join("");
   const room = ROOMS[s.room];
@@ -141,10 +144,13 @@ class RoomScene extends Phaser.Scene {
       if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
       if (document.activeElement !== gameElement && document.activeElement !== document.body) return;
       let command: Command | undefined;
-      if (keys[event.code]) command = { type: pullHeld ? "pull" : "move", direction: keys[event.code] };
+      if (keys[event.code]) {
+        const direction = keys[event.code];
+        command = { type: pullHeld ? "pull" : "move", direction };
+      }
       else if (event.code === "ShiftLeft" || event.code === "ShiftRight") command = { type: "switch" };
       else if (event.code === "KeyE") {
-        pullHeld = session.state.robots[session.state.active].module === "magnet" && !isWon(session.state);
+        pullHeld = (session.state.robots[session.state.active].module === "magnet" || session.state.active === "bolt") && !isWon(session.state);
         command = { type: "interact" };
       }
       else if (event.code === "KeyT") command = { type: "swap" };
@@ -201,14 +207,14 @@ class RoomScene extends Phaser.Scene {
     const moving = before.room === after.room && (["pip", "bolt"] as const).some(id =>
       !same(before.robots[id], after.robots[id]) || before.robots[id].facing !== after.robots[id].facing);
     if (moving && (command.type === "move" || command.type === "pull") && !reducedMotion()) {
-      this.motion = { before, progress: 0, pull: command.type === "pull" };
+      this.motion = { before, progress: 0, pull: command.type === "pull" && command.direction !== before.robots[before.active].facing };
       gameElement.dataset.animating = "true";
       this.drive = this.tweens.add({ targets: this.motion, progress: 1, duration: 160, ease: "Sine.easeInOut",
-        onComplete: () => { this.settle(); this.redraw(); } });
+        onComplete: () => { this.drive = undefined; this.motion = undefined; gameElement.dataset.animating = "false"; this.redraw(); } });
     }
     if (command.type === "pull" && before !== after) pullSound();
     updateHud(); this.redraw();
-    if (after !== before && (command.type === "swap" || command.type === "interact")) this.reaction(before, command);
+    if (after !== before && !["undo", "restart", "room"].includes(command.type)) this.reaction(before, command);
   }
 
   private visual(p: { x: number; y: number }, previous?: { x: number; y: number }): { x: number; y: number } {
@@ -267,12 +273,36 @@ class RoomScene extends Phaser.Scene {
           g.fillStyle(0x667079, 0.4).fillCircle(px + 10, py + 10, 2).fillCircle(px + 40, py + 38, 2);
           return;
         }
+      }),
+    );
+    // Recessed wiring lies beneath every fixture, crate and robot. Matching
+    // circuit badges carry the relationship; wires are only a quiet floor cue.
+    for (const c of circuits(s.room)) {
+      const on = circuitOn(s, c);
+      for (const source of [...c.sockets, ...c.plates]) for (const target of [...c.doors, ...c.bridges]) {
+        const sx = source.x * TILE + 7, sy = source.y * TILE + 43;
+        const tx = target.x * TILE + 7, ty = target.y * TILE + 43;
+        g.lineStyle(1, on ? COLORS.power : 0xa4a58b, on ? 0.32 : 0.16)
+          .lineBetween(sx, sy, sx, ty).lineBetween(sx, ty, tx, ty);
+      }
+    }
+    ROOMS[s.room].grid.forEach((row, y) =>
+      [...row].forEach((tile, x) => {
+        const px = x * TILE, py = y * TILE;
         if (tile === "v") {
           // 26 px opening: Pip's 22 px wheels fit, Bolt's 44 px tracks don't.
-          g.fillStyle(0x637c80).fillRect(px + 1, py, 11, TILE).fillRect(px + 38, py, 11, TILE);
+          const horizontal = ["#", "~"].includes(tileAt({ x, y: y - 1 }, s.room))
+            && ["#", "~"].includes(tileAt({ x, y: y + 1 }, s.room));
+          g.fillStyle(0x637c80);
+          if (horizontal) g.fillRect(px, py + 1, TILE, 11).fillRect(px, py + 38, TILE, 11);
+          else g.fillRect(px + 1, py, 11, TILE).fillRect(px + 38, py, 11, TILE);
           g.lineStyle(2, 0xa3c3bd);
           for (let i = 5; i < TILE; i += 9)
-            g.lineBetween(px + 13, py + i, px + 37, py + i);
+            if (horizontal) g.lineBetween(px + i, py + 13, px + i, py + 37);
+            else g.lineBetween(px + 13, py + i, px + 37, py + i);
+          // Field-local label: never a hard-coded arrow pointing at a neighbour.
+          g.fillStyle(0x102532).fillRect(px + 13, py + 38, 24, 11);
+          this.text(px + 25, py + 44, "PIP", "#c1eee3", 8);
         }
         if (tile === "~" || tile === "B") {
           g.fillStyle(0x080f17).fillRect(px, py, TILE, TILE);
@@ -282,7 +312,6 @@ class RoomScene extends Phaser.Scene {
             g.fillStyle(open ? 0x637f7c : 0x38424c).fillRect(px + 3, py + 3, open ? 44 : 8, 44);
             g.lineStyle(2, open ? COLORS.pip : 0xa88b5b);
             for (let i = 8; i < 48; i += 10) g.lineBetween(px + 4, py + i, px + (open ? 46 : 11), py + i);
-            this.text(px + 25, py - 12, open ? "BRÜCKE AN" : "BRÜCKE AUS", open ? "#81e4cf" : "#e6b579", 9);
           }
         }
         if (tile === "S") {
@@ -292,8 +321,7 @@ class RoomScene extends Phaser.Scene {
             py + 25,
             7,
           );
-          if (!circuits(s.room).some(c => c.name && c.sockets.some(p => same(p, { x, y }))))
-            this.text(px + 25, py - 10, "ANSCHLUSS", "#ffe290", 10);
+          this.drawModule(px + 25, py + 25, "power");
         }
         if (tile === "D") {
           const color = isDoorOpen(s, { x, y }) ? 0x81e4cf : 0xfa9b88;
@@ -344,14 +372,7 @@ class RoomScene extends Phaser.Scene {
     );
     this.text(425, 43, ROOMS[s.room].title.toUpperCase(), "#d9e7ef", 18);
     this.text(425, 70, "WERKSTATTDIENST · Gemeinsam findet ihr einen Weg.", "#a3b8c9", 12);
-    if (s.room === "tech") {
-      this.text(225, 317, "WERKSTATT / MODULTAUSCH", "#7795ac", 12);
-      this.text(78, 225, "SCHACHT →", "#aecdc7", 11);
-      this.text(630, 325, "SCHWERE PLATTE", "#e6b579", 11);
-      this.text(746, 447, "AUSGANG", "#81e4cf", 11);
-    } else if (s.room === "bodies") {
-      this.text(265, 225, "SCHMALER SCHACHT", "#aecdc7", 11);
-      this.text(310, 425, "SCHWERE PLATTE", "#e6b579", 11);
+    if (s.room === "bodies") {
       this.text(510, 275, "← AUSGANG", "#81e4cf", 11);
     } else if (s.room === "modules") {
       this.text(65, 275, "FEST →", "#c5b69e", 10);
@@ -366,16 +387,15 @@ class RoomScene extends Phaser.Scene {
         g.fillStyle(0xffd79b).fillRect(px - 9, py - 6, 18, 3);
       }
     }));
-    // Supply lines are shared by every circuit, including A/B and the bridge.
+    // Corner badges stay readable even while a source is occupied. Hollow /
+    // filled dots encode state as well as colour; A/B/C match every endpoint.
     for (const c of circuits(s.room)) {
-      const on = circuitOn(s, c);
-      for (const source of [...c.sockets, ...c.plates]) for (const target of [...c.doors, ...c.bridges]) {
-        g.lineStyle(on ? 3 : 2, on ? COLORS.power : 0x6c6b58, on ? 0.7 : 0.35);
-        g.lineBetween(source.x * TILE + 25, source.y * TILE + 25, source.x * TILE + 25, target.y * TILE + 25)
-          .lineBetween(source.x * TILE + 25, target.y * TILE + 25, target.x * TILE + 25, target.y * TILE + 25);
+      for (const p of [...c.sockets, ...c.plates, ...c.doors, ...c.bridges]) {
+        const tile = tileAt(p, s.room);
+        const on = tile === "S" ? isPowered(s, p) : tile === "P" ? isPlateHeld(s, p)
+          : tile === "D" ? isDoorOpen(s, p) : isBridgeOpen(s, p);
+        this.text(p.x * TILE + 12, p.y * TILE + 6, `${on ? "●" : "○"}${c.name || "A"}`, on ? "#b7ffe5" : "#e5d4ae", 9);
       }
-      if (c.name) for (const source of [...c.sockets, ...c.plates, ...c.doors])
-        this.text(source.x * TILE + 25, source.y * TILE - 8, c.name, "#ffe290", 10);
     }
     if (s.crate) {
       const { x: cx, y: cy } = this.visual(s.crate, this.motion?.before.crate ?? undefined);
@@ -465,6 +485,8 @@ class RoomScene extends Phaser.Scene {
     // The face and drive rotate with the chassis. The module stays upright
     // at its rotating rear mount, leaving the face clear in every direction.
     g.save().translateCanvas(x, y).rotateCanvas(angle);
+    // A nose arrow supplements the face and the direction on the robot card.
+    g.fillStyle(0xf0fcff).fillTriangle(0, -25, -4, -20, 4, -20);
     g.fillStyle(0x08111b);
     if (pip) {
       g.fillRoundedRect(-13, -7, 6, 20, 3).fillRoundedRect(7, -7, 6, 20, 3);
@@ -497,10 +519,19 @@ class RoomScene extends Phaser.Scene {
   }
 
   private reaction(before: State, command: Command): void {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (reducedMotion()) return;
+    const after = session.state;
+    const activated = circuits(after.room).flatMap(c => {
+      const sources = [...c.sockets.filter(p => !isPowered(before, p) && isPowered(after, p)),
+        ...c.plates.filter(p => !isPlateHeld(before, p) && isPlateHeld(after, p))];
+      return sources.length ? [...sources, ...c.doors, ...c.bridges] : [];
+    });
+    const robots: readonly RobotId[] = command.type === "swap" ? ["pip", "bolt"] : command.type === "interact" ? [before.active] : [];
+    if (!activated.length && !robots.length) return;
     const effect = this.add.graphics().setDepth(10);
     this.effects.add(effect);
-    const robots = command.type === "swap" ? ["pip", "bolt"] as const : [before.active];
+    for (const p of activated) effect.lineStyle(3, 0xc9ffe9, 0.9)
+      .strokeRoundedRect(p.x * TILE + 2, p.y * TILE + 2, 46, 46, 4);
     for (const id of robots) {
       const r = session.state.robots[id];
       effect.lineStyle(3, command.type === "swap" ? 0xffffff : COLORS[before.robots[id].module], 0.85)
