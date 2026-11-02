@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import type { Action } from "../src/game/rules.ts";
-import { solution, fullSolution, bodySolution, moduleSolution } from "./solution.ts";
+import type { Action, RoomId } from "../src/game/rules.ts";
+import { solution, fullSolution, bodySolution, moduleSolution, freightSetup, routesSolution } from "./solution.ts";
 
 const runtimeErrors = new WeakMap<Page, string[]>();
 test.beforeEach(async ({ page }) => {
@@ -29,11 +29,11 @@ async function keys(page: Page, actions: Action[]): Promise<void> {
     await expect(page.locator("#game")).toHaveAttribute("data-animating", "false");
   }
 }
-async function ready(page: Page): Promise<void> {
+async function ready(page: Page, room: RoomId = "tech"): Promise<void> {
   await page.goto("/");
   await expect(page.locator("#game")).toHaveAttribute("data-ready", "true");
   await expect(page.locator("canvas")).toBeVisible();
-  await page.locator("#room-select").selectOption("tech");
+  await page.locator("#room-select").selectOption(room);
 }
 
 test("real keyboard solution, persistent power on Shift, exact full undo and restart", async ({
@@ -49,8 +49,6 @@ test("real keyboard solution, persistent power on Shift, exact full undo and res
     path: ".cache/technikraum-start.png",
     fullPage: true,
   });
-  await keys(page, solution.clearCrate);
-  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "3");
   await keys(page, solution.swapAndPower);
   await page.screenshot({ path: ".cache/technikraum-module-getauscht.png", fullPage: true });
   await expect(page.getByTestId("robot-pip")).toHaveAttribute(
@@ -62,7 +60,7 @@ test("real keyboard solution, persistent power on Shift, exact full undo and res
   await expect(page.getByTestId("robot-bolt")).toHaveClass(/active/);
   await expect(page.locator("#door-status")).toContainText("Strom verbunden");
   await keys(page, solution.boltToPlate.slice(1));
-  await expect(page.getByTestId("robot-bolt")).toHaveAttribute("data-x", "12");
+  await expect(page.getByTestId("robot-bolt")).toHaveAttribute("data-x", "8");
   await expect(page.getByTestId("robot-bolt")).toHaveAttribute("data-y", "7");
   await keys(page, solution.pipToExit);
   await expect(page.locator("#door-status")).toContainText(
@@ -72,7 +70,7 @@ test("real keyboard solution, persistent power on Shift, exact full undo and res
   await expect(page.locator("#feedback")).toContainText("Geschafft!");
   await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "14");
   await expect(page.getByTestId("robot-bolt")).toHaveAttribute("data-x", "15");
-  await expect(page.locator("#door-status")).toContainText("TÜR ZU");
+  await expect(page.locator("#door-status")).toContainText("A ZU");
   await page.screenshot({
     path: ".cache/technikraum-geloest.png",
     fullPage: true,
@@ -83,19 +81,19 @@ test("real keyboard solution, persistent power on Shift, exact full undo and res
     "data-module",
     "magnet",
   );
-  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "2");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "3");
   await expect(page.getByTestId("robot-bolt")).toHaveAttribute("data-x", "4");
   await page.keyboard.press("d"); // WASD and R
   await page.keyboard.press("r");
   await expect(page.locator("#move-count")).toHaveText("0 Aktionen");
-  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "2");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "3");
   expect(errors).toEqual([]);
 });
 
 test("buttons, focus recovery, held key and narrow viewport", async ({
   page,
 }) => {
-  await ready(page);
+  await ready(page, "modules");
   await page.keyboard.down("d");
   await page.waitForTimeout(150);
   // Browser repeat events must not make the robot run away.
@@ -103,7 +101,7 @@ test("buttons, focus recovery, held key and narrow viewport", async ({
     .locator("#game")
     .dispatchEvent("keydown", { code: "KeyD", repeat: true, bubbles: true });
   await page.keyboard.up("d");
-  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "3");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "4");
   await page.getByRole("button", { name: "T · Module tauschen" }).click();
   await expect(page.getByTestId("robot-pip")).toHaveAttribute(
     "data-module",
@@ -116,14 +114,14 @@ test("buttons, focus recovery, held key and narrow viewport", async ({
   );
   await page.getByRole("button", { name: "E · Interagieren" }).click();
   await expect(page.locator("#feedback")).toContainText(
-    "direkt vor der Metallkiste",
+    "Magnet bereit",
   );
   await page.getByRole("button", { name: "R · Neustart" }).click();
   await expect(page.locator("#undo")).toBeDisabled();
   await page.getByRole("heading", { name: "Shift Buddies" }).click();
   await page.locator("canvas").click();
   await page.keyboard.press("d");
-  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "3");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "4");
   await page.setViewportSize({ width: 800, height: 1000 });
   await expect(page.locator("canvas")).toBeVisible();
   expect(
@@ -193,7 +191,7 @@ test("first entry, two short lessons, next, room-local undo and direct test room
   await page.keyboard.press("d");
   await page.locator("#room-select").selectOption("bodies");
   await page.locator("#room-select").selectOption("tech");
-  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "2");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "3");
   await expect(page.locator("#undo")).toBeDisabled();
   expect(errors).toEqual([]);
 });
@@ -244,47 +242,43 @@ test("six rooms in order, Enter once with button focus/repeat, full undo and fin
   expect(errors).toEqual([]);
 });
 
-test("held E plus direction: lateral/forward rejection, key repeat, release, blur, obstruction and transitions", async ({ page }) => {
-  await ready(page);
-  await page.locator("#room-select").selectOption("freight");
+test("held E pull: no forward/lateral turn, repeat, release, blur, obstruction and resets", async ({ page }) => {
+  await ready(page, "modules");
+  await keys(page, moduleSolution.slice(0, 5)); // Pip 5/2 facing right
   const game = page.locator("#game"), pip = page.getByTestId("robot-pip");
+  const count = await page.locator("#move-count").textContent();
   await page.keyboard.press("e");
-  await expect(game).toHaveAttribute("data-crate", "5,4");
-  await expect(page.locator("#move-count")).toHaveText("0 Aktionen");
+  await expect(game).toHaveAttribute("data-crate", "6,2");
+  await expect(page.locator("#move-count")).toHaveText(count!);
   await page.keyboard.down("e");
   await expect(game).toHaveAttribute("data-pulling", "true");
-  for (const key of ["ArrowLeft", "ArrowRight", "ArrowUp"]) await page.keyboard.press(key);
-  await expect(pip).toHaveAttribute("data-facing", "up");
-  await expect(pip).toHaveAttribute("data-y", "5");
-  await page.keyboard.down("ArrowDown");
-  await page.keyboard.down("ArrowDown");
-  await page.keyboard.up("ArrowDown");
-  await expect(pip).toHaveAttribute("data-y", "6");
-  await expect(game).toHaveAttribute("data-crate", "5,5");
-  await expect(pip).toHaveAttribute("data-facing", "up");
+  for (const key of ["ArrowUp", "ArrowDown", "ArrowRight"]) await page.keyboard.press(key);
+  await expect(pip).toHaveAttribute("data-facing", "right");
+  await expect(pip).toHaveAttribute("data-x", "5");
+  await page.keyboard.down("ArrowLeft");
+  await page.keyboard.down("ArrowLeft"); // repeat must not pull twice
+  await page.keyboard.up("ArrowLeft");
+  await expect(pip).toHaveAttribute("data-x", "4");
+  await expect(game).toHaveAttribute("data-crate", "5,2");
+  await expect(pip).toHaveAttribute("data-facing", "right");
   await expect(game).toHaveAttribute("data-animating", "false");
   await page.screenshot({ path: ".cache/expansion-magnet-link.png", fullPage: true });
   await page.keyboard.up("e");
   await expect(game).toHaveAttribute("data-pulling", "false");
-  await page.keyboard.press("ArrowLeft");
-  await expect(pip).toHaveAttribute("data-x", "4");
-  await expect(pip).toHaveAttribute("data-facing", "left");
+  await page.keyboard.press("ArrowDown");
+  await expect(pip).toHaveAttribute("data-y", "3");
   await expect(game).toHaveAttribute("data-animating", "true");
-  // Undo cancels an in-flight drive and restores the exact prior pull position.
   await page.keyboard.press("z");
   await expect(game).toHaveAttribute("data-animating", "false");
-  await expect(pip).toHaveAttribute("data-x", "5");
-  await page.keyboard.down("e");
-  await page.keyboard.press("Shift");
-  await expect(game).toHaveAttribute("data-pulling", "false");
-  await page.keyboard.up("e");
-  await page.keyboard.press("Shift");
-  await page.keyboard.down("e");
-  await page.keyboard.press("z");
-  await expect(game).toHaveAttribute("data-pulling", "false");
-  await page.keyboard.up("e");
-  await page.locator("#room-select").selectOption("tech");
-  await page.keyboard.press("d");
+  await expect(pip).toHaveAttribute("data-y", "2");
+  for (const key of ["Shift", "z", "r"]) {
+    await page.keyboard.down("e");
+    await page.keyboard.press(key);
+    await expect(game).toHaveAttribute("data-pulling", "false");
+    await page.keyboard.up("e");
+  }
+  await page.keyboard.press("r");
+  await page.keyboard.press("d"); // beside Bolt at 4/6
   await page.keyboard.down("e");
   await page.keyboard.press("t");
   await expect(pip).toHaveAttribute("data-module", "power");
@@ -292,43 +286,77 @@ test("held E plus direction: lateral/forward rejection, key repeat, release, blu
   await page.keyboard.up("e");
   await page.keyboard.press("z");
   await page.keyboard.down("e");
-  await page.keyboard.press("r");
+  await page.locator("#room-select").selectOption("modules");
   await expect(game).toHaveAttribute("data-pulling", "false");
   await page.keyboard.up("e");
-  await page.keyboard.down("e");
-  await page.locator("#room-select").selectOption("freight");
-  await expect(game).toHaveAttribute("data-pulling", "false");
-  await page.keyboard.up("e");
-  // Real DOM focus loss, followed by the standard window-blur event.
-  // Headless Chromium keeps virtual windows focused, so tab switching cannot
-  // stand in for the OS blur event; dispatch that event explicitly as well.
   await page.keyboard.down("e");
   await page.locator("#room-select").focus();
   await expect(game).toHaveAttribute("data-pulling", "false");
   await page.keyboard.up("e");
   await game.focus();
   await page.keyboard.down("e");
+  // Explicit DOM event; headless windows do not reproduce physical OS focus.
   await page.evaluate(() => window.dispatchEvent(new Event("blur")));
   await expect(game).toHaveAttribute("data-pulling", "false");
   await page.keyboard.up("e");
-  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowRight");
   await expect(pip).toHaveAttribute("data-x", "4");
-  // Wall behind: pull twice south then the third pull cannot enter row 9.
   await page.keyboard.press("r");
+  await keys(page, moduleSolution.slice(0, 5));
   await page.keyboard.down("e");
-  await page.keyboard.press("ArrowDown");
-  await page.keyboard.press("ArrowDown");
-  await page.keyboard.press("ArrowDown");
-  await page.keyboard.press("ArrowDown");
-  await expect(pip).toHaveAttribute("data-y", "8");
-  await expect(game).toHaveAttribute("data-crate", "5,7");
+  for (let n = 0; n < 3; n++) {
+    await page.keyboard.press("ArrowLeft");
+    await expect(game).toHaveAttribute("data-animating", "false");
+  }
+  await expect(pip).toHaveAttribute("data-x", "3");
+  await expect(game).toHaveAttribute("data-crate", "4,2");
   await expect(page.locator("#feedback")).toContainText("Kein Platz");
   await page.keyboard.up("e");
+});
+
+test("Bolt pushes with either module, never E alone or normal driving; undo and E release", async ({ page }) => {
+  await ready(page, "freight");
+  await keys(page, freightSetup);
+  const game = page.locator("#game"), bolt = page.getByTestId("robot-bolt");
+  await expect(bolt).toHaveAttribute("data-module", "magnet");
+  await expect(bolt).toHaveAttribute("data-facing", "down");
+  for (const key of ["ArrowDown", "e"]) await page.keyboard.press(key);
+  await expect(game).toHaveAttribute("data-crate", "5,3");
+  await page.keyboard.down("e");
+  await page.keyboard.press("ArrowRight");
+  await expect(bolt).toHaveAttribute("data-facing", "down");
+  await page.keyboard.down("ArrowDown");
+  await page.keyboard.down("ArrowDown");
+  await page.keyboard.up("ArrowDown");
+  await expect(game).toHaveAttribute("data-crate", "5,4");
+  await expect(bolt).toHaveAttribute("data-y", "3");
   await expect(game).toHaveAttribute("data-animating", "false");
+  await page.keyboard.press("ArrowDown"); // wall behind crate
+  await expect(game).toHaveAttribute("data-crate", "5,4");
+  await page.keyboard.up("e");
+  await page.keyboard.press("z");
+  await expect(game).toHaveAttribute("data-crate", "5,3");
+  await expect(bolt).toHaveAttribute("data-y", "2");
+  await page.screenshot({ path: ".cache/cooperation-push.png", fullPage: true });
+  // Alternate room-5 solution: after the second T, Bolt carries battery.
+  await page.locator("#room-select").selectOption("routes");
+  const swap = routesSolution.map(a => a.type).lastIndexOf("swap");
+  await keys(page, routesSolution.slice(0, swap + 1));
+  await keys(page, [{ type: "switch" }, { type: "move", direction: "up" },
+    { type: "move", direction: "up" }, { type: "move", direction: "right" },
+    { type: "move", direction: "down" }]);
+  await expect(bolt).toHaveAttribute("data-module", "power");
+  await page.keyboard.press("e");
+  await expect(game).toHaveAttribute("data-crate", "9,6");
+  await keys(page, [{ type: "pull", direction: "down" }]);
+  await expect(game).toHaveAttribute("data-crate", "9,7");
+  await expect(bolt).toHaveAttribute("data-y", "6");
+  await expect(bolt).toHaveAttribute("data-module", "power");
+  await page.screenshot({ path: ".cache/cooperation-battery-push.png", fullPage: true });
 });
 
 test("in-flight Shift/restart/room, rotation views, supplied and occupied bridge, audio opt-in", async ({ page }) => {
-  await ready(page);
+  await ready(page, "modules");
   const game = page.locator("#game");
   for (const [key, facing] of [["ArrowRight", "right"], ["ArrowUp", "up"], ["ArrowLeft", "left"], ["ArrowDown", "down"]]) {
     await page.keyboard.press(key);
@@ -341,7 +369,7 @@ test("in-flight Shift/restart/room, rotation views, supplied and occupied bridge
   await expect(game).toHaveAttribute("data-animating", "true");
   await page.keyboard.press("Shift");
   await expect(game).toHaveAttribute("data-animating", "false");
-  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "3");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "4");
   await page.keyboard.press("z");
   await page.keyboard.press("w");
   await page.keyboard.press("r");
@@ -360,13 +388,14 @@ test("in-flight Shift/restart/room, rotation views, supplied and occupied bridge
   await page.keyboard.press("Shift");
   await keys(page, [{ type: "move", direction: "right" }]);
   await expect(page.getByTestId("robot-bolt")).toHaveAttribute("data-x", "8");
-  await expect(page.locator("#door-status")).toContainText("BRÜCKE ZU");
+  await expect(page.locator("#door-status")).toContainText("C ZU");
   await page.screenshot({ path: ".cache/expansion-bridge-retracted.png", fullPage: true });
-  await page.locator("#room-select").selectOption("freight");
+  await page.locator("#room-select").selectOption("modules");
+  await keys(page, moduleSolution.slice(0, 5));
   await expect(page.locator("#mute")).toHaveText("Ton: aus");
   await page.locator("#mute").click();
   await expect(page.locator("#mute")).toHaveAttribute("aria-pressed", "true");
-  await keys(page, [{ type: "pull", direction: "down" }]);
+  await keys(page, [{ type: "pull", direction: "left" }]);
   await page.locator("#mute").click();
   await expect(page.locator("#mute")).toHaveAttribute("aria-pressed", "false");
 });
@@ -374,7 +403,7 @@ test("in-flight Shift/restart/room, rotation views, supplied and occupied bridge
 // Check the rendered face, not just a direction attribute. The two pale eyes
 // must remain visible at the chassis front under both screen-upright modules.
 test("both modules leave both robots' eyes readable in all four directions", async ({ page }) => {
-  await ready(page);
+  await ready(page, "modules");
   const failures: string[] = [];
   const directions = [["ArrowRight", "right", 1, 0], ["ArrowUp", "up", 0, -1],
     ["ArrowLeft", "left", -1, 0], ["ArrowDown", "down", 0, 1]] as const;

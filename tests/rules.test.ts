@@ -18,7 +18,7 @@ import {
   ROOM_ORDER,
 } from "../src/game/rules.ts";
 import type { Action, State, RobotId, Position, RoomId } from "../src/game/rules.ts";
-import { solution, fullSolution, bodySolution, moduleSolution, allSolutions } from "./solution.ts";
+import { solution, fullSolution, bodySolution, moduleSolution, allSolutions, freightSetup } from "./solution.ts";
 
 const play = (state: State, actions: Action[]): State =>
   actions.reduce((s, a) => transition(s, a).state, state);
@@ -26,19 +26,16 @@ const up: Action = { type: "move", direction: "up" };
 const right: Action = { type: "move", direction: "right" };
 const interact: Action = { type: "interact" };
 const pull: Action = { type: "pull", direction: "left" };
-const cleared = (): State => play(initialState(), solution.clearCrate);
-const powered = (): State => play(cleared(), solution.swapAndPower);
+const powered = (): State => play(initialState(), solution.swapAndPower);
 const held = (): State => play(powered(), solution.boltToPlate);
 const position = (s: State, id: RobotId, x: number, y: number): State => ({
   ...s,
   robots: { ...s.robots, [id]: { ...s.robots[id], x, y } },
 });
 
-test("complete intended solution: crate → swap → power → plate → both exits", () => {
-  let s = cleared();
-  assert.deepEqual(s.crate, { x: 4, y: 2 });
-  assert.equal(s.robots.pip.module, "magnet");
-  s = play(s, solution.swapAndPower);
+test("cooperative tech solution: swap → shaft power → body handoff → both exits", () => {
+  let s = powered();
+  assert.equal(s.crate, null);
   assert.equal(s.robots.pip.module, "power");
   assert.equal(s.robots.bolt.module, "magnet");
   assert.equal(isPowered(s), true);
@@ -88,9 +85,9 @@ test("power persists across Shift and blocked movement; moving away or E disconn
   const s = powered();
   const switched = transition(s, { type: "switch" }).state;
   assert.equal(isPowered(switched), true);
-  assert.equal(isPowered(transition(s, right).state), true); // wall at 9/2
+  assert.equal(isPowered(transition(s, right).state), true); // wall at 4/3
   assert.equal(isPowered(transition(s, interact).state), false);
-  const moved = transition(s, { type: "move", direction: "left" }).state;
+  const moved = transition(s, { type: "move", direction: "down" }).state;
   assert.equal(moved.connected, null);
   assert.equal(isDoorOpen(moved), false);
   assert.deepEqual(
@@ -112,14 +109,14 @@ test("body and module are independent: only Pip fits the shaft; only Bolt holds 
     s = position(initialState(), "pip", 3, 5);
     assert.equal(transition(s, up).state.robots.pip.y, 4);
   }
-  const pipOnPlate = position(initialState(), "pip", 12, 7);
+  const pipOnPlate = position(initialState(), "pip", 8, 7);
   assert.equal(isPlateHeld(pipOnPlate), false);
   assert.equal(isDoorOpen(pipOnPlate), false);
-  assert.equal(isPlateHeld(position(initialState(), "bolt", 12, 7)), true);
+  assert.equal(isPlateHeld(position(initialState(), "bolt", 8, 7)), true);
 });
 
 test("magnet pulls only the facing metal crate with free space behind; no pushing", () => {
-  let s = position(initialState(), "pip", 5, 2);
+  let s = position(initialState("modules"), "pip", 5, 2);
   s = {
     ...s,
     robots: { ...s.robots, pip: { ...s.robots.pip, facing: "right" } },
@@ -161,9 +158,9 @@ test("magnet pulls only the facing metal crate with free space behind; no pushin
 });
 
 test("swap requires orthogonal adjacency, and is exactly undoable", () => {
-  const initial = newSession();
+  const initial = newSession("modules");
   assert.equal(dispatch(initial, { type: "swap" }).history.length, 0);
-  const diagonal = position(initial.state, "pip", 3, 7);
+  const diagonal = initial.state;
   assert.deepEqual(transition(diagonal, { type: "swap" }).state, diagonal);
   const neighbors = dispatch(initial, right);
   const swapped = dispatch(neighbors, { type: "swap" });
@@ -172,9 +169,9 @@ test("swap requires orthogonal adjacency, and is exactly undoable", () => {
 });
 
 test("walls, occupied fields and closed door block movement; a facing change is undoable", () => {
-  const s = position(initialState(), "pip", 9, 7);
-  assert.equal(transition(s, right).state.robots.pip.x, 9);
-  const collision = position(initialState(), "pip", 3, 8);
+  const s = position(initialState(), "pip", 5, 7);
+  assert.equal(transition(s, right).state.robots.pip.x, 5);
+  const collision = position(initialState(), "pip", 3, 7);
   assert.equal(transition(collision, right).state.robots.pip.x, 3);
   let session = {
     ...newSession(),
@@ -223,30 +220,17 @@ function reachable(
   return seen;
 }
 
-test("layout has no walking bypass: two pulls, Pip shaft and door are required", () => {
+test("tech shaft power and remote plate are required before crossing A", () => {
   const s = initialState();
-  for (const x of [6, 5])
-    assert.equal(
-      reachable(s.robots.pip, "pip", { x, y: 2 }, false).has("8,2"),
-      false,
-    );
-  assert.equal(
-    reachable(s.robots.pip, "pip", { x: 4, y: 2 }, false).has("8,2"),
-    true,
-  );
-  assert.equal(
-    reachable(s.robots.bolt, "bolt", { x: 4, y: 2 }, true).has("8,2"),
-    false,
-  );
+  assert.equal(reachable(s.robots.pip, "pip", { x: -1, y: -1 }, false).has("3,3"), true);
+  assert.equal(reachable(s.robots.bolt, "bolt", { x: -1, y: -1 }, true).has("3,3"), false);
   for (const id of ["pip", "bolt"] as const) {
-    const closed = reachable(s.robots[id], id, { x: 4, y: 2 }, false);
-    assert.equal(closed.has("12,7"), false, "plate is beyond the door");
-    assert.equal(closed.has("14,9"), false, "exit is beyond the door");
-    assert.equal(
-      reachable(s.robots[id], id, { x: 4, y: 2 }, true).has("14,9"),
-      true,
-    );
+    const closed = reachable(s.robots[id], id, { x: -1, y: -1 }, false);
+    assert.equal(closed.has("8,7"), false);
+    assert.equal(closed.has("14,9"), false);
+    assert.equal(reachable(s.robots[id], id, { x: -1, y: -1 }, true).has("14,9"), true);
   }
+  assert.equal(isWon(play(s, fullSolution.filter(a => a.type !== "swap"))), false);
 });
 
 test("without the plate, releasing power strands Pip; plate release closes door without latching", () => {
@@ -256,7 +240,7 @@ test("without the plate, releasing power strands Pip; plate release closes door 
   assert.equal(isDoorOpen(s), false);
   assert.equal(isWon(s), false);
   assert.equal(
-    reachable(s.robots.pip, "pip", s.crate!, false).has("14,9"),
+    reachable(s.robots.pip, "pip", { x: -1, y: -1 }, false).has("14,9"),
     false,
   );
   s = held();
@@ -359,7 +343,7 @@ test("anchored ceramic blocks movement and magnet E gives an explicit immutable 
 
 
 test("E alone, lateral/forward pull and wrong module never move or turn the bot", () => {
-  let s = position(initialState(), "pip", 5, 2);
+  let s = position(initialState("modules"), "pip", 5, 2);
   s = { ...s, robots: { ...s.robots, pip: { ...s.robots.pip, facing: "right" } } };
   for (const action of [interact, { type: "pull", direction: "up" }, { type: "pull", direction: "right" }] as Action[])
     assert.equal(transition(s, action).state, s);
@@ -371,11 +355,14 @@ test("E alone, lateral/forward pull and wrong module never move or turn the bot"
 });
 
 test("crate holds a plate, Pip does not; undo restores crate, plate and door", () => {
-  const before = newSession("freight");
-  assert.equal(isDoorOpen(before.state), false);
+  let before = newSession("freight");
+  for (const action of freightSetup) before = dispatch(before, action);
   const after = dispatch(before, { type: "pull", direction: "down" });
   assert.equal(isPlateHeld(after.state), true);
-  assert.equal(isDoorOpen(after.state), true);
+  assert.deepEqual(after.state.crate, { x: 5, y: 4 });
+  const disconnected = transition({ ...after.state, active: "pip" }, interact).state;
+  assert.equal(isDoorOpen(disconnected), true);
+  assert.equal(isDoorOpen({ ...disconnected, crate: null }), false);
   assert.deepEqual(dispatch(after, { type: "undo" }).state, before.state);
 });
 
@@ -384,13 +371,23 @@ test("separate circuits never power the other door; module swap disconnects", ()
   s = { ...s, connected: "pip", robots: { ...s.robots, pip: { ...s.robots.pip, module: "power" } } };
   assert.equal(isDoorOpen(s, { x: 6, y: 7 }), true);
   assert.equal(isDoorOpen(s, { x: 11, y: 7 }), false);
-  s = position(s, "pip", 9, 5);
+  s = { ...position(s, "pip", 9, 8), crate: { x: 9, y: 7 } };
   assert.equal(isDoorOpen(s, { x: 6, y: 7 }), false);
   assert.equal(isDoorOpen(s, { x: 11, y: 7 }), true);
-  s = position(s, "bolt", 8, 5);
+  s = position(s, "bolt", 8, 8);
   const swapped = transition(s, { type: "swap" }).state;
   assert.equal(swapped.connected, null);
-  assert.equal(isDoorOpen(swapped), false);
+  assert.equal(isDoorOpen(swapped, { x: 6, y: 7 }), false);
+  assert.equal(isDoorOpen(swapped, { x: 11, y: 7 }), true);
+  // A valid adjacent supplier, with power actually on before the exchange.
+  const supplied: State = { ...initialState("bridge"), connected: "pip", robots: {
+    pip: { x: 5, y: 5, facing: "right", module: "power" },
+    bolt: { x: 6, y: 5, facing: "left", module: "magnet" },
+  } };
+  assert.equal(isPowered(supplied), true);
+  const exchanged = transition(supplied, { type: "swap" }).state;
+  assert.equal(exchanged.connected, null);
+  assert.equal(isBridgeOpen(exchanged, { x: 7, y: 5 }), false);
 });
 
 test("bridge occupancy interlock on power loss: E, departure, swap, crate and undo", () => {
@@ -437,9 +434,70 @@ test("new rooms have no trivial walking bypass of freight, A/B or bridge/return"
   assert.equal(flood("routes", ROOMS.routes.pip, new Set()).has("8,7"), false);
   assert.equal(flood("routes", { x: 8, y: 7 }, new Set(["6,7"])).has("14,9"), false);
   assert.equal(flood("bridge", ROOMS.bridge.pip, new Set()).has("14,9"), false);
-  assert.equal(flood("bridge", ROOMS.bridge.pip, new Set(["7,5"])).has("14,9"), true);
+  assert.equal(flood("bridge", ROOMS.bridge.pip, new Set(["7,5"])).has("14,9"), false);
   const bridgeCircuits = circuits("bridge");
-  const held = position(initialState("bridge"), "bolt", 10, 9);
+  const held = position(initialState("bridge"), "bolt", 10, 5);
   assert.equal(circuitOn(held, bridgeCircuits[0]), false);
   assert.equal(circuitOn(held, bridgeCircuits[1]), true);
+});
+
+test("Bolt's body pushes with either module; obstacles reject without turning or losing power", () => {
+  for (const module of ["magnet", "power"] as const) {
+    let s: State = play(initialState("freight"), freightSetup);
+    s = { ...s, robots: { ...s.robots, bolt: { ...s.robots.bolt, module } } };
+    const push: Action = { type: "pull", direction: "down" };
+    const rejectedActions: Action[] = [interact, { type: "move", direction: "down" },
+      { type: "pull", direction: "right" }];
+    for (const action of rejectedActions) {
+      assert.equal(transition(s, action).state, s);
+    }
+    const pushed: State = transition(s, push).state;
+    assert.deepEqual(pushed.crate, { x: 5, y: 4 });
+    assert.equal(pushed.robots.bolt.y, 3);
+    assert.equal(pushed.robots.bolt.facing, "down");
+    assert.equal(pushed.robots.bolt.module, module);
+    assert.equal(pushed.connected, "pip", "partner's supply persists");
+    assert.equal(transition(pushed, push).state, pushed, "wall behind the crate");
+    assert.equal(transition(position(s, "pip", 5, 4), push).state.robots.bolt.y, 2,
+      "partner behind the crate blocks a push");
+    const pip = { ...s, active: "pip" as const, robots: { ...s.robots,
+      pip: { ...s.robots.pip, module, x: 5, y: 2, facing: "down" as const },
+      bolt: { ...s.robots.bolt, x: 4, y: 2 } } };
+    assert.equal(transition(pip, push).state, pip, "Pip cannot push with either module");
+  }
+});
+
+test("both bodies can pull with magnet, battery cannot; freight never enters a shaft", () => {
+  for (const id of ["pip", "bolt"] as const) {
+    const other = id === "pip" ? "bolt" : "pip";
+    let s = initialState("modules");
+    s = { ...s, active: id, robots: { ...s.robots,
+      [id]: { x: 5, y: 2, module: "magnet", facing: "right" },
+      [other]: { ...s.robots[other], x: 3, y: 5 } } };
+    assert.deepEqual(transition(s, pull).state.crate, { x: 5, y: 2 });
+    const power = { ...s, robots: { ...s.robots, [id]: { ...s.robots[id], module: "power" as const } } };
+    assert.equal(transition(power, pull).state, power);
+  }
+  const s = initialState("modules");
+  const inShaft: State = { ...s, crate: { x: 3, y: 3 }, robots: { ...s.robots,
+    pip: { ...s.robots.pip, x: 3, y: 4, facing: "up" } } };
+  assert.equal(transition(inShaft, { type: "pull", direction: "down" }).state, inShaft);
+  const bolt: State = { ...s, active: "bolt", crate: { x: 3, y: 3 }, robots: { ...s.robots,
+    bolt: { ...s.robots.bolt, x: 3, y: 2, facing: "down" } } };
+  assert.equal(transition(bolt, { type: "pull", direction: "down" }).state, bolt);
+});
+
+test("cooperation routes fail without their required handoff, freight or partner supply", () => {
+  for (const room of ["tech", "freight", "routes", "bridge"] as const) {
+    assert.equal(isWon(play(initialState(room), allSolutions[room].filter(a => a.type !== "swap"))), false, room);
+  }
+  for (const room of ["freight", "routes"] as const) {
+    assert.equal(isWon(play(initialState(room), allSolutions[room].filter(a => a.type !== "pull"))), false, room);
+  }
+  const bridge = initialState("bridge");
+  const lightPlate = position(bridge, "pip", 10, 5);
+  assert.equal(isDoorOpen(lightPlate, { x: 6, y: 9 }), false);
+  const heavyPlate = position(bridge, "bolt", 10, 5);
+  assert.equal(isDoorOpen(heavyPlate, { x: 6, y: 9 }), true);
+  assert.equal(isDoorOpen(heavyPlate, { x: 12, y: 7 }), false, "B still needs Pip's separate supply");
 });

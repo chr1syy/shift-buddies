@@ -6,43 +6,19 @@ const walk = (direction: Direction, count: number): Action[] =>
 // Explicit route, also used as real keyboard input by the browser test.
 // Coordinates are zero-based (x / y), as shown on the robot cards.
 export const solution = {
-  clearCrate: [
-    ...walk("right", 1),
-    ...walk("up", 6),
-    ...walk("right", 2),
-    { type: "pull", direction: "left" },
-    { type: "pull", direction: "left" }, // Pip 3/2, crate 4/2
-  ],
   swapAndPower: [
-    ...walk("down", 6),
-    { type: "swap" }, // Pip 3/8, Bolt 4/8
-    ...walk("up", 5),
-    ...walk("right", 2),
-    ...walk("up", 1),
-    ...walk("right", 3),
-    { type: "interact" }, // Pip connected at 8/2
+    ...walk("down", 2), { type: "swap" }, ...walk("up", 4),
+    { type: "interact" }, // Pip supplies A at 3/3 through the shaft
   ],
   boltToPlate: [
-    { type: "switch" },
-    ...walk("right", 5),
-    ...walk("up", 1),
-    ...walk("right", 3), // Bolt 12/7
+    { type: "switch" }, ...walk("right", 4), // Bolt holds A at 8/7
   ],
   pipToExit: [
-    { type: "switch" },
-    { type: "interact" }, // disconnect while Bolt holds plate
-    ...walk("left", 3),
-    ...walk("down", 1),
-    ...walk("left", 2),
-    ...walk("down", 4),
-    ...walk("right", 8),
-    ...walk("down", 2),
-    ...walk("right", 3), // Pip 14/9
+    { type: "switch" }, { type: "interact" }, ...walk("down", 4),
+    ...walk("right", 4), ...walk("down", 2), ...walk("right", 7),
   ],
   boltToExit: [
-    { type: "switch" },
-    ...walk("right", 3),
-    ...walk("down", 2), // Bolt 15/9
+    { type: "switch" }, ...walk("right", 7), ...walk("down", 2),
   ],
 } satisfies Record<string, Action[]>;
 
@@ -63,30 +39,33 @@ export const moduleSolution: Action[] = [
   { type: "switch" }, ...walk("right", 3),
 ];
 
+export const freightSetup: Action[] = [
+  { type: "swap" }, ...walk("up", 1), ...walk("right", 4), ...walk("up", 2),
+  { type: "interact" }, { type: "switch" }, ...walk("left", 2),
+  ...walk("up", 5), ...walk("right", 3), ...walk("down", 1), // blocked turn toward crate
+];
 export const freightSolution: Action[] = [
-  { type: "pull", direction: "down" }, ...walk("right", 2),
-  ...walk("right", 1), ...walk("right", 4), ...walk("down", 1),
-  { type: "switch" }, ...walk("right", 3), ...walk("up", 1),
-  ...walk("right", 6), ...walk("down", 1),
+  ...freightSetup, { type: "pull", direction: "down" },
+  ...walk("left", 3), ...walk("down", 4), ...walk("right", 13), ...walk("down", 1),
+  { type: "switch" }, { type: "interact" }, ...walk("down", 3),
+  ...walk("right", 7), ...walk("down", 1),
 ];
 export const routesSolution: Action[] = [
   ...walk("down", 2), { type: "swap" }, ...walk("up", 4), { type: "interact" },
   { type: "switch" }, ...walk("right", 4),
   { type: "switch" }, { type: "interact" }, ...walk("down", 4), ...walk("right", 4),
-  { type: "swap" },
-  { type: "switch" }, ...walk("up", 1), ...walk("right", 1), ...walk("up", 1), { type: "interact" },
-  { type: "switch" }, ...walk("right", 7), // Pip 14/7, below crate
-  ...walk("up", 1), // face the crate (blocked move, undoable turn)
-  { type: "pull", direction: "down" }, ...walk("down", 1), // Pip 14/9
-  { type: "switch" }, { type: "interact" }, ...walk("down", 2),
-  ...walk("right", 3), ...walk("down", 1), ...walk("right", 3), ...walk("down", 1),
+  { type: "swap" }, ...walk("down", 1), ...walk("right", 2), ...walk("up", 1),
+  { type: "pull", direction: "down" }, ...walk("right", 1), ...walk("up", 1),
+  ...walk("right", 4), ...walk("down", 2), { type: "switch" },
+  ...walk("down", 1), ...walk("right", 2), ...walk("up", 1), ...walk("right", 5), ...walk("down", 2),
 ];
 export const bridgeSolution: Action[] = [
   { type: "swap" }, ...walk("up", 2), ...walk("right", 1), { type: "interact" },
-  { type: "switch" }, ...walk("right", 1), ...walk("up", 2), ...walk("right", 4), ...walk("down", 4),
-  { type: "switch" }, { type: "interact" }, ...walk("left", 1), ...walk("down", 4), ...walk("right", 5),
-  ...walk("up", 1), ...walk("right", 5),
-  { type: "switch" }, ...walk("up", 1), ...walk("right", 3), ...walk("down", 1), ...walk("right", 1),
+  { type: "switch" }, ...walk("right", 1), ...walk("up", 2), ...walk("right", 4),
+  { type: "switch" }, { type: "interact" }, ...walk("left", 1), ...walk("down", 4),
+  ...walk("right", 6), { type: "interact" }, // Pip helps Bolt through B at 10/9
+  { type: "switch" }, ...walk("right", 2), ...walk("down", 3), ...walk("right", 2), ...walk("down", 2),
+  { type: "switch" }, { type: "interact" }, ...walk("right", 4),
 ];
 export const allSolutions = { bodies: bodySolution, modules: moduleSolution, tech: fullSolution,
   freight: freightSolution, routes: routesSolution, bridge: bridgeSolution };
