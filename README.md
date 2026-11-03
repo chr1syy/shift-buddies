@@ -28,7 +28,7 @@ Der Standard-Browsertest startet einen lokalen Devserver. Die Releaseabnahme lie
 
 | Taste | Wirkung |
 | --- | --- |
-| WASD / Pfeile | Ein Feld fahren und ausrichten; auch ein blockierter Versuch dreht den Bot |
+| WASD / Pfeile | Kurz tippen: ein Feld; halten: kontinuierlich fahren. Auch ein blockierter Versuch dreht den Bot |
 | Shift | Gesteuerten Bot wechseln; eine Stromverbindung bleibt bestehen |
 | T | Magnet und Batterie zwischen direkt benachbarten Bots tauschen; Verbindung lösen |
 | E halten + rückwärts | Mit Magnet die benachbarte Kiste **vor dem Bot** ziehen; Blick bleibt zur Kiste |
@@ -37,9 +37,9 @@ Der Standard-Browsertest startet einen lokalen Devserver. Die Releaseabnahme lie
 | Z / R | Letzte Zustandsänderung einschließlich Blick zurück / gewählten Raum neu starten |
 | Enter | Nach Sieg zum vorhandenen Folgeraum; alternativ Weiter anklicken |
 
-**Erst ausrichten, dann E halten.** Der weiße Nasenpfeil, das Gesicht und der Pfeil auf der Roboterkarte zeigen vorwärts. Magnetisches E alleine bewegt nichts. Seitwärts wird bei gehaltenem E weder gefahren noch gedreht; Pip kann auch vorwärts nicht schieben. E loslassen zum Drehen. Normales Gegen-die-Kiste-Fahren schiebt nie automatisch. Pro neuem Richtungstastendruck genau ein Feld, kein OS-Keyrepeat. E mit Bolts Batterie schaltet auf einem Sockel weiterhin die Versorgung; gehaltenes E erlaubt zusätzlich bewusstes Vorwärtsschieben. Ohne Magnet gibt es kein Rückwärtsziehen.
+**Erst ausrichten, dann E halten.** Der weiße Nasenpfeil, das Gesicht und der Pfeil auf der Roboterkarte zeigen vorwärts. Magnetisches E alleine bewegt nichts. Seitwärts wird bei gehaltenem E weder gefahren noch gedreht; Pip kann auch vorwärts nicht schieben. E loslassen zum Drehen. Normales Gegen-die-Kiste-Fahren schiebt nie automatisch. Kurzes Tippen fährt genau ein Feld; Halten fährt mit eigenem Zeitgeber weiter, unabhängig vom OS-Keyrepeat. E mit Bolts Batterie schaltet auf einem Sockel weiterhin die Versorgung; gehaltenes E erlaubt zusätzlich bewusstes Vorwärtsschieben. Ohne Magnet gibt es kein Rückwärtsziehen.
 
-Loslassen, Feld-/Fensterfokusverlust, ausgeblendetes Dokument, Shift, T, Z, R und Raumwahl löschen die E-Bereitschaft. Der E-Button erklärt die Magnet-/Kraftsteuerung und bedient Batterieanschlüsse; er rastet nicht ein. Undo nimmt auch Schieben, Modultausch und Verbindungen gemeinsam zurück.
+Richtung loslassen beendet die Fahrt spätestens am nächsten Feldzentrum. E loslassen beendet Ziehen/Schieben und löscht gehaltene Richtungen. Feld-/Fensterfokusverlust, ausgeblendetes Dokument, Shift, T, Z, R, Raumwahl und Sieg löschen Richtungen und E-Bereitschaft. Der E-Button erklärt die Magnet-/Kraftsteuerung und bedient Batterieanschlüsse; er rastet nicht ein. Undo nimmt auch Schieben, Modultausch und Verbindungen gemeinsam zurück.
 
 **Feste Körper, freie Module:** Nur Pip passt durch Schächte. Bolt hält schwere Platten und schiebt; Metallkisten halten Platten ebenfalls. Beide Bots können mit Magnet ziehen und mit Batterie Sockel versorgen. Kisten passen nicht durch Schächte. Die Batterie versorgt nur den Sockel unter dem verbundenen Träger; Wegfahren, E oder T lösen die Verbindung.
 
@@ -47,7 +47,7 @@ Gleiche **A/B/C-Symbole** verbinden Quellen mit Toren/Brücken. **○ inaktiv / 
 
 Tore rasten nicht ein. Ein Bot auf einem schließenden Tor darf es verlassen; das hält es nicht für seinen Partner offen. Eine besetzte Brückenspanne bleibt bei Stromausfall sicher ausgefahren, bis alle Bots/Kisten sie verlassen haben. Keine Stürze oder zerstörbare Objekte.
 
-Fahrten interpolieren 160 ms. Folgeaktionen beenden die vorige Darstellung am gültigen Zielfeld; es gibt keine versteckte Eingabeschlange. **Reduced motion** deaktiviert Fahrinterpolation und sämtliche Aktions-/Aktivierungsimpulse, auch bei geänderter Systemeinstellung. Feste Zustandsanzeigen bleiben erhalten. **Ton startet aus** und kann nach Browserinteraktion eingeschaltet werden.
+Ein Feld dauert bei beiden Bots 180 ms. Nur die Abfahrt aus dem Stand beschleunigt; fortlaufende Felder haben gleichmäßige Geschwindigkeit. Ein kurzer Körperimpuls markiert Anfahren, Stoppen und ein Hindernis. Die Räder/Ketten laufen beim Ziehen rückwärts und beim Drehen gegensinnig. Pip dreht in 100 ms, Bolt in 140 ms. Die zuletzt neu gedrückte Richtung gewinnt; beim Loslassen gilt wieder die letzte noch gehaltene Taste. Ein kurzer Richtungswechsel während einer Fahrt merkt höchstens einen nächsten Feldzug vor. Weitere Eingaben ersetzen diese Absicht; Kontextwechsel löschen sie. Hindernisse sperren weitere automatische Versuche bis zu einer neuen Eingabe. Eine Framepause über 250 ms beendet die Haltefahrt ohne Nachholen. Undo/Neustart/Bot-/Raumwechsel beenden laufende Darstellung am gültigen Zustand. **Reduced motion** deaktiviert Fahrinterpolation und sämtliche Aktions-/Aktivierungsimpulse, auch bei geänderter Systemeinstellung. Feste Zustandsanzeigen bleiben erhalten. **Ton startet aus** und kann nach Browserinteraktion eingeschaltet werden.
 
 ## Sechs kleine Schritte
 
@@ -65,9 +65,10 @@ Alle Räume sind direkt anwählbar; Raumwahl leert Undo. Raum 1 verlangt Pip am 
 ## Nachvollziehbarer Code
 
 - `src/game/rules.ts`: Reine TypeScript-Zustände und Übergänge ohne DOM/Phaser/Timer. Raumdaten, Schaltkreise, Körpergrenzen, Ziehen/Schieben, Strom, Undo. Die bestehende Aktion `pull` bedeutet intern E+Richtung: rückwärts Magnetziehen, bei Bolt vorwärts Kraftschieben. Keine zusätzliche Eingabe- oder Zustandsmaschine.
+- `src/game/drive.ts`: Physische Richtungstasten, eine nächste Fahrabsicht und Hindernissperre; keine Spielzustände oder Undo-Duplikate.
 - `src/main.ts`: Eine Phaser-Scene, gemeinsame Modulformen für beide Bots, Nase/Gesichter, Eingaben und HTML-Anzeige. Reihenfolge: Boden, Leitungen, Einrichtungen, Fracht/Bots; Zustandsbadges bleiben darüber lesbar. Bereitschaft und Effekte sind vorübergehende Darstellung.
 - `index.html` / `src/style.css`: Bedienung und vorhandenes Layout; keine zusätzlichen Abhängigkeiten.
-- `tests/`: Aktualisierte Lösungen für alle sechs Räume, Regelregressionen für Körper-/Modulrollen und acht Browserprüfungen mit echter Tastaturbedienung; keine Debug-Zustandssetter.
+- `tests/`: Aktualisierte Lösungen für alle sechs Räume, Regelregressionen für Körper-/Modulrollen und zwölf Browserprüfungen mit echter Tastaturbedienung; Mehrframeprüfungen verbinden tatsächliche Renderkoordinaten mit Canvas-Pixelhashes; keine Debug-Zustandssetter.
 - `deploy/`: Bestehende Releasewerkzeuge, SHA-256-Manifeste und Releasebelege; nur die drei Builddateien werden öffentlich ausgeliefert.
 
 Layoutzeichen: `#` Wand, `.` Boden, `v` Schacht, `S` Sockel, `D` Tor, `P` schwere Platte, `X` Ausgang, `O` feste Keramik, `~` Grube, `B` Brücke. Bots und optionale Fracht starten an separat definierten Positionen.
@@ -75,3 +76,5 @@ Layoutzeichen: `#` Wand, `.` Boden, `v` Schacht, `S` Sockel, `D` Tor, `P` schwer
 Grenzen: Kein vollständiger Zustandsraumbeweis, keine unabhängige Spielabnahme. Sichtdurchgänge in lokalem Headless Chromium ersetzen keinen menschlichen Spieltest. Firefox, Safari, itch.io-Einbettung, physischer Fokuswechsel und Hörabnahme bleiben offen. Keine Speicherung, Gegner oder Touch-Steuerung; Canvas ist noch nicht vollständig für Screenreader zugänglich. Die bekannte Vite-Warnung zur Phaser-Bundlegröße bleibt.
 
 MIT-Lizenz, Copyright (c) 2026 Chris; siehe [LICENSE](LICENSE). Abhängigkeiten behalten ihre Lizenzen.
+
+Die bestätigte weitere Richtung (Modultausch, Persönlichkeiten, Werkstattgeschichte, gestufte Hinweise, Aha-Rätsel, Finale) steht in der [Roadmap vom 03.11.2026](docs/2026-11-03-roadmap.md). Das Fahrgefühlpaket verändert keine Räume, Regeln oder Module.

@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import "./style.css";
+import { DriveInput, DIRECTION_KEYS, STEP_MS, driveProgress } from "./game/drive.ts";
 import {
   ROOM,
   ROOMS,
@@ -20,7 +21,6 @@ import {
 } from "./game/rules.ts";
 import type {
   Command,
-  Direction,
   RobotId,
   Session,
   State,
@@ -29,6 +29,7 @@ import type {
 } from "./game/rules.ts";
 
 const TILE = 50;
+const ANGLES = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 };
 const COLORS = {
   floor: 0x152638,
   wall: 0x223246,
@@ -104,32 +105,62 @@ class RoomScene extends Phaser.Scene {
   private graphics!: Phaser.GameObjects.Graphics;
   private labels: Phaser.GameObjects.Text[] = [];
   private preserveLabels = false;
-  private motion?: { before: State; progress: number; pull: boolean };
-  private drive?: Phaser.Tweens.Tween;
+  private motion?: { before: State; progress: number; pull: boolean; started: number; starting: boolean };
+  private controls = new DriveInput();
+  private nextStepAt = 0;
+  private lastFrame = 0;
+  private wheelTravel: Record<RobotId, number> = { pip: 0, bolt: 0 };
+  private steeringTravel: Record<RobotId, number> = { pip: 0, bolt: 0 };
+  private expression?: { id: RobotId; started: number; kind: "start" | "stop" | "bump" };
+  private wasRolling = false;
   private effects = new Set<Phaser.GameObjects.Graphics>();
 
   private settle(): void {
-    this.drive?.stop(); this.drive = undefined; this.motion = undefined;
+    this.motion = undefined; this.expression = undefined; this.wasRolling = false;
+    this.wheelTravel = { pip: 0, bolt: 0 }; this.steeringTravel = { pip: 0, bolt: 0 };
     for (const effect of this.effects) { this.tweens.killTweensOf(effect); effect.destroy(); }
     this.effects.clear();
     gameElement.dataset.animating = "false";
   }
-  update(): void { if (this.motion) this.redraw(true); }
+  private resetInput(): void { this.controls.reset(); pullHeld = false; }
+
+  update(): void {
+    const now = performance.now();
+    // A stalled frame is not a debt to repay. Finish this one legal step and
+    // require fresh input after a long suspension, even without a blur event.
+    if (this.lastFrame && now - this.lastFrame > 250) {
+      this.resetInput(); this.settle(); updateHud(); this.redraw();
+    }
+    this.lastFrame = now;
+    let finished = false;
+    if (this.motion) {
+      const t = Math.min(1, (now - this.motion.started) / STEP_MS);
+      this.motion.progress = driveProgress(t, this.motion.starting);
+      if (t === 1) {
+        const id = session.state.active;
+        const r = session.state.robots[id];
+        if (!same(this.motion.before.robots[id], r)) this.wheelTravel[id] += this.motion.pull ? -30 : 30;
+        this.steeringTravel[id] += Phaser.Math.Angle.Wrap(ANGLES[r.facing] - ANGLES[this.motion.before.robots[id].facing]) * 8;
+        this.motion = undefined; finished = true;
+        gameElement.dataset.animating = "false";
+      }
+    }
+    if (!this.motion && now >= this.nextStepAt) {
+      const direction = this.controls.take();
+      if (direction) this.act({ type: pullHeld ? "pull" : "move", direction }, this.wasRolling);
+      else if (this.wasRolling) {
+        this.wasRolling = false;
+        this.expression = { id: session.state.active, started: now, kind: "stop" };
+      }
+    }
+    if (this.expression && now - this.expression.started > 180) { this.expression = undefined; finished = true; }
+    if (this.motion || this.expression || finished) this.redraw(true);
+  }
 
   create(): void {
     this.graphics = this.add.graphics();
     this.redraw();
     updateHud();
-    const keys: Record<string, Direction> = {
-      ArrowUp: "up",
-      KeyW: "up",
-      ArrowDown: "down",
-      KeyS: "down",
-      ArrowLeft: "left",
-      KeyA: "left",
-      ArrowRight: "right",
-      KeyD: "right",
-    };
     // Enter belongs to progression only on the field or its own Next button.
     // Prevent native button activation so one keydown cannot advance twice.
     document.addEventListener("keydown", event => {
@@ -141,15 +172,23 @@ class RoomScene extends Phaser.Scene {
     // DOM order matters: Phaser queues keydown until the next frame. Handling
     // down/up together here prevents fast E+direction/releases crossing frames.
     window.addEventListener("keydown", (event: KeyboardEvent) => {
-      if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
+      if (event.ctrlKey || event.altKey || event.metaKey) return;
       if (document.activeElement !== gameElement && document.activeElement !== document.body) return;
+      if (DIRECTION_KEYS[event.code]) event.preventDefault();
+      if (event.repeat) return;
       let command: Command | undefined;
-      if (keys[event.code]) {
-        const direction = keys[event.code];
-        command = { type: pullHeld ? "pull" : "move", direction };
+      if (DIRECTION_KEYS[event.code]) {
+        event.preventDefault();
+        if (isWon(session.state) || !this.controls.press(event.code)) return;
+        if (!this.motion) {
+          const direction = this.controls.take()!;
+          this.act({ type: pullHeld ? "pull" : "move", direction }, this.wasRolling);
+        }
+        return;
       }
       else if (event.code === "ShiftLeft" || event.code === "ShiftRight") command = { type: "switch" };
       else if (event.code === "KeyE") {
+        this.controls.reset();
         pullHeld = (session.state.robots[session.state.active].module === "magnet" || session.state.active === "bolt") && !isWon(session.state);
         command = { type: "interact" };
       }
@@ -158,12 +197,15 @@ class RoomScene extends Phaser.Scene {
       else if (event.code === "KeyR") command = { type: "restart" };
       if (command) { event.preventDefault(); this.act(command); }
     });
-    const release = (): void => { pullHeld = false; updateHud(); this.redraw(); };
-    window.addEventListener("keyup", event => { if (event.code === "KeyE") release(); });
+    const release = (): void => { this.resetInput(); updateHud(); this.redraw(); };
+    window.addEventListener("keyup", event => {
+      if (DIRECTION_KEYS[event.code]) this.controls.release(event.code);
+      if (event.code === "KeyE") release();
+    });
     window.addEventListener("blur", () => { this.settle(); release(); });
-    gameElement.addEventListener("blur", release);
+    gameElement.addEventListener("blur", () => { this.settle(); release(); });
     document.addEventListener("visibilitychange", () => { if (document.hidden) { this.settle(); release(); } });
-    window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => { this.settle(); this.redraw(); });
+    window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => { this.resetInput(); this.settle(); updateHud(); this.redraw(); });
     element("mute").addEventListener("click", () => {
       muted = !muted;
       element("mute").setAttribute("aria-pressed", String(!muted));
@@ -198,21 +240,34 @@ class RoomScene extends Phaser.Scene {
     gameElement.focus({ preventScroll: true });
   }
 
-  private act(command: Command): void {
-    this.settle();
-    if (["switch", "swap", "undo", "restart", "room"].includes(command.type)) pullHeld = false;
+  private act(command: Command, continuing = false): void {
+    const driving = command.type === "move" || command.type === "pull";
+    if (!driving) {
+      this.settle();
+      if (["switch", "swap", "undo", "restart", "room"].includes(command.type)) this.resetInput();
+    }
     const before = session.state;
     session = dispatch(session, command);
     const after = session.state;
-    const moving = before.room === after.room && (["pip", "bolt"] as const).some(id =>
-      !same(before.robots[id], after.robots[id]) || before.robots[id].facing !== after.robots[id].facing);
-    if (moving && (command.type === "move" || command.type === "pull") && !reducedMotion()) {
-      this.motion = { before, progress: 0, pull: command.type === "pull" && command.direction !== before.robots[before.active].facing };
-      gameElement.dataset.animating = "true";
-      this.drive = this.tweens.add({ targets: this.motion, progress: 1, duration: 160, ease: "Sine.easeInOut",
-        onComplete: () => { this.drive = undefined; this.motion = undefined; gameElement.dataset.animating = "false"; this.redraw(); } });
+    const id = before.active;
+    const moved = !same(before.robots[id], after.robots[id]);
+    const turned = before.robots[id].facing !== after.robots[id].facing;
+    if (driving) {
+      const clockNow = performance.now();
+      const now = continuing && clockNow >= this.nextStepAt && clockNow - this.nextStepAt < 100 ? this.nextStepAt : clockNow;
+      this.nextStepAt = now + STEP_MS;
+      if (!moved) this.controls.obstruct();
+      this.wasRolling = moved;
+      if (!reducedMotion() && (moved || turned)) {
+        this.motion = { before, progress: driveProgress(Math.max(0, (clockNow - now) / STEP_MS), !continuing), started: now, starting: !continuing,
+          pull: command.type === "pull" && command.direction !== before.robots[id].facing };
+        gameElement.dataset.animating = "true";
+      }
+      if (!reducedMotion() && (!moved || !continuing))
+        this.expression = { id, started: now, kind: moved ? "start" : "bump" };
     }
-    if (command.type === "pull" && before !== after) pullSound();
+    if (isWon(after)) this.resetInput();
+    if (command.type === "pull" && moved) pullSound();
     updateHud(); this.redraw();
     if (after !== before && !["undo", "restart", "room"].includes(command.type)) this.reaction(before, command);
   }
@@ -397,8 +452,10 @@ class RoomScene extends Phaser.Scene {
         this.text(p.x * TILE + 12, p.y * TILE + 6, `${on ? "●" : "○"}${c.name || "A"}`, on ? "#b7ffe5" : "#e5d4ae", 9);
       }
     }
+    if (!s.crate) delete gameElement.dataset.visualCrate;
     if (s.crate) {
       const { x: cx, y: cy } = this.visual(s.crate, this.motion?.before.crate ?? undefined);
+      gameElement.dataset.visualCrate = JSON.stringify({ x: cx, y: cy });
       g.fillStyle(0x050a10, 0.35).fillEllipse(cx + 2, cy + 18, 43, 15);
       g.fillStyle(0x6f899a).fillRoundedRect(cx - 20, cy - 20, 40, 40, 3);
       g.lineStyle(2, 0xd3e0e7).strokeRoundedRect(cx - 20, cy - 20, 40, 40, 3);
@@ -468,14 +525,22 @@ class RoomScene extends Phaser.Scene {
     const r = s.robots[id];
     const g = this.graphics;
     const { x, y } = this.visual(r, this.motion?.before.robots[id]);
-    const angles = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 };
-    const target = angles[r.facing];
-    const start = angles[this.motion?.before.robots[id].facing ?? r.facing];
+    const target = ANGLES[r.facing];
+    const start = ANGLES[this.motion?.before.robots[id].facing ?? r.facing];
     const difference = Phaser.Math.Angle.Wrap(target - start);
-    const angle = start + difference * (this.motion?.progress ?? 1);
+    const turnTime = this.motion ? Math.min(1, (performance.now() - this.motion.started) / (id === "pip" ? 100 : 140)) : 1;
+    const angle = start + difference * turnTime * turnTime * (3 - 2 * turnTime);
     const pip = id === "pip";
     const rolling = this.motion && !same(this.motion.before.robots[id], r);
-    const phase = rolling ? ((this.motion!.progress * (this.motion!.pull ? -30 : 30)) % 6 + 6) % 6 : 0;
+    const travel = this.wheelTravel[id] + (rolling ? this.motion!.progress * (this.motion!.pull ? -30 : 30) : 0);
+    const steering = this.steeringTravel[id] + (angle - start) * 8;
+    const leftPhase = (((travel - steering) % 6) + 6) % 6;
+    const rightPhase = (((travel + steering) % 6) + 6) % 6;
+    // Pip springs lightly; Bolt braces with a shorter, heavier chassis response.
+    const expression = !reducedMotion() && this.expression?.id === id ? this.expression : undefined;
+    const pulse = expression ? Math.sin(Math.min(1, (performance.now() - expression.started) / 180) * Math.PI) : 0;
+    const brace = expression?.kind === "bump" ? -1 : expression?.kind === "stop" ? 1 : -0.6;
+    gameElement.dataset[`visual${id === "pip" ? "Pip" : "Bolt"}`] = JSON.stringify({ x, y, angle, leftPhase, rightPhase });
     g.fillStyle(0x040a10, 0.4).fillEllipse(x + 2, y + 17, pip ? 31 : 49, 16);
     if (s.connected === id) g.lineStyle(3, COLORS.power).strokeCircle(x, y, 24);
     if (s.active === id) {
@@ -484,19 +549,21 @@ class RoomScene extends Phaser.Scene {
     }
     // The face and drive rotate with the chassis. The module stays upright
     // at its rotating rear mount, leaving the face clear in every direction.
-    g.save().translateCanvas(x, y).rotateCanvas(angle);
+    g.save().translateCanvas(x, y).rotateCanvas(angle).translateCanvas(0, pulse * brace * (pip ? 2 : 1));
     // A nose arrow supplements the face and the direction on the robot card.
     g.fillStyle(0xf0fcff).fillTriangle(0, -25, -4, -20, 4, -20);
     g.fillStyle(0x08111b);
     if (pip) {
       g.fillRoundedRect(-13, -7, 6, 20, 3).fillRoundedRect(7, -7, 6, 20, 3);
-      g.lineStyle(2, 0x849da0).lineBetween(-10, -4 + phase, -10, 2 + phase).lineBetween(10, -4 + phase, 10, 2 + phase);
+      g.lineStyle(2, 0x849da0).lineBetween(-10, -4 + leftPhase, -10, 2 + leftPhase).lineBetween(10, -4 + rightPhase, 10, 2 + rightPhase);
     } else {
       g.fillRoundedRect(-22, -18, 11, 38, 5).fillRoundedRect(11, -18, 11, 38, 5);
       g.lineStyle(2, 0xa08b6c);
       for (let dy = -20; dy < 18; dy += 6) {
-        if (dy + phase < -16 || dy + phase > 18) continue;
-        g.lineBetween(-21, dy + phase, -12, dy + phase).lineBetween(12, dy + phase, 21, dy + phase);
+        if (dy + leftPhase >= -16 && dy + leftPhase <= 18)
+          g.lineBetween(-21, dy + leftPhase, -12, dy + leftPhase);
+        if (dy + rightPhase >= -16 && dy + rightPhase <= 18)
+          g.lineBetween(12, dy + rightPhase, 21, dy + rightPhase);
       }
     }
     g.fillStyle(COLORS[id]).fillRoundedRect(pip ? -8 : -16, pip ? -15 : -18, pip ? 16 : 32, pip ? 31 : 36, pip ? 7 : 4);

@@ -17,6 +17,7 @@ import {
   ROOMS,
   ROOM_ORDER,
 } from "../src/game/rules.ts";
+import { DriveInput, driveProgress } from "../src/game/drive.ts";
 import type { Action, State, RobotId, Position, RoomId } from "../src/game/rules.ts";
 import { solution, fullSolution, bodySolution, moduleSolution, allSolutions, freightSetup } from "./solution.ts";
 
@@ -500,4 +501,46 @@ test("cooperation routes fail without their required handoff, freight or partner
   const heavyPlate = position(bridge, "bolt", 10, 5);
   assert.equal(isDoorOpen(heavyPlate, { x: 6, y: 9 }), true);
   assert.equal(isDoorOpen(heavyPlate, { x: 12, y: 7 }), false, "B still needs Pip's separate supply");
+});
+
+// Physical key ownership stays outside the puzzle state and its undo history.
+
+test("held input: newest physical key wins, aliases and releases are deterministic", () => {
+  const input = new DriveInput();
+  assert.equal(input.press("KeyD"), true);
+  assert.equal(input.take(), "right");
+  assert.equal(input.press("KeyD"), false);
+  assert.equal(input.press("ArrowRight"), true);
+  input.take(); input.release("KeyD");
+  assert.equal(input.take(), "right");
+  input.press("KeyW");
+  assert.equal(input.take(), "up");
+  input.release("KeyW");
+  assert.equal(input.take(), "right");
+  input.release("ArrowRight");
+  assert.equal(input.take(), undefined);
+});
+
+test("tap has one pending step; obstacles latch, fresh input and resets clear safely", () => {
+  const input = new DriveInput();
+  input.press("KeyA"); input.release("KeyA");
+  assert.equal(input.take(), "left");
+  assert.equal(input.take(), undefined);
+  input.press("KeyD"); input.take(); input.obstruct();
+  for (let n = 0; n < 100; n++) assert.equal(input.take(), undefined);
+  assert.equal(input.press("KeyD"), false);
+  input.release("KeyD"); input.press("KeyD");
+  assert.equal(input.take(), "right");
+  input.press("KeyW"); input.reset();
+  assert.equal(input.continuing, false);
+  assert.equal(input.take(), undefined);
+});
+
+test("departure joins linear travel with unit velocity; no interior per-tile easing", () => {
+  const h = 0.00001;
+  assert.equal(driveProgress(0, true), 0);
+  assert.equal(driveProgress(1, true), 1);
+  assert.ok(Math.abs((driveProgress(h, true) - driveProgress(0, true)) / h) < 0.001);
+  assert.ok(Math.abs((driveProgress(1, true) - driveProgress(1-h, true)) / h - 1) < 0.001);
+  for (const t of [0, 0.1, 0.5, 0.9, 1]) assert.equal(driveProgress(t, false), t);
 });

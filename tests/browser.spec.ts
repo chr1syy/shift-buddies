@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import { writeFile } from "node:fs/promises";
+import type { Page, TestInfo } from "@playwright/test";
 import type { Action, RoomId } from "../src/game/rules.ts";
 import { solution, fullSolution, bodySolution, moduleSolution, freightSetup, routesSolution } from "./solution.ts";
 
@@ -90,17 +91,15 @@ test("real keyboard solution, persistent power on Shift, exact full undo and res
   expect(errors).toEqual([]);
 });
 
-test("buttons, focus recovery, held key and narrow viewport", async ({
+test("buttons, focus recovery, stale OS repeat and narrow viewport", async ({
   page,
 }) => {
   await ready(page, "modules");
-  await page.keyboard.down("d");
-  await page.waitForTimeout(150);
-  // Browser repeat events must not make the robot run away.
-  await page
-    .locator("#game")
-    .dispatchEvent("keydown", { code: "KeyD", repeat: true, bubbles: true });
-  await page.keyboard.up("d");
+  await page.keyboard.press("d");
+  await expect(page.locator("#game")).toHaveAttribute("data-animating", "false");
+  // A stale OS repeat after keyup must neither add a move nor restart holding.
+  await page.locator("#game").dispatchEvent("keydown", { code: "KeyD", repeat: true, bubbles: true });
+  await page.waitForTimeout(220);
   await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "4");
   await page.getByRole("button", { name: "T · Module tauschen" }).click();
   await expect(page.getByTestId("robot-pip")).toHaveAttribute(
@@ -420,6 +419,7 @@ test("both modules leave both robots' eyes readable in all four directions", asy
         await expect(page.locator("#game")).toHaveAttribute("data-animating", "false");
         await expect(card).toHaveAttribute("data-facing", direction);
         await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
+        await page.waitForTimeout(200); // inspect the settled face after the stop reaction
         const cx = Number(await card.getAttribute("data-x")) * 50 + 25;
         const cy = Number(await card.getAttribute("data-y")) * 50 + 25;
         const eyes = await page.locator("canvas").evaluate((canvas: HTMLCanvasElement, { cx, cy, dx, dy }) => {
@@ -441,4 +441,227 @@ test("both modules leave both robots' eyes readable in all four directions", asy
     }
   }
   expect(failures, "Each eye should retain its bright core within the 3×3 sample").toEqual([]);
+});
+
+// rAF samples of the coordinates actually passed to the shared canvas renderer,
+// plus canvas pixels. These prove progression between centres, not just a HUD end state.
+async function recordFrames(page: Page, milliseconds: number): Promise<void> {
+  await page.evaluate(duration => {
+    const target = window as unknown as { driveFrames: unknown[]; driveRecording: boolean };
+    target.driveFrames = []; target.driveRecording = true;
+    const start = performance.now();
+    function sample() {
+      const game = document.querySelector<HTMLElement>("#game")!;
+      const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
+      const data = canvas.getContext("2d", { willReadFrequently: true })!.getImageData(140, 90, 250, 310).data;
+      let hash = 2166136261;
+      for (let i = 0; i < data.length; i += 64) hash = Math.imul(hash ^ data[i], 16777619);
+      target.driveFrames.push({ t: performance.now(), pip: JSON.parse(game.dataset.visualPip!),
+        bolt: JSON.parse(game.dataset.visualBolt!), crate: game.dataset.visualCrate ? JSON.parse(game.dataset.visualCrate) : null,
+        hash: hash >>> 0, actions: document.querySelector("#move-count")!.textContent });
+      if (performance.now() - start < duration) requestAnimationFrame(sample);
+      else target.driveRecording = false;
+    }
+    requestAnimationFrame(sample);
+  }, milliseconds);
+}
+async function frames(page: Page) {
+  await page.waitForFunction(() => !(window as unknown as { driveRecording: boolean }).driveRecording);
+  return page.evaluate(() => (window as unknown as { driveFrames: {
+    t: number; pip: { x: number; y: number; angle: number; leftPhase: number; rightPhase: number };
+    bolt: { x: number; y: number; angle: number; leftPhase: number; rightPhase: number };
+    crate: { x: number; y: number } | null; hash: number; actions: string;
+  }[] }).driveFrames);
+}
+
+async function attachEvidence(info: TestInfo, name: string, samples: unknown): Promise<void> {
+  const path = info.outputPath(name);
+  await writeFile(path, JSON.stringify(samples, null, 2));
+  await info.attach(name, { path, contentType: "application/json" });
+}
+
+test("continuous drive: tap, hold across centres, release, smooth turns, pixel/timing evidence and undo", async ({ page }, info) => {
+  await ready(page, "freight");
+  await page.keyboard.press("Shift"); // Freight row 7 is clear from x4 through x8.
+  const game = page.locator("#game"), bolt = page.getByTestId("robot-bolt");
+  await page.keyboard.press("d");
+  await expect(game).toHaveAttribute("data-animating", "false");
+  await page.waitForTimeout(240);
+  await expect(bolt).toHaveAttribute("data-x", "5");
+  await page.keyboard.press("z");
+  await recordFrames(page, 780);
+  await page.keyboard.down("d");
+  await page.waitForTimeout(420);
+  await page.keyboard.up("d");
+  const samples = await frames(page);
+  await attachEvidence(info, "continuous-canvas-frames.json", samples);
+  await expect(bolt).toHaveAttribute("data-x", "7"); // 3 legal raster moves
+  await expect(page.locator("#move-count")).toHaveText("4 Aktionen");
+  expect(samples.length).toBeGreaterThan(8);
+  expect(new Set(samples.map(f => f.hash)).size).toBeGreaterThan(6);
+  // The two interior boundaries (x=275 and x=325) retain travel speed.
+  for (const centre of [275, 325]) {
+    const index = samples.findIndex(f => f.bolt.x >= centre);
+    expect(index).toBeGreaterThan(1);
+    const span = samples.slice(index - 2, index + 2);
+    const velocity = (span.at(-1)!.bolt.x - span[0].bolt.x) / (span.at(-1)!.t - span[0].t);
+    expect(velocity).toBeGreaterThan(0.20);
+    expect(velocity).toBeLessThan(0.35);
+  }
+  expect(samples.at(-1)!.bolt.x).toBe(375);
+  expect(samples.at(-1)!.bolt.y).toBe(375);
+  // Turn 90 degrees: inspect intermediate angles, not only facing metadata.
+  await recordFrames(page, 300);
+  await page.keyboard.press("s");
+  const turning = await frames(page);
+  expect(turning.some(f => f.bolt.angle > Math.PI / 2 + 0.05 && f.bolt.angle < Math.PI - 0.05)).toBe(true);
+  await attachEvidence(info, "turn-canvas-frames.json", turning);
+  for (let n = 0; n < 4; n++) await page.keyboard.press("z");
+  await expect(bolt).toHaveAttribute("data-x", "4");
+  await expect(bolt).toHaveAttribute("data-y", "7");
+  await expect(bolt).toHaveAttribute("data-facing", "up");
+  await expect(page.locator("#move-count")).toHaveText("1 Aktionen");
+});
+
+test("held magnet load stays synchronous, looks backward, stops at obstacle without feedback/undo flood", async ({ page }, info) => {
+  await ready(page, "modules");
+  await keys(page, moduleSolution.slice(0, 5));
+  const game = page.locator("#game"), pip = page.getByTestId("robot-pip");
+  await page.keyboard.down("e");
+  await recordFrames(page, 1000);
+  await page.keyboard.down("a");
+  await page.waitForTimeout(650);
+  await expect(pip).toHaveAttribute("data-x", "3");
+  await expect(pip).toHaveAttribute("data-facing", "right");
+  await expect(game).toHaveAttribute("data-crate", "4,2");
+  await expect(page.locator("#move-count")).toHaveText("7 Aktionen");
+  const message = await page.locator("#feedback").textContent();
+  await page.waitForTimeout(350);
+  await expect(page.locator("#feedback")).toHaveText(message!);
+  await expect(page.locator("#move-count")).toHaveText("7 Aktionen");
+  await page.keyboard.up("a"); await page.keyboard.up("e");
+  const samples = await frames(page);
+  for (const f of samples) {
+    expect(f.crate!.x - f.pip.x).toBeCloseTo(50, 6);
+    expect(f.crate!.y).toBe(f.pip.y);
+    expect(f.pip.angle).toBeCloseTo(Math.PI / 2, 6);
+  }
+  expect(new Set(samples.map(f => f.hash)).size).toBeGreaterThan(6);
+  await attachEvidence(info, "magnet-canvas-frames.json", samples);
+  await page.keyboard.press("z");
+  await expect(pip).toHaveAttribute("data-x", "4");
+  await expect(game).toHaveAttribute("data-crate", "5,2");
+  await page.keyboard.press("z");
+  await expect(pip).toHaveAttribute("data-x", "5");
+  await expect(game).toHaveAttribute("data-crate", "6,2");
+  // Bolt's push uses exactly the same clock and interpolation for its load.
+  await page.locator("#room-select").selectOption("freight");
+  await keys(page, freightSetup);
+  await page.keyboard.down("e");
+  await recordFrames(page, 600);
+  await page.keyboard.down("s");
+  const pushing = await frames(page);
+  await page.keyboard.up("s"); await page.keyboard.up("e");
+  for (const f of pushing) {
+    expect(f.crate!.y - f.bolt.y).toBeCloseTo(50, 6);
+    expect(f.crate!.x).toBe(f.bolt.x);
+  }
+  await expect(game).toHaveAttribute("data-crate", "5,4");
+  await expect(page.locator("#move-count")).toHaveText(`${freightSetup.length + 1} Aktionen`);
+  await attachEvidence(info, "push-canvas-frames.json", pushing);
+});
+
+test("held input resets on E release, commands, focus, hidden tab, frame pause and motion preference", async ({ page }) => {
+  await ready(page, "freight");
+  const game = page.locator("#game");
+  // Every context command must cancel held direction and its pending intention.
+  for (const key of ["Shift", "t", "z", "r"]) {
+    await page.keyboard.press("r");
+    await page.keyboard.press("Shift");
+    await page.keyboard.down("d");
+    await page.keyboard.press(key);
+    const count = await page.locator("#move-count").textContent();
+    await page.waitForTimeout(450);
+    await expect(page.locator("#move-count")).toHaveText(count!);
+    await page.keyboard.up("d");
+  }
+  for (const reset of ["window", "field", "hidden", "pause", "room", "motion"]) {
+    await page.locator("#room-select").selectOption("freight");
+    await page.keyboard.press("Shift");
+    await page.keyboard.down("d");
+    if (reset === "window") await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    if (reset === "field") await page.locator("#room-select").focus();
+    if (reset === "hidden") await page.evaluate(() => {
+      Object.defineProperty(document, "hidden", { configurable: true, value: true });
+      document.dispatchEvent(new Event("visibilitychange"));
+      delete (document as unknown as Record<string, unknown>).hidden;
+    });
+    if (reset === "pause") await page.evaluate(() => { const end = performance.now() + 420; while (performance.now() < end) { /* simulate stalled frame */ } });
+    if (reset === "room") await page.locator("#room-select").selectOption("modules");
+    if (reset === "motion") await page.emulateMedia({ reducedMotion: "reduce" });
+    const count = await page.locator("#move-count").textContent();
+    await page.waitForTimeout(450);
+    await expect(page.locator("#move-count")).toHaveText(count!);
+    await expect(game).toHaveAttribute("data-animating", "false");
+    await page.keyboard.up("d");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await game.focus();
+  }
+  await page.locator("#room-select").selectOption("modules");
+  await keys(page, moduleSolution.slice(0, 5));
+  await page.keyboard.down("e"); await page.keyboard.down("a");
+  await page.waitForTimeout(60); await page.keyboard.up("e");
+  await page.waitForTimeout(450);
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-x", "4");
+  await expect(game).toHaveAttribute("data-pulling", "false");
+  await page.keyboard.up("a");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await page.keyboard.press("r");
+  await page.keyboard.down("w");
+  await page.waitForTimeout(410); await page.keyboard.up("w");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-y", "2");
+  await expect(game).toHaveAttribute("data-animating", "false");
+  const visual = JSON.parse((await game.getAttribute("data-visual-pip"))!);
+  expect(visual.y).toBe(125);
+  // Fast discrete taps must not push the held timer into the future in reduce mode.
+  await page.locator("#room-select").selectOption("freight");
+  await page.keyboard.press("Shift");
+  await page.keyboard.press("d"); await page.keyboard.press("d");
+  await page.keyboard.down("d");
+  await page.waitForTimeout(240); await page.keyboard.up("d");
+  await expect(page.getByTestId("robot-bolt")).toHaveAttribute("data-x", "8");
+});
+
+test("multiple directions: last pressed wins, aliases release independently, rapid corner tap waits for centre", async ({ page }) => {
+  await ready(page, "freight");
+  await page.keyboard.press("Shift");
+  const bolt = page.getByTestId("robot-bolt"), game = page.locator("#game");
+  await page.keyboard.down("d");
+  await page.keyboard.down("s"); // replaces direction at next centre
+  await page.keyboard.up("s");
+  await page.keyboard.up("d");
+  await expect(game).toHaveAttribute("data-animating", "false");
+  await expect(bolt).toHaveAttribute("data-x", "5");
+  await expect(bolt).toHaveAttribute("data-y", "8");
+  await page.waitForTimeout(240);
+  await expect(page.locator("#move-count")).toHaveText("3 Aktionen");
+  await page.keyboard.press("r"); await page.keyboard.press("Shift");
+  await page.keyboard.down("d"); await page.keyboard.down("ArrowRight");
+  await page.keyboard.up("d");
+  await page.waitForTimeout(230); await page.keyboard.up("ArrowRight");
+  await expect(game).toHaveAttribute("data-animating", "false");
+  await expect(bolt).toHaveAttribute("data-x", "6");
+  await expect(bolt).toHaveAttribute("data-y", "7");
+  await page.locator("#room-select").selectOption("bodies");
+  await keys(page, bodySolution.slice(0, 6));
+  await page.keyboard.down("d");
+  await expect(game).toHaveAttribute("data-won", "true");
+  const count = await page.locator("#move-count").textContent();
+  await page.waitForTimeout(400);
+  await expect(page.locator("#move-count")).toHaveText(count!);
+  await page.keyboard.press("z");
+  await page.waitForTimeout(300);
+  await expect(game).toHaveAttribute("data-won", "false");
+  await page.keyboard.up("d");
 });
