@@ -15,7 +15,7 @@ npm run build
 
 Devserver und `npm run preview -- --port 5173 --strictPort` binden an Loopback. Einen anderen freien Port verwenden, falls 5173 belegt ist.
 
-**Aktueller Spielstand geprüft und live:** https://shift-buddies.clippmann.de/ zeigt das Modultausch-/Kooperationspaket **`cf33fb3dd55da93b229cca2954b7dfcfec120f4e`**. Chris hat Prüfung und Update dieser bestehenden Vorschau ausdrücklich beauftragt. 29 Regeltests, Typecheck/Build und jeweils acht lokale Produktions-/öffentliche Chromium-Browsertests bestanden. Die Spielquellen blieben unverändert; alte Testlösungen wurden angepasst. [Release, Belege, Rückfall und Grenzen](docs/2026-11-02-deployment-kooperation.md).
+**Aktueller Spielstand geprüft und live:** https://shift-buddies.clippmann.de/ zeigt das Fahrgefühlpaket **`d535f02edccc9e95bd52ebab971666e85100e7f6`**. Chris hat Umsetzung und Update dieser bestehenden Vorschau ausdrücklich autorisiert. 32 Regel-/Inputtests, Typecheck/Build und jeweils zwölf lokale Produktions-/öffentliche Chromium-Browsertests bestanden; alle sechs Lösungen bestehen weiter. [Release, Mehrframebelege, Rückfall und Grenzen](docs/2026-11-03-deployment-fahrgefuehl.md).
 
 ```bash
 npm test
