@@ -17,6 +17,8 @@ Devserver und `npm run preview -- --port 5173 --strictPort` binden an Loopback. 
 
 **Aktueller Spielstand geprüft und live:** https://shift-buddies.clippmann.de/ zeigt das Fahrgefühlpaket **`d535f02edccc9e95bd52ebab971666e85100e7f6`**. Chris hat Umsetzung und Update dieser bestehenden Vorschau ausdrücklich autorisiert. 32 Regel-/Inputtests, Typecheck/Build und jeweils zwölf lokale Produktions-/öffentliche Chromium-Browsertests bestanden; alle sechs Lösungen bestehen weiter. [Release, Mehrframebelege, Rückfall und Grenzen](docs/2026-11-03-deployment-fahrgefuehl.md).
 
+**Lokaler nächster Schritt · 04.11.2026:** [Sichtbare Modulübergabe](docs/2026-11-04-moduluebergabe.md): Magnet und Batterie wandern beim gültigen Tausch in 360 ms zum anderen Bot. Jede weitere Aktion kann sofort fortfahren; Reduced motion zeigt den neuen Zustand unmittelbar. Noch nicht veröffentlicht.
+
 ```bash
 npm test
 npm run test:browser
@@ -68,7 +70,7 @@ Alle Räume sind direkt anwählbar; Raumwahl leert Undo. Raum 1 verlangt Pip am 
 - `src/game/drive.ts`: Physische Richtungstasten, eine nächste Fahrabsicht und Hindernissperre; keine Spielzustände oder Undo-Duplikate.
 - `src/main.ts`: Eine Phaser-Scene, gemeinsame Modulformen für beide Bots, Nase/Gesichter, Eingaben und HTML-Anzeige. Reihenfolge: Boden, Leitungen, Einrichtungen, Fracht/Bots; Zustandsbadges bleiben darüber lesbar. Bereitschaft und Effekte sind vorübergehende Darstellung.
 - `index.html` / `src/style.css`: Bedienung und vorhandenes Layout; keine zusätzlichen Abhängigkeiten.
-- `tests/`: Aktualisierte Lösungen für alle sechs Räume, Regelregressionen für Körper-/Modulrollen und zwölf Browserprüfungen mit echter Tastaturbedienung; Mehrframeprüfungen verbinden tatsächliche Renderkoordinaten mit Canvas-Pixelhashes; keine Debug-Zustandssetter.
+- `tests/`: Aktualisierte Lösungen für alle sechs Räume, Regelregressionen für Körper-/Modulrollen und fünfzehn Browserprüfungen mit Tastaturbedienung; Mehrframeprüfungen verbinden tatsächliche Renderkoordinaten mit Canvas-Pixelhashes und sichern die Modulübergabe als PNGs; keine Debug-Zustandssetter.
 - `deploy/`: Bestehende Releasewerkzeuge, SHA-256-Manifeste und Releasebelege; nur die drei Builddateien werden öffentlich ausgeliefert.
 
 Layoutzeichen: `#` Wand, `.` Boden, `v` Schacht, `S` Sockel, `D` Tor, `P` schwere Platte, `X` Ausgang, `O` feste Keramik, `~` Grube, `B` Brücke. Bots und optionale Fracht starten an separat definierten Positionen.

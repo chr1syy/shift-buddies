@@ -29,7 +29,11 @@ import type {
 } from "./game/rules.ts";
 
 const TILE = 50;
+const HANDOFF_MS = 360;
 const ANGLES = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 };
+// The same rear mount anchors docked modules and the two handoff endpoints.
+const moduleMount = (x: number, y: number, angle: number) =>
+  ({ x: x - Math.sin(angle) * 9, y: y + Math.cos(angle) * 9 });
 const COLORS = {
   floor: 0x152638,
   wall: 0x223246,
@@ -106,6 +110,8 @@ class RoomScene extends Phaser.Scene {
   private labels: Phaser.GameObjects.Text[] = [];
   private preserveLabels = false;
   private motion?: { before: State; progress: number; pull: boolean; started: number; starting: boolean };
+  // Presentation only: ownership and undo have already changed in dispatch.
+  private handoff?: { started: number; progress: number; from: Record<Module, { x: number; y: number }>; to: Record<Module, { x: number; y: number }> };
   private controls = new DriveInput();
   private nextStepAt = 0;
   private lastFrame = 0;
@@ -116,6 +122,7 @@ class RoomScene extends Phaser.Scene {
   private effects = new Set<Phaser.GameObjects.Graphics>();
 
   private settle(): void {
+    this.handoff = undefined; gameElement.dataset.handoff = "false";
     this.motion = undefined; this.expression = undefined; this.wasRolling = false;
     this.wheelTravel = { pip: 0, bolt: 0 }; this.steeringTravel = { pip: 0, bolt: 0 };
     for (const effect of this.effects) { this.tweens.killTweensOf(effect); effect.destroy(); }
@@ -133,6 +140,12 @@ class RoomScene extends Phaser.Scene {
     }
     this.lastFrame = now;
     let finished = false;
+    if (this.handoff) {
+      this.handoff.progress = Math.min(1, (now - this.handoff.started) / HANDOFF_MS);
+      if (this.handoff.progress === 1) {
+        this.handoff = undefined; gameElement.dataset.handoff = "false"; finished = true;
+      }
+    }
     if (this.motion) {
       const t = Math.min(1, (now - this.motion.started) / STEP_MS);
       this.motion.progress = driveProgress(t, this.motion.starting);
@@ -154,11 +167,12 @@ class RoomScene extends Phaser.Scene {
       }
     }
     if (this.expression && now - this.expression.started > 180) { this.expression = undefined; finished = true; }
-    if (this.motion || this.expression || finished) this.redraw(true);
+    if (this.motion || this.handoff || this.expression || finished) this.redraw(true);
   }
 
   create(): void {
     this.graphics = this.add.graphics();
+    gameElement.dataset.handoff = "false";
     this.redraw();
     updateHud();
     // Enter belongs to progression only on the field or its own Next button.
@@ -241,6 +255,9 @@ class RoomScene extends Phaser.Scene {
   }
 
   private act(command: Command, continuing = false): void {
+    // Any new action finishes the visual transfer at the authoritative mounts.
+    // In particular driving can start immediately; handoff never gates input.
+    this.handoff = undefined; gameElement.dataset.handoff = "false";
     const driving = command.type === "move" || command.type === "pull";
     if (!driving) {
       this.settle();
@@ -252,6 +269,15 @@ class RoomScene extends Phaser.Scene {
     const id = before.active;
     const moved = !same(before.robots[id], after.robots[id]);
     const turned = before.robots[id].facing !== after.robots[id].facing;
+    if (command.type === "swap" && before.robots.pip.module !== after.robots.pip.module && !reducedMotion()) {
+      const pip = before.robots.pip, bolt = before.robots.bolt;
+      const a = moduleMount(pip.x * TILE + 25, pip.y * TILE + 25, ANGLES[pip.facing]);
+      const b = moduleMount(bolt.x * TILE + 25, bolt.y * TILE + 25, ANGLES[bolt.facing]);
+      this.handoff = { started: performance.now(), progress: 0,
+        from: { [pip.module]: a, [bolt.module]: b } as Record<Module, { x: number; y: number }>,
+        to: { [pip.module]: b, [bolt.module]: a } as Record<Module, { x: number; y: number }> };
+      gameElement.dataset.handoff = "true";
+    }
     if (driving) {
       const clockNow = performance.now();
       const now = continuing && clockNow >= this.nextStepAt && clockNow - this.nextStepAt < 100 ? this.nextStepAt : clockNow;
@@ -474,6 +500,23 @@ class RoomScene extends Phaser.Scene {
       }
     }
     for (const id of ["pip", "bolt"] as RobotId[]) this.drawRobot(s, id);
+    if (this.handoff) {
+      const t = this.handoff.progress;
+      const travel = t * t * (3 - 2 * t);
+      for (const module of ["magnet", "power"] as const) {
+        const a = this.handoff.from[module], b = this.handoff.to[module];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const length = Math.hypot(dx, dy);
+        // Opposite arcs keep the upright, full-size shapes apart at midpoint.
+        const arc = Math.sin(t * Math.PI) * 22;
+        const x = a.x + dx * travel - dy / length * arc;
+        const y = a.y + dy * travel + dx / length * arc;
+        g.fillStyle(0x0b1c29, 0.9).fillCircle(x, y, 15);
+        g.lineStyle(1, COLORS[module], 0.7).strokeCircle(x, y, 15);
+        this.drawModule(x, y, module);
+        gameElement.dataset[module === "magnet" ? "visualMagnet" : "visualPower"] = JSON.stringify({ x, y });
+      }
+    }
     if (isWon(s)) {
       // Phaser text objects render above Graphics; hide floor annotations
       // before adding the victory text so they cannot cross the dialog.
@@ -577,12 +620,14 @@ class RoomScene extends Phaser.Scene {
       g.fillStyle(0x8b7358).fillRect(-13, 9, 26, 5);
     }
     g.restore();
-    const mx = x - Math.sin(angle) * 9;
-    const my = y + Math.cos(angle) * 9;
-    g.fillStyle(COLORS[r.module], 0.14).fillCircle(mx, my - 1, 15);
+    const { x: mx, y: my } = moduleMount(x, y, angle);
+    if (!this.handoff) g.fillStyle(COLORS[r.module], 0.14).fillCircle(mx, my - 1, 15);
     g.fillStyle(0x263b48).fillRoundedRect(mx - 10, my - 9, 20, 23, 4);
-    this.drawModule(mx, my, r.module);
-    g.fillStyle(COLORS[r.module]).fillCircle(mx - 10, my + 3, 2).fillCircle(mx + 10, my + 3, 2);
+    if (!this.handoff) {
+      this.drawModule(mx, my, r.module);
+      gameElement.dataset[r.module === "magnet" ? "visualMagnet" : "visualPower"] = JSON.stringify({ x: mx, y: my });
+      g.fillStyle(COLORS[r.module]).fillCircle(mx - 10, my + 3, 2).fillCircle(mx + 10, my + 3, 2);
+    }
   }
 
   private reaction(before: State, command: Command): void {
@@ -593,7 +638,7 @@ class RoomScene extends Phaser.Scene {
         ...c.plates.filter(p => !isPlateHeld(before, p) && isPlateHeld(after, p))];
       return sources.length ? [...sources, ...c.doors, ...c.bridges] : [];
     });
-    const robots: readonly RobotId[] = command.type === "swap" ? ["pip", "bolt"] : command.type === "interact" ? [before.active] : [];
+    const robots: readonly RobotId[] = command.type === "interact" ? [before.active] : [];
     if (!activated.length && !robots.length) return;
     const effect = this.add.graphics().setDepth(10);
     this.effects.add(effect);
@@ -601,7 +646,7 @@ class RoomScene extends Phaser.Scene {
       .strokeRoundedRect(p.x * TILE + 2, p.y * TILE + 2, 46, 46, 4);
     for (const id of robots) {
       const r = session.state.robots[id];
-      effect.lineStyle(3, command.type === "swap" ? 0xffffff : COLORS[before.robots[id].module], 0.85)
+      effect.lineStyle(3, COLORS[before.robots[id].module], 0.85)
         .strokeCircle(r.x * TILE + 25, r.y * TILE + 25, 22);
     }
     this.tweens.add({ targets: effect, alpha: 0, duration: 450, onComplete: () => { effect.destroy(); this.effects.delete(effect); } });

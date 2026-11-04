@@ -1,0 +1,962 @@
+[
+  {
+    "t": 1754.2999999523163,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 225,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 2059980733,
+    "actions": "0 Aktionen"
+  },
+  {
+    "t": 1772.2000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 225,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 2059980733,
+    "actions": "0 Aktionen"
+  },
+  {
+    "t": 1809.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175.02123005374483,
+      "y": 384.82534704659633
+    },
+    "power": {
+      "x": 224.97876994625517,
+      "y": 383.17465295340367
+    },
+    "handoff": true,
+    "hash": 3308460747,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 1833.9000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 176.6982527762606,
+      "y": 391.488350139119
+    },
+    "power": {
+      "x": 223.3017472237394,
+      "y": 376.511649860881
+    },
+    "handoff": true,
+    "hash": 38974686,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 1861,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 179.3261183872376,
+      "y": 395.8529572778633
+    },
+    "power": {
+      "x": 220.6738816127624,
+      "y": 372.1470427221367
+    },
+    "handoff": true,
+    "hash": 3032133757,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 1898.2999999523163,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 183.09561253019572,
+      "y": 399.79877857627343
+    },
+    "power": {
+      "x": 216.90438746980428,
+      "y": 368.20122142372657
+    },
+    "handoff": true,
+    "hash": 4260008524,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 1956.9000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 196.55147099020678,
+      "y": 405.7695673621604
+    },
+    "power": {
+      "x": 203.44852900979322,
+      "y": 362.2304326378396
+    },
+    "handoff": true,
+    "hash": 3087139506,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 1981.2999999523163,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 201.33277148760715,
+      "y": 405.9656968109815
+    },
+    "power": {
+      "x": 198.66722851239285,
+      "y": 362.0343031890185
+    },
+    "handoff": true,
+    "hash": 3361614082,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2002.2999999523163,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 205.96909816536083,
+      "y": 405.3040469239846
+    },
+    "power": {
+      "x": 194.03090183463917,
+      "y": 362.6959530760154
+    },
+    "handoff": true,
+    "hash": 2309555205,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2020.6000001430511,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 210.24479675711592,
+      "y": 403.8980131999961
+    },
+    "power": {
+      "x": 189.75520324288408,
+      "y": 364.1019868000039
+    },
+    "handoff": true,
+    "hash": 3040418256,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2038.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 213.51058550007357,
+      "y": 402.2280839043149
+    },
+    "power": {
+      "x": 186.48941449992643,
+      "y": 365.7719160956851
+    },
+    "handoff": true,
+    "hash": 2359445136,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2062.7999999523163,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 217.01492763633527,
+      "y": 399.7049603838404
+    },
+    "power": {
+      "x": 182.98507236366473,
+      "y": 368.2950396161596
+    },
+    "handoff": true,
+    "hash": 4279653079,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2078.7999999523163,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 219.7465557118826,
+      "y": 396.9933246654761
+    },
+    "power": {
+      "x": 180.2534442881174,
+      "y": 371.0066753345239
+    },
+    "handoff": true,
+    "hash": 2157954999,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2101.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 221.85544195816186,
+      "y": 394.15846949117076
+    },
+    "power": {
+      "x": 178.14455804183814,
+      "y": 373.84153050882924
+    },
+    "handoff": true,
+    "hash": 3470746850,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2125,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 223.93842964221108,
+      "y": 389.9162360182663
+    },
+    "power": {
+      "x": 176.06157035778892,
+      "y": 378.0837639817337
+    },
+    "handoff": true,
+    "hash": 295660269,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2145.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 224.9574193707511,
+      "y": 385.1705628889389
+    },
+    "power": {
+      "x": 175.0425806292489,
+      "y": 382.8294371110611
+    },
+    "handoff": true,
+    "hash": 1493841871,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2166,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2182.600000143051,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2195.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2214.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2227.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2239.600000143051,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2255.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2273.600000143051,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2290,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2317.7999999523163,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2330.7000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2347.9000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2365.7999999523163,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  },
+  {
+    "t": 2383.9000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "bolt": {
+      "x": 225,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 225,
+      "y": 384
+    },
+    "power": {
+      "x": 175,
+      "y": 384
+    },
+    "handoff": false,
+    "hash": 826673360,
+    "actions": "1 Aktionen"
+  }
+]

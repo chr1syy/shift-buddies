@@ -445,8 +445,8 @@ test("both modules leave both robots' eyes readable in all four directions", asy
 
 // rAF samples of the coordinates actually passed to the shared canvas renderer,
 // plus canvas pixels. These prove progression between centres, not just a HUD end state.
-async function recordFrames(page: Page, milliseconds: number): Promise<void> {
-  await page.evaluate(duration => {
+async function recordFrames(page: Page, milliseconds: number, captureCanvas = false): Promise<void> {
+  await page.evaluate(({ duration, captureCanvas }) => {
     const target = window as unknown as { driveFrames: unknown[]; driveRecording: boolean };
     target.driveFrames = []; target.driveRecording = true;
     const start = performance.now();
@@ -458,18 +458,21 @@ async function recordFrames(page: Page, milliseconds: number): Promise<void> {
       for (let i = 0; i < data.length; i += 64) hash = Math.imul(hash ^ data[i], 16777619);
       target.driveFrames.push({ t: performance.now(), pip: JSON.parse(game.dataset.visualPip!),
         bolt: JSON.parse(game.dataset.visualBolt!), crate: game.dataset.visualCrate ? JSON.parse(game.dataset.visualCrate) : null,
+        magnet: JSON.parse(game.dataset.visualMagnet!), power: JSON.parse(game.dataset.visualPower!),
+        handoff: game.dataset.handoff === "true", png: captureCanvas ? canvas.toDataURL("image/png") : undefined,
         hash: hash >>> 0, actions: document.querySelector("#move-count")!.textContent });
       if (performance.now() - start < duration) requestAnimationFrame(sample);
       else target.driveRecording = false;
     }
     requestAnimationFrame(sample);
-  }, milliseconds);
+  }, { duration: milliseconds, captureCanvas });
 }
 async function frames(page: Page) {
   await page.waitForFunction(() => !(window as unknown as { driveRecording: boolean }).driveRecording);
   return page.evaluate(() => (window as unknown as { driveFrames: {
     t: number; pip: { x: number; y: number; angle: number; leftPhase: number; rightPhase: number };
     bolt: { x: number; y: number; angle: number; leftPhase: number; rightPhase: number };
+    magnet: { x: number; y: number }; power: { x: number; y: number }; handoff: boolean; png?: string;
     crate: { x: number; y: number } | null; hash: number; actions: string;
   }[] }).driveFrames);
 }
@@ -479,6 +482,152 @@ async function attachEvidence(info: TestInfo, name: string, samples: unknown): P
   await writeFile(path, JSON.stringify(samples, null, 2));
   await info.attach(name, { path, contentType: "application/json" });
 }
+
+test("module handoff: both physical shapes cross distinct arcs over real canvas frames and dock", async ({ page }, info) => {
+  await ready(page, "freight"); // Adjacent bots, both initially facing up.
+  const game = page.locator("#game");
+  await recordFrames(page, 650, true);
+  await page.waitForTimeout(50); // Include the old docked modules in the evidence.
+  await page.keyboard.press("t");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-module", "power");
+  await expect(page.getByTestId("robot-bolt")).toHaveAttribute("data-module", "magnet");
+  const samples = await frames(page);
+  const flying = samples.filter(f => f.handoff);
+  const first = samples[0], last = samples.at(-1)!;
+  expect(first.handoff).toBe(false);
+  expect(last.handoff).toBe(false);
+  expect(flying.length).toBeGreaterThan(8);
+  expect(new Set(flying.map(f => f.hash)).size).toBeGreaterThan(6);
+  expect(flying.some(f => f.magnet.x > 185 && f.magnet.x < 215 && f.magnet.y > first.magnet.y + 15)).toBe(true);
+  expect(flying.some(f => f.power.x > 185 && f.power.x < 215 && f.power.y < first.power.y - 15)).toBe(true);
+  for (const f of flying) expect(Math.hypot(f.magnet.x - f.power.x, f.magnet.y - f.power.y)).toBeGreaterThan(30);
+  expect(last.magnet).toEqual(first.power);
+  expect(last.power).toEqual(first.magnet);
+  await attachEvidence(info, "handoff-canvas-frames.json", samples.map(({ png, ...frame }) => frame));
+  // Preserve actual renderer output at start, three interior frames and finish.
+  const selected = [first, ...[0.2, 0.5, 0.8].map(t => flying[Math.floor((flying.length - 1) * t)]), last];
+  for (const [index, frame] of selected.entries()) {
+    const path = info.outputPath(`handoff-${index}.png`);
+    await writeFile(path, Buffer.from(frame.png!.split(",")[1], "base64"));
+    await info.attach(`handoff-${index}`, { path, contentType: "image/png" });
+  }
+  await page.keyboard.press("z");
+  await expect(game).toHaveAttribute("data-handoff", "false");
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-module", "magnet");
+  await expect(page.locator("#move-count")).toHaveText("0 Aktionen");
+});
+
+test("handoff interrupts: undo, restart, switch, another swap, movement, interaction, room and focus", async ({ page }) => {
+  await ready(page, "freight");
+  const game = page.locator("#game"), pip = page.getByTestId("robot-pip"), bolt = page.getByTestId("robot-bolt");
+  for (const action of ["undo", "restart", "switch", "swap", "move", "interact", "room", "blur", "hidden", "pause"] as const) {
+    await page.locator("#room-select").selectOption("freight");
+    // Same task dispatches genuine DOM input in order, before a rendered frame
+    // can finish the handoff. No game-state setter or animation clock override.
+    const during = await game.evaluate((field, action) => {
+      const press = (code: string) => {
+        field.dispatchEvent(new KeyboardEvent("keydown", { code, bubbles: true }));
+        field.dispatchEvent(new KeyboardEvent("keyup", { code, bubbles: true }));
+      };
+      press("KeyT");
+      const started = (field as HTMLElement).dataset.handoff;
+      if (action === "room") {
+        const select = document.querySelector<HTMLSelectElement>("#room-select")!;
+        select.value = "bodies"; select.dispatchEvent(new Event("change"));
+      } else if (action === "blur") window.dispatchEvent(new Event("blur"));
+      else if (action === "hidden") {
+        Object.defineProperty(document, "hidden", { configurable: true, value: true });
+        document.dispatchEvent(new Event("visibilitychange"));
+        delete (document as unknown as { hidden?: boolean }).hidden;
+      } else if (action === "pause") {
+        // Reproduce a suspended frame, matching the existing drive regression.
+        const until = performance.now() + 280;
+        while (performance.now() < until) { /* main thread suspended */ }
+      } else press({ undo: "KeyZ", restart: "KeyR", switch: "ShiftLeft", swap: "KeyT", move: "KeyW", interact: "KeyE" }[action]);
+      return { started, after: (field as HTMLElement).dataset.handoff };
+    }, action);
+    expect(during.started, action).toBe("true");
+    if (action !== "swap" && action !== "pause") expect(during.after, action).toBe("false");
+    if (action === "swap") expect(during.after).toBe("true");
+    if (action === "move") {
+      await expect(pip).toHaveAttribute("data-y", "6");
+      await expect(game).toHaveAttribute("data-animating", "false");
+    }
+    await expect(game).toHaveAttribute("data-handoff", "false");
+    const reverted = ["undo", "restart", "swap", "room"].includes(action);
+    await expect(pip).toHaveAttribute("data-module", reverted ? "magnet" : "power");
+    await expect(bolt).toHaveAttribute("data-module", reverted ? "power" : "magnet");
+    if (action === "switch") await expect(bolt).toHaveClass(/active/);
+    // No deferred completion may overwrite a later action or module owner.
+    await page.waitForTimeout(400);
+    await expect(game).toHaveAttribute("data-handoff", "false");
+    await expect(pip).toHaveAttribute("data-module", reverted ? "magnet" : "power");
+    const mounts = await game.evaluate(field => {
+      const data = (field as HTMLElement).dataset;
+      return ["pip", "bolt"].map(id => {
+        const bot = JSON.parse(data[id === "pip" ? "visualPip" : "visualBolt"]!);
+        const module = document.querySelector(`[data-testid="robot-${id}"]`)!.getAttribute("data-module");
+        const drawn = JSON.parse(data[module === "magnet" ? "visualMagnet" : "visualPower"]!);
+        return Math.hypot(drawn.x - (bot.x - Math.sin(bot.angle) * 9), drawn.y - (bot.y + Math.cos(bot.angle) * 9));
+      });
+    });
+    for (const distance of mounts) expect(distance, `${action}: rendered module at current owner's mount`).toBeLessThan(0.001);
+    await game.focus();
+    await page.keyboard.press("d");
+    await expect(game).toHaveAttribute("data-animating", "false");
+  }
+});
+
+test("handoff validity, vertical exchange, reduced motion and changing motion preference", async ({ page }) => {
+  await ready(page, "modules"); // Diagonal neighbours must not animate or swap.
+  const game = page.locator("#game"), pip = page.getByTestId("robot-pip");
+  await page.keyboard.press("t");
+  await expect(game).toHaveAttribute("data-handoff", "false");
+  await expect(page.locator("#move-count")).toHaveText("0 Aktionen");
+  await keys(page, [{ type: "move", direction: "right" }]);
+  await recordFrames(page, 500);
+  await page.waitForTimeout(40);
+  await page.keyboard.press("t"); // Vertical neighbours, different facings.
+  const vertical = await frames(page);
+  expect(vertical.filter(f => f.handoff).length).toBeGreaterThan(8);
+  expect(new Set(vertical.filter(f => f.handoff).map(f => f.hash)).size).toBeGreaterThan(6);
+  expect(vertical.at(-1)!.magnet).toEqual(vertical[0].power);
+  expect(vertical.at(-1)!.power).toEqual(vertical[0].magnet);
+  await expect(pip).toHaveAttribute("data-module", "power");
+  await page.keyboard.press("z");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const immediate = await game.evaluate(field => {
+    field.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyT", bubbles: true }));
+    field.dispatchEvent(new KeyboardEvent("keyup", { code: "KeyT", bubbles: true }));
+    const g = field as HTMLElement;
+    return { handoff: g.dataset.handoff, power: JSON.parse(g.dataset.visualPower!), pip: JSON.parse(g.dataset.visualPip!) };
+  });
+  expect(immediate.handoff).toBe("false");
+  expect(immediate.power).toEqual({ x: immediate.pip.x - 9, y: immediate.pip.y });
+  await expect(pip).toHaveAttribute("data-module", "power");
+  await page.evaluate(() => {
+    const target = window as unknown as { motionPreferenceRestored: boolean };
+    target.motionPreferenceRestored = false;
+    window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => {
+      target.motionPreferenceRestored = true;
+    }, { once: true });
+  });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  // Wait for the actual media event, then observe the short-lived handoff in
+  // the same task as its input, independently of test-runner transport delays.
+  await page.waitForFunction(() => (window as unknown as { motionPreferenceRestored: boolean }).motionPreferenceRestored);
+  const started = await game.evaluate(field => {
+    field.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyT", bubbles: true }));
+    field.dispatchEvent(new KeyboardEvent("keyup", { code: "KeyT", bubbles: true }));
+    return (field as HTMLElement).dataset.handoff;
+  });
+  expect(started).toBe("true");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(game).toHaveAttribute("data-handoff", "false");
+  await expect(pip).toHaveAttribute("data-module", "magnet");
+  await page.waitForTimeout(400);
+  await expect(pip).toHaveAttribute("data-module", "magnet");
+});
 
 test("continuous drive: tap, hold across centres, release, smooth turns, pixel/timing evidence and undo", async ({ page }, info) => {
   await ready(page, "freight");

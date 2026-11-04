@@ -1,0 +1,171 @@
+{
+  "crop": [
+    140,
+    332,
+    260,
+    422
+  ],
+  "scale": 2,
+  "frames": [
+    {
+      "t": 1754.2999999523163,
+      "pip": {
+        "x": 175,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "bolt": {
+        "x": 225,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "crate": {
+        "x": 275,
+        "y": 175
+      },
+      "magnet": {
+        "x": 175,
+        "y": 384
+      },
+      "power": {
+        "x": 225,
+        "y": 384
+      },
+      "handoff": false,
+      "hash": 2059980733,
+      "actions": "0 Aktionen"
+    },
+    {
+      "t": 1861,
+      "pip": {
+        "x": 175,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "bolt": {
+        "x": 225,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "crate": {
+        "x": 275,
+        "y": 175
+      },
+      "magnet": {
+        "x": 179.3261183872376,
+        "y": 395.8529572778633
+      },
+      "power": {
+        "x": 220.6738816127624,
+        "y": 372.1470427221367
+      },
+      "handoff": true,
+      "hash": 3032133757,
+      "actions": "1 Aktionen"
+    },
+    {
+      "t": 2002.2999999523163,
+      "pip": {
+        "x": 175,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "bolt": {
+        "x": 225,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "crate": {
+        "x": 275,
+        "y": 175
+      },
+      "magnet": {
+        "x": 205.96909816536083,
+        "y": 405.3040469239846
+      },
+      "power": {
+        "x": 194.03090183463917,
+        "y": 362.6959530760154
+      },
+      "handoff": true,
+      "hash": 2309555205,
+      "actions": "1 Aktionen"
+    },
+    {
+      "t": 2078.7999999523163,
+      "pip": {
+        "x": 175,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "bolt": {
+        "x": 225,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "crate": {
+        "x": 275,
+        "y": 175
+      },
+      "magnet": {
+        "x": 219.7465557118826,
+        "y": 396.9933246654761
+      },
+      "power": {
+        "x": 180.2534442881174,
+        "y": 371.0066753345239
+      },
+      "handoff": true,
+      "hash": 2157954999,
+      "actions": "1 Aktionen"
+    },
+    {
+      "t": 2383.9000000953674,
+      "pip": {
+        "x": 175,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "bolt": {
+        "x": 225,
+        "y": 375,
+        "angle": 0,
+        "leftPhase": 0,
+        "rightPhase": 0
+      },
+      "crate": {
+        "x": 275,
+        "y": 175
+      },
+      "magnet": {
+        "x": 225,
+        "y": 384
+      },
+      "power": {
+        "x": 175,
+        "y": 384
+      },
+      "handoff": false,
+      "hash": 826673360,
+      "actions": "1 Aktionen"
+    }
+  ]
+}
