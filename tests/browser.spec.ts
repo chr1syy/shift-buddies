@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { writeFile } from "node:fs/promises";
 import type { Page, TestInfo } from "@playwright/test";
 import type { Action, RoomId } from "../src/game/rules.ts";
-import { solution, fullSolution, bodySolution, moduleSolution, freightSetup, routesSolution } from "./solution.ts";
+import { solution, fullSolution, bodySolution, moduleSolution, freightSetup, freightSolution, routesSolution } from "./solution.ts";
 
 const runtimeErrors = new WeakMap<Page, string[]>();
 test.beforeEach(async ({ page }) => {
@@ -445,34 +445,35 @@ test("both modules leave both robots' eyes readable in all four directions", asy
 
 // rAF samples of the coordinates actually passed to the shared canvas renderer,
 // plus canvas pixels. These prove progression between centres, not just a HUD end state.
-async function recordFrames(page: Page, milliseconds: number, captureCanvas = false): Promise<void> {
-  await page.evaluate(({ duration, captureCanvas }) => {
+async function recordFrames(page: Page, milliseconds: number, captureCanvas = false,
+  region = { x: 140, y: 90, width: 250, height: 310, stride: 64 }): Promise<void> {
+  await page.evaluate(({ duration, captureCanvas, region }) => {
     const target = window as unknown as { driveFrames: unknown[]; driveRecording: boolean };
     target.driveFrames = []; target.driveRecording = true;
     const start = performance.now();
     function sample() {
       const game = document.querySelector<HTMLElement>("#game")!;
       const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
-      const data = canvas.getContext("2d", { willReadFrequently: true })!.getImageData(140, 90, 250, 310).data;
+      const data = canvas.getContext("2d", { willReadFrequently: true })!.getImageData(region.x, region.y, region.width, region.height).data;
       let hash = 2166136261;
-      for (let i = 0; i < data.length; i += 64) hash = Math.imul(hash ^ data[i], 16777619);
+      for (let i = 0; i < data.length; i += region.stride) hash = Math.imul(hash ^ data[i], 16777619);
       target.driveFrames.push({ t: performance.now(), pip: JSON.parse(game.dataset.visualPip!),
         bolt: JSON.parse(game.dataset.visualBolt!), crate: game.dataset.visualCrate ? JSON.parse(game.dataset.visualCrate) : null,
         magnet: JSON.parse(game.dataset.visualMagnet!), power: JSON.parse(game.dataset.visualPower!),
-        handoff: game.dataset.handoff === "true", png: captureCanvas ? canvas.toDataURL("image/png") : undefined,
+        celebrating: game.dataset.celebrating === "true", handoff: game.dataset.handoff === "true", png: captureCanvas ? canvas.toDataURL("image/png") : undefined,
         hash: hash >>> 0, actions: document.querySelector("#move-count")!.textContent });
       if (performance.now() - start < duration) requestAnimationFrame(sample);
       else target.driveRecording = false;
     }
     requestAnimationFrame(sample);
-  }, { duration: milliseconds, captureCanvas });
+  }, { duration: milliseconds, captureCanvas, region });
 }
 async function frames(page: Page) {
   await page.waitForFunction(() => !(window as unknown as { driveRecording: boolean }).driveRecording);
   return page.evaluate(() => (window as unknown as { driveFrames: {
-    t: number; pip: { x: number; y: number; angle: number; leftPhase: number; rightPhase: number };
-    bolt: { x: number; y: number; angle: number; leftPhase: number; rightPhase: number };
-    magnet: { x: number; y: number }; power: { x: number; y: number }; handoff: boolean; png?: string;
+    t: number; pip: { x: number; y: number; angle: number; leftPhase: number; rightPhase: number; wave: number; nod: number };
+    bolt: { x: number; y: number; angle: number; leftPhase: number; rightPhase: number; wave: number; nod: number };
+    magnet: { x: number; y: number }; power: { x: number; y: number }; celebrating: boolean; handoff: boolean; png?: string;
     crate: { x: number; y: number } | null; hash: number; actions: string;
   }[] }).driveFrames);
 }
@@ -813,4 +814,172 @@ test("multiple directions: last pressed wins, aliases release independently, rap
   await page.waitForTimeout(300);
   await expect(game).toHaveAttribute("data-won", "false");
   await page.keyboard.up("d");
+});
+
+
+test("freight story: quiet order, real power and cargo captions, undo/reset/room stay truthful", async ({ page }, info) => {
+  await ready(page, "freight");
+  const game = page.locator("#game"), caption = page.locator("#freight-story");
+  await expect(page.locator("#mission-title")).toHaveText("Werkstattauftrag");
+  await expect(page.locator("#objective")).toContainText("Ersatzteile in die Abstellnische");
+  await expect(page.locator("#feedback")).toContainText("verlasst gemeinsam die Werkstatt");
+  expect(await page.locator("#room-hint").textContent()).not.toMatch(/Tauscht zuerst|oben um die Kiste|Pip versorgt A/);
+  await expect(caption).toBeHidden();
+  await page.screenshot({ path: info.outputPath("beginn.png"), fullPage: true });
+  await keys(page, freightSetup.slice(0, 1));
+  await expect(caption).toBeHidden(); // A valid module exchange alone is not useful power yet.
+  await keys(page, freightSetup.slice(1, 8)); // Socket reached; no connection yet.
+  await expect(page.getByTestId("robot-pip")).toHaveAttribute("data-y", "4");
+  await expect(caption).toBeHidden();
+  await keys(page, freightSetup.slice(8, 9)); // Actual E connection, not just T.
+  await expect(caption).toHaveText("Pip: Oh, hier summt’s! Strom ist da.");
+  await page.screenshot({ path: info.outputPath("pip-strom.png"), fullPage: true });
+  await page.keyboard.press("z");
+  await expect(caption).toBeHidden();
+  await page.keyboard.press("e");
+  await expect(caption).toContainText("Pip:");
+  // Invalid non-adjacent swaps do not recreate the visible line or queue speech.
+  await caption.evaluate(el => {
+    const target = window as unknown as { storyMutations: number };
+    target.storyMutations = 0;
+    new MutationObserver(entries => { target.storyMutations += entries.length; }).observe(el, { childList: true, characterData: true, subtree: true });
+  });
+  for (let n = 0; n < 3; n++) await page.keyboard.press("t");
+  expect(await page.evaluate(() => (window as unknown as { storyMutations: number }).storyMutations)).toBe(0);
+  expect(await caption.getAttribute("aria-live")).toBeNull();
+  await keys(page, freightSetup.slice(9));
+  await expect(game).toHaveAttribute("data-crate", "5,3");
+  await expect(caption).toContainText("Pip:");
+  await keys(page, [{ type: "pull", direction: "down" }]);
+  await expect(game).toHaveAttribute("data-crate", "5,4");
+  await expect(caption).toHaveText("Bolt: Die Fracht hält. Solider Kollege.");
+  await expect(page.locator("#progress li").first()).toHaveClass("done");
+  await page.screenshot({ path: info.outputPath("bolt-fracht.png"), fullPage: true });
+  await page.keyboard.press("z");
+  await expect(game).toHaveAttribute("data-crate", "5,3");
+  await expect(caption).toContainText("Pip:");
+  await expect(page.locator("#progress li").first()).not.toHaveClass("done");
+  await page.keyboard.press("r");
+  await expect(caption).toBeHidden();
+  await expect(game).toHaveAttribute("data-freight-stage", "order");
+  await keys(page, freightSetup.slice(0, 9));
+  await expect(caption).toContainText("Pip:");
+  await page.locator("#room-select").selectOption("routes");
+  await expect(caption).toBeHidden();
+  await page.locator("#room-select").selectOption("freight");
+  await page.waitForTimeout(1100);
+  await expect(caption).toBeHidden();
+  await expect(game).toHaveAttribute("data-freight-stage", "order");
+  await expect(page.locator("#move-count")).toHaveText("0 Aktionen");
+});
+
+test("freight story: visible shared finish, real antenna/nod frames, undo and replay without celebration flood", async ({ page }, info) => {
+  await ready(page, "freight");
+  const game = page.locator("#game"), caption = page.locator("#freight-story");
+  await keys(page, freightSolution.slice(0, -1));
+  const floorBefore = await page.locator("canvas").evaluate((c: HTMLCanvasElement) =>
+    [...c.getContext("2d")!.getImageData(390, 315, 20, 20).data]);
+  await recordFrames(page, 1450, true, { x: 690, y: 380, width: 120, height: 100, stride: 4 });
+  await page.waitForTimeout(40);
+  await keys(page, freightSolution.slice(-1));
+  await expect(game).toHaveAttribute("data-won", "true");
+  const samples = await frames(page);
+  const gestures = samples.filter(f => f.celebrating && Math.abs(f.pip.wave) > 0.5 && f.bolt.nod > 0.5);
+  expect(gestures.length).toBeGreaterThan(8);
+  expect(new Set(gestures.map(f => f.hash)).size).toBeGreaterThan(6);
+  expect(Math.max(...gestures.map(f => f.pip.wave))).toBeGreaterThan(3);
+  expect(Math.min(...gestures.map(f => f.pip.wave))).toBeLessThan(-3);
+  expect(Math.max(...gestures.map(f => f.bolt.nod))).toBeGreaterThan(2.5);
+  expect(samples.at(-1)!.celebrating).toBe(false);
+  for (const [n, frame] of [samples[0], gestures[0], gestures[Math.floor(gestures.length / 2)], gestures.at(-1)!, samples.at(-1)!].entries()) {
+    await writeFile(info.outputPath(`abschluss-frame-${n}.png`), Buffer.from(frame.png!.split(",")[1], "base64"));
+  }
+  await attachEvidence(info, "abschluss-frames.json", samples.map(({ png: _png, ...sample }) => sample));
+  await page.screenshot({ path: info.outputPath("abschluss.png"), fullPage: true });
+  await expect(caption).toContainText("Pip: Ersatzteile da. Wir auch!");
+  await expect(caption).toContainText("Bolt: Feierabend zu zweit.");
+  // Actual lamp pixels and the canvas band where the old generic overlay hid the room.
+  const pixels = await page.locator("canvas").evaluate((c: HTMLCanvasElement) => {
+    const ctx = c.getContext("2d")!;
+    return { lamp: [...ctx.getImageData(725, 295, 1, 1).data], floor: [...ctx.getImageData(390, 315, 20, 20).data] };
+  });
+  expect(pixels.lamp.slice(0, 3)).toEqual([129, 228, 207]);
+  // Preserve the actual lit floor pixels, including existing service-lamp glow.
+  expect(pixels.floor).toEqual(floorBefore);
+  await page.keyboard.press("z");
+  await expect(game).toHaveAttribute("data-won", "false");
+  await expect(caption).toHaveText("Bolt: Die Fracht hält. Solider Kollege.");
+  await keys(page, freightSolution.slice(-1));
+  await expect(game).toHaveAttribute("data-celebrating", "false");
+  await expect(caption).toContainText("Feierabend zu zweit");
+  await page.keyboard.press("Enter");
+  await expect(game).toHaveAttribute("data-room", "routes");
+  await page.waitForTimeout(1100);
+  await expect(caption).toBeHidden();
+  await expect(game).toHaveAttribute("data-celebrating", "false");
+});
+
+test("freight story: reduced motion has a static confirmed ending and opt-in sound", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await ready(page, "freight");
+  await keys(page, freightSolution);
+  const game = page.locator("#game");
+  await expect(game).toHaveAttribute("data-celebrating", "false");
+  await expect(page.locator("#freight-story")).toContainText("Feierabend zu zweit");
+  await expect(page.locator("#mute")).toHaveText("Ton: aus");
+  await expect(page.locator("#mute")).toHaveAttribute("aria-pressed", "false");
+  await recordFrames(page, 500, false, { x: 0, y: 0, width: 850, height: 650, stride: 4 });
+  const samples = await frames(page);
+  expect(samples.length).toBeGreaterThan(8);
+  expect(new Set(samples.map(f => f.hash)).size).toBe(1);
+  expect(samples.every(f => f.pip.wave === 0 && f.bolt.nod === 0)).toBe(true);
+  await attachEvidence(info, "reduced-motion-frames.json", samples);
+  await page.screenshot({ path: info.outputPath("abschluss-reduced-motion.png"), fullPage: true });
+  await page.keyboard.press("z");
+  await expect(game).toHaveAttribute("data-freight-stage", "cargo");
+  await page.keyboard.press("r");
+  await expect(page.locator("#freight-story")).toBeHidden();
+  await expect(page.locator("#next-room")).toBeHidden();
+});
+
+test("freight story: active finish is cancelled by undo, reset, room, blur, suspension and reduced motion", async ({ page }) => {
+  for (const action of ["undo", "restart", "room", "blur", "pause", "reduce"] as const) {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await ready(page, "freight");
+    await keys(page, freightSolution.slice(0, -1));
+    await page.evaluate(() => {
+      (window as unknown as { restored: boolean }).restored = false;
+      window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => {
+        (window as unknown as { restored: boolean }).restored = true;
+      }, { once: true });
+    });
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.waitForFunction(() => (window as unknown as { restored: boolean }).restored);
+    const result = await page.locator("#game").evaluate((field, action) => {
+      const press = (code: string) => {
+        field.dispatchEvent(new KeyboardEvent("keydown", { code, bubbles: true }));
+        field.dispatchEvent(new KeyboardEvent("keyup", { code, bubbles: true }));
+      };
+      press("ArrowDown");
+      const started = (field as HTMLElement).dataset.celebrating;
+      if (action === "room") {
+        const select = document.querySelector<HTMLSelectElement>("#room-select")!;
+        select.value = "routes"; select.dispatchEvent(new Event("change"));
+      } else if (action === "blur") window.dispatchEvent(new Event("blur"));
+      else if (action === "pause") {
+        const end = performance.now() + 280;
+        while (performance.now() < end) { /* simulate a stalled frame */ }
+      } else if (action === "undo" || action === "restart") press(action === "undo" ? "KeyZ" : "KeyR");
+      return started;
+    }, action);
+    expect(result, action).toBe("true");
+    if (action === "reduce") await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(page.locator("#game")).toHaveAttribute("data-celebrating", "false");
+    await page.waitForTimeout(1100);
+    await expect(page.locator("#game")).toHaveAttribute("data-celebrating", "false");
+    await expect(page.locator("#game")).toHaveAttribute("data-freight-stage",
+      action === "room" ? "off" : action === "restart" ? "order" : action === "undo" ? "cargo" : "done");
+    const bots = await page.locator("#game").evaluate(field => ["visualPip", "visualBolt"].map(k => JSON.parse((field as HTMLElement).dataset[k]!)));
+    expect(bots.every(b => b.wave === 0 && b.nod === 0)).toBe(true);
+  }
 });

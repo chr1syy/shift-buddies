@@ -1,0 +1,50 @@
+{
+  "crop": [
+    690,
+    380,
+    810,
+    480
+  ],
+  "scale": 3,
+  "selected": [
+    {
+      "file": "abschluss-frame-0.png",
+      "timeMs": 0.0,
+      "hash": 3759841420,
+      "pipWave": 0,
+      "boltNod": 0
+    },
+    {
+      "file": "abschluss-frame-1.png",
+      "timeMs": 277.7000000476837,
+      "hash": 1895665598,
+      "pipWave": 1.2271344970560651,
+      "boltNod": 0.6705159018188942
+    },
+    {
+      "file": "abschluss-frame-2.png",
+      "timeMs": 628.0,
+      "hash": 2029941414,
+      "pipWave": 0.8333088711237824,
+      "boltNod": 2.9986640014263597
+    },
+    {
+      "file": "abschluss-frame-3.png",
+      "timeMs": 962.2000000476837,
+      "hash": 4251198921,
+      "pipWave": -1.2890499261519717,
+      "boltNod": 0.6900218209974261
+    },
+    {
+      "file": "abschluss-frame-4.png",
+      "timeMs": 1444.2999999523163,
+      "hash": 3146067312,
+      "pipWave": 0,
+      "boltNod": 0
+    }
+  ],
+  "frameCount": 86,
+  "gestureFrames": 42,
+  "gestureHashes": 42,
+  "maxFrameGapMs": 36.200000047683716
+}

@@ -30,6 +30,7 @@ import type {
 
 const TILE = 50;
 const HANDOFF_MS = 360;
+const FREIGHT_CELEBRATION_MS = 800;
 const ANGLES = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 };
 // The same rear mount anchors docked modules and the two handoff endpoints.
 const moduleMount = (x: number, y: number, angle: number) =>
@@ -52,6 +53,13 @@ let muted = true;
 let audio: AudioContext | undefined;
 const nextRoom = (): RoomId | undefined => ROOM_ORDER[ROOM_ORDER.indexOf(session.state.room) + 1];
 const reducedMotion = (): boolean => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Room-04 captions describe the current rules state, never a queued dialogue.
+// No story history: undo, restart and room choice use this same projection.
+const freightStage = (s: State): "off" | "order" | "power" | "cargo" | "done" =>
+  s.room !== "freight" ? "off" : isWon(s) ? "done"
+    : s.crate && tileAt(s.crate, s.room) === "P" ? "cargo"
+    : s.connected === "pip" && isPowered(s) ? "power" : "order";
+const FREIGHT_ORDER = "Bringt die Ersatzteile in die Abstellnische und verlasst gemeinsam die Werkstatt.";
 function pullSound(): void {
   if (muted || !audio || audio.state !== "running") return;
   const oscillator = audio.createOscillator();
@@ -68,7 +76,15 @@ function pullSound(): void {
 
 function updateHud(): void {
   const s = session.state;
-  element("feedback").textContent = session.message;
+  const story = freightStage(s);
+  element("feedback").textContent = story !== "off" && s.actions === 0 ? FREIGHT_ORDER : session.message;
+  const storyLine = story === "power" ? "Pip: Oh, hier summt’s! Strom ist da."
+    : story === "cargo" ? "Bolt: Die Fracht hält. Solider Kollege."
+    : story === "done" ? "Pip: Ersatzteile da. Wir auch!  ·  Bolt: Feierabend zu zweit." : "";
+  element("freight-story").hidden = !storyLine;
+  // Repeated invalid actions and swaps do not recreate or announce captions.
+  if (element("freight-story").textContent !== storyLine) element("freight-story").textContent = storyLine;
+  gameElement.dataset.freightStage = story;
   element("move-count").textContent = `${s.actions} Aktionen`;
   element("door-status").textContent = circuits(s.room).map(c =>
     `${c.name || "TÜR"} ${circuitOn(s, c) ? "OFFEN" : c.bridges.some(b => isBridgeOpen(s, b)) ? "BESETZT · SICHER" : "ZU"}`).join(" · ")
@@ -92,14 +108,15 @@ function updateHud(): void {
   gameElement.dataset.room = s.room;
   element("room-title").textContent = room.title;
   element<HTMLSelectElement>("room-select").value = s.room;
-  element("mission-title").textContent = "Deine Aufgabe";
-  element("objective").textContent = isWon(s) ? nextRoom() ? "Geschafft! Enter oder Weiter führt zum nächsten Raum." : "Alle sechs Räume geschafft! Danke für euren Werkstattdienst. Raumwahl zum Weiterspielen, R zum Neustart." : room.objective;
-  element("room-hint").textContent = room.hint;
+  element("mission-title").textContent = story === "off" ? "Deine Aufgabe" : "Werkstattauftrag";
+  element("objective").textContent = isWon(s) ? nextRoom() ? "Geschafft! Enter oder Weiter führt zum nächsten Raum." : "Alle sechs Räume geschafft! Danke für euren Werkstattdienst. Raumwahl zum Weiterspielen, R zum Neustart." : story !== "off" ? FREIGHT_ORDER : room.objective;
+  element("room-hint").textContent = story === "off" ? room.hint : "Schaut euch eure Körper, Module und die Werkstattzeichen an. Ihr habt Zeit zum Ausprobieren; Z nimmt jeden Schritt zurück.";
   const goals: [boolean, string][] = s.room === "bodies"
     ? [[tileAt(s.robots.pip, s.room) === "X", "Pip am Ausgang"], [isPlateHeld(s), "Bolt hält die schwere Platte"]]
     : s.room === "modules"
       ? [[isPowered(s), "Anschluss versorgt"], [tileAt(s.robots.bolt, s.room) === "X", "Bolt am Ausgang"]]
       : [[tileAt(s.robots.pip, s.room) === "X", "Pip am Ausgang"], [tileAt(s.robots.bolt, s.room) === "X", "Bolt am Ausgang"]];
+  if (story !== "off") goals.unshift([!!s.crate && tileAt(s.crate, s.room) === "P", "Ersatzteile in der Abstellnische"]);
   element("progress").innerHTML = goals.map(([done, text]) => `<li class="${done ? "done" : ""}">${text}</li>`).join("");
   element<HTMLButtonElement>("next-room").hidden = !isWon(s) || !nextRoom();
 
@@ -119,10 +136,13 @@ class RoomScene extends Phaser.Scene {
   private steeringTravel: Record<RobotId, number> = { pip: 0, bolt: 0 };
   private expression?: { id: RobotId; started: number; kind: "start" | "stop" | "bump" };
   private wasRolling = false;
+  private freightCelebrated = false;
+  private celebration?: { started: number; progress: number };
   private effects = new Set<Phaser.GameObjects.Graphics>();
 
   private settle(): void {
     this.handoff = undefined; gameElement.dataset.handoff = "false";
+    this.celebration = undefined; gameElement.dataset.celebrating = "false";
     this.motion = undefined; this.expression = undefined; this.wasRolling = false;
     this.wheelTravel = { pip: 0, bolt: 0 }; this.steeringTravel = { pip: 0, bolt: 0 };
     for (const effect of this.effects) { this.tweens.killTweensOf(effect); effect.destroy(); }
@@ -167,7 +187,13 @@ class RoomScene extends Phaser.Scene {
       }
     }
     if (this.expression && now - this.expression.started > 180) { this.expression = undefined; finished = true; }
-    if (this.motion || this.handoff || this.expression || finished) this.redraw(true);
+    if (this.celebration) {
+      this.celebration.progress = Phaser.Math.Clamp((now - this.celebration.started) / FREIGHT_CELEBRATION_MS, 0, 1);
+      if (this.celebration.progress === 1) {
+        this.celebration = undefined; gameElement.dataset.celebrating = "false"; finished = true;
+      }
+    }
+    if (this.motion || this.handoff || this.expression || this.celebration || finished) this.redraw(true);
   }
 
   create(): void {
@@ -263,6 +289,7 @@ class RoomScene extends Phaser.Scene {
       this.settle();
       if (["switch", "swap", "undo", "restart", "room"].includes(command.type)) this.resetInput();
     }
+    if (command.type === "restart" || command.type === "room") this.freightCelebrated = false;
     const before = session.state;
     session = dispatch(session, command);
     const after = session.state;
@@ -291,6 +318,14 @@ class RoomScene extends Phaser.Scene {
       }
       if (!reducedMotion() && (!moved || !continuing))
         this.expression = { id, started: now, kind: moved ? "start" : "bump" };
+    }
+    if (after.room === "freight" && isWon(after) && !isWon(before) && !this.freightCelebrated) {
+      this.freightCelebrated = true;
+      if (!reducedMotion()) {
+        // Finish the final drive first; both gestures remain on the field.
+        this.celebration = { started: performance.now() + (this.motion ? STEP_MS : 0), progress: 0 };
+        gameElement.dataset.celebrating = "true";
+      }
     }
     if (isWon(after)) this.resetInput();
     if (command.type === "pull" && moved) pullSound();
@@ -463,9 +498,15 @@ class RoomScene extends Phaser.Scene {
     ROOMS[s.room].grid.forEach((row, y) => [...row].forEach((tile, x) => {
       if (tile === "#" && tileAt({ x, y: y + 1 }, s.room) === "." && x % 4 === 2) {
         const px = x * TILE + 25, py = (y + 1) * TILE;
-        g.fillStyle(0xffd79b, 0.035).fillCircle(px, py + 24, 43);
+        const confirmed = s.room === "freight" && isWon(s) && x === 14;
+        const light = confirmed ? COLORS.pip : 0xffd79b;
+        g.fillStyle(light, confirmed ? 0.18 : 0.035).fillCircle(px, py + 24, 43);
         g.fillStyle(0x665746).fillRoundedRect(px - 13, py - 9, 26, 7, 2);
-        g.fillStyle(0xffd79b).fillRect(px - 9, py - 6, 18, 3);
+        g.fillStyle(light).fillRect(px - 9, py - 6, 18, 3);
+        if (confirmed) {
+          g.lineStyle(2, light).lineBetween(px - 5, py + 12, px - 1, py + 17).lineBetween(px - 1, py + 17, px + 8, py + 7);
+          this.text(px, py - 21, "DIENST ERLEDIGT", "#b7ffe5", 10);
+        }
       }
     }));
     // Corner badges stay readable even while a source is occupied. Hollow /
@@ -517,7 +558,13 @@ class RoomScene extends Phaser.Scene {
         gameElement.dataset[module === "magnet" ? "visualMagnet" : "visualPower"] = JSON.stringify({ x, y });
       }
     }
-    if (isWon(s)) {
+    if (s.room === "freight" && isWon(s)) {
+      // The unused wall below the room leaves both bots and the lamp visible.
+      g.fillStyle(0x0b1c29, 0.96).fillRoundedRect(135, 515, 580, 86, 12);
+      g.lineStyle(2, COLORS.pip).strokeRoundedRect(135, 515, 580, 86, 12);
+      this.text(425, 540, "WERKSTATTAUFTRAG ERLEDIGT · ZU ZWEIT!", "#81e4cf", 19);
+      this.text(425, 575, "ENTER  Weiter     ·     R  Neustart     ·     Z  Zurück", "#d9e7ef", 13);
+    } else if (isWon(s)) {
       // Phaser text objects render above Graphics; hide floor annotations
       // before adding the victory text so they cannot cross the dialog.
       if (!preserveLabels) this.labels.forEach((label) => label.setVisible(false));
@@ -574,6 +621,9 @@ class RoomScene extends Phaser.Scene {
     const turnTime = this.motion ? Math.min(1, (performance.now() - this.motion.started) / (id === "pip" ? 100 : 140)) : 1;
     const angle = start + difference * turnTime * turnTime * (3 - 2 * turnTime);
     const pip = id === "pip";
+    const celebration = this.celebration?.progress ?? 0;
+    const nod = pip ? 0 : Math.sin(celebration * Math.PI) * 3;
+    const wave = pip ? Math.sin(celebration * Math.PI * 4) * Math.sin(celebration * Math.PI) * 7 : 0;
     const rolling = this.motion && !same(this.motion.before.robots[id], r);
     const travel = this.wheelTravel[id] + (rolling ? this.motion!.progress * (this.motion!.pull ? -30 : 30) : 0);
     const steering = this.steeringTravel[id] + (angle - start) * 8;
@@ -583,7 +633,7 @@ class RoomScene extends Phaser.Scene {
     const expression = !reducedMotion() && this.expression?.id === id ? this.expression : undefined;
     const pulse = expression ? Math.sin(Math.min(1, (performance.now() - expression.started) / 180) * Math.PI) : 0;
     const brace = expression?.kind === "bump" ? -1 : expression?.kind === "stop" ? 1 : -0.6;
-    gameElement.dataset[`visual${id === "pip" ? "Pip" : "Bolt"}`] = JSON.stringify({ x, y, angle, leftPhase, rightPhase });
+    gameElement.dataset[`visual${id === "pip" ? "Pip" : "Bolt"}`] = JSON.stringify({ x, y, angle, leftPhase, rightPhase, wave, nod });
     g.fillStyle(0x040a10, 0.4).fillEllipse(x + 2, y + 17, pip ? 31 : 49, 16);
     if (s.connected === id) g.lineStyle(3, COLORS.power).strokeCircle(x, y, 24);
     if (s.active === id) {
@@ -611,14 +661,16 @@ class RoomScene extends Phaser.Scene {
     }
     g.fillStyle(COLORS[id]).fillRoundedRect(pip ? -8 : -16, pip ? -15 : -18, pip ? 16 : 32, pip ? 31 : 36, pip ? 7 : 4);
     g.lineStyle(2, pip ? 0xb3f3e3 : 0xf2d0a2).lineBetween(pip ? -5 : -12, 12, pip ? 5 : 12, 12);
+    g.save().translateCanvas(0, nod);
     g.fillStyle(0x102532).fillRoundedRect(pip ? -7 : -13, -14, pip ? 14 : 26, 9, 3);
     g.fillStyle(0xe7fcff).fillCircle(-3.5, -10, pip ? 2.2 : 2).fillCircle(3.5, -10, pip ? 2.2 : 2);
     if (pip) {
-      g.lineStyle(2, 0xa1c8c0).lineBetween(0, -15, 4, -21);
-      g.fillStyle(COLORS.pip).fillCircle(4, -21, 2);
+      g.lineStyle(2, 0xa1c8c0).lineBetween(0, -15, 4 + wave, -21);
+      g.fillStyle(COLORS.pip).fillCircle(4 + wave, -21, 2);
     } else {
       g.fillStyle(0x8b7358).fillRect(-13, 9, 26, 5);
     }
+    g.restore();
     g.restore();
     const { x: mx, y: my } = moduleMount(x, y, angle);
     if (!this.handoff) g.fillStyle(COLORS[r.module], 0.14).fillCircle(mx, my - 1, 15);

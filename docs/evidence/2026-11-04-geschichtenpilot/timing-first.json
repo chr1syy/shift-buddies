@@ -1,0 +1,1778 @@
+[
+  {
+    "t": 1550,
+    "pip": {
+      "x": 174.99999999999997,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 225.079140513667,
+      "y": 375,
+      "angle": 0.006830601195777569,
+      "leftPhase": 5.992839498633993,
+      "rightPhase": 0.10212911776643452,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 174.99999999999997
+    },
+    "magnet": {
+      "x": 174.99999999999997,
+      "y": 384
+    },
+    "power": {
+      "x": 225.0176655809481,
+      "y": 383.9997900438092
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1473375704,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1566.6000001430511,
+    "pip": {
+      "x": 175,
+      "y": 374.99999999999994,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 226.00204368141289,
+      "y": 374.99999999999994,
+      "angle": 0.07736942344282277,
+      "leftPhase": 5.982270821305154,
+      "rightPhase": 1.2201815963903186,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 383.99999999999994
+    },
+    "power": {
+      "x": 225.3064133657974,
+      "y": 383.9730763099394
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1874667180,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1580.9000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 228.43175627646147,
+      "y": 375,
+      "angle": 0.25050507643530195,
+      "leftPhase": 0.05501315439447296,
+      "rightPhase": 4.063094377359304,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 274.99999999999994,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 226.20071655387915,
+      "y": 383.71908606198264
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 458406386,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1598.1000001430511,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 232.26634837962962,
+      "y": 375,
+      "angle": 0.5033305558728536,
+      "leftPhase": 0.3331645807949499,
+      "rightPhase": 2.386453474760607,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 227.9252369723497,
+      "y": 382.88382849569825
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 3028903334,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1616.1000001430511,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 236.75683083887176,
+      "y": 375,
+      "angle": 0.7685693476484992,
+      "leftPhase": 0.905543722135068,
+      "rightPhase": 1.2026532845110545,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 230.50086382507718,
+      "y": 381.47015275880824
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 2177531250,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1630.8000001907349,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 242.06814604472817,
+      "y": 375,
+      "angle": 1.0387960337017528,
+      "leftPhase": 1.9305193572228934,
+      "rightPhase": 0.5512558964509395,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 234.31199887275747,
+      "y": 379.5653237614359
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 39650808,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1649.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 248.0491713395259,
+      "y": 375,
+      "angle": 1.2904249078355001,
+      "leftPhase": 3.506103541031557,
+      "rightPhase": 0.15290206639955883,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 239.40059678486247,
+      "y": 377.4904132533433
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1838822016,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1666.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 254.74074057990137,
+      "y": 375,
+      "angle": 1.4886681624937808,
+      "leftPhase": 5.935099047990569,
+      "rightPhase": 5.753789647891061,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 245.77107618209507,
+      "y": 375.7383228228399
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 4008124527,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1680.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 260.19270451887826,
+      "y": 375,
+      "angle": 1.5656041389510444,
+      "leftPhase": 2.590789599718594,
+      "rightPhase": 3.6404558229353086,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 251.19282583327146,
+      "y": 375.0467294806321
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 4200959099,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1706.9000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 266.54375000000005,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 0.35987938564082356,
+      "rightPhase": 1.4926206143591685,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 257.54375000000005,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 3467488459,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1717.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 272.65330627871424,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 4.025613152869351,
+      "rightPhase": 5.158354381587699,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 263.65330627871424,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 4027412054,
+    "actions": "2 Aktionen"
+  },
+  {
+    "t": 1735.7000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 276.83333337306976,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 0.5336294094826854,
+      "rightPhase": 1.6663706382010304,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 267.83333337306976,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1153401031,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1746.3000001907349,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 281.16666667991217,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 3.133629393588116,
+      "rightPhase": 4.266370622306461,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 272.16666667991217,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 4051804961,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1762.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 285.6666666931576,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.833629401535397,
+      "rightPhase": 0.966370630253742,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 276.6666666931576,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1819215521,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1779.8000001907349,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 290.4166666666667,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 2.6836293856408275,
+      "rightPhase": 3.8163706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 281.4166666666667,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1832940248,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1801.6000001430511,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 294.97222224871314,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.416962734868733,
+      "rightPhase": 0.5497039635870777,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 285.97222224871314,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 135936432,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1821.8000001907349,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 300.55555555555554,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 2.766962718974156,
+      "rightPhase": 3.899703947692501,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 291.55555555555554,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 893290443,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1831.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 304.44444444444446,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.100296052307499,
+      "rightPhase": 0.23303728102584387,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 295.44444444444446,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 3828112216,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1849.7000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 309.16666666666663,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 1.9336293856408275,
+      "rightPhase": 3.0663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 300.16666666666663,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 369193031,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1863.2000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 313.47222222222223,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 4.516962718974163,
+      "rightPhase": 5.649703947692501,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 304.47222222222223,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1140284745,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1879.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 318.05555555555554,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 1.2669627189741632,
+      "rightPhase": 2.399703947692501,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 309.05555555555554,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 3830224705,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1896.2000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 322.6944444576899,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 4.05029606025478,
+      "rightPhase": 5.183037288973125,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 313.6944444576899,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 4020493245,
+    "actions": "3 Aktionen"
+  },
+  {
+    "t": 1915.8000001907349,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 327.36111111111114,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 0.8502960523074918,
+      "rightPhase": 1.9830372810258439,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 274.99999999999994,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 318.36111111111114,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 4047038413,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 1931.3000001907349,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 332.5,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 3.9336293856408275,
+      "rightPhase": 5.0663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 323.5,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 2333229224,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 1946.1000001430511,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 336.6388889153798,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 0.4169627348687328,
+      "rightPhase": 1.5497039635870777,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 327.6388889153798,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 2297864453,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 1963.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 341.36111113760205,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 3.2502960682020614,
+      "rightPhase": 4.383037296920406,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 332.36111113760205,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1313957078,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 1982.2000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 346.36111113760205,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 0.2502960682020614,
+      "rightPhase": 1.3830372969204063,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 337.36111113760205,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 4242194898,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2000.8000001907349,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 351.7500000529819,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 3.4836294174299667,
+      "rightPhase": 4.616370646148312,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 342.7500000529819,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1861376586,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2012.6000001430511,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 355.0833333863152,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.483629417429981,
+      "rightPhase": 0.6163706461483258,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 346.0833333863152,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1183840261,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2029.7000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 359.72222222222223,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 2.266962718974156,
+      "rightPhase": 3.399703947692501,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 350.72222222222223,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 2383428067,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2047.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 364.33333337306976,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.0336294094826854,
+      "rightPhase": 0.16637063820103037,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 355.33333337306976,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 2457033082,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2062.600000143051,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 368.97222227520416,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 1.8169627507633095,
+      "rightPhase": 2.9497039794816544,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 359.97222227520416,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 690493646,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2079.7000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 373.6666666799121,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 4.633629393588109,
+      "rightPhase": 5.766370622306454,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 364.6666666799121,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1728229936,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2096.800000190735,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 410540169,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2112.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 2428632704,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2129.2000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 3092077611,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2146.600000143051,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 2496170749,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2162.2000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 3021942626,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2179.5,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 3002414508,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2197,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 1192282163,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2216.2000000476837,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 490089631,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2229.600000143051,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 3129485576,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2246.300000190735,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 4259570489,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2263.800000190735,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 2713829332,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2281.600000143051,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 507122352,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2298.9000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 507122352,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2313.100000143051,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 507122352,
+    "actions": "4 Aktionen"
+  },
+  {
+    "t": 2329.4000000953674,
+    "pip": {
+      "x": 175,
+      "y": 375,
+      "angle": 0,
+      "leftPhase": 0,
+      "rightPhase": 0,
+      "wave": 0,
+      "nod": 0
+    },
+    "bolt": {
+      "x": 375,
+      "y": 375,
+      "angle": 1.5707963267948966,
+      "leftPhase": 5.4336293856408275,
+      "rightPhase": 0.5663706143591725,
+      "wave": 0,
+      "nod": 0
+    },
+    "crate": {
+      "x": 275,
+      "y": 175
+    },
+    "magnet": {
+      "x": 175,
+      "y": 384
+    },
+    "power": {
+      "x": 366,
+      "y": 375
+    },
+    "celebrating": false,
+    "handoff": false,
+    "hash": 507122352,
+    "actions": "4 Aktionen"
+  }
+]

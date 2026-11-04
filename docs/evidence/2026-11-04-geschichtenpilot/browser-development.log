@@ -1,0 +1,57 @@
+
+> shift-buddies@0.1.0 test:browser
+> playwright test --grep freight story --trace off --output .cache/story-targeted-results
+
+[WebServer] (node:4146086) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:4146126) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser.spec.ts:820:1 › freight story: quiet order, real power and cargo captions, undo/reset/room stay truthful (14.3s)
+  ✘  2 tests/browser.spec.ts:874:1 › freight story: visible shared finish, real antenna/nod frames, undo and replay without celebration flood (16.8s)
+(node:4146620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/browser.spec.ts:917:1 › freight story: reduced motion has a static confirmed ending and opt-in sound (5.8s)
+  ✓  4 tests/browser.spec.ts:940:1 › freight story: active finish is cancelled by undo, reset, room, blur, suspension and reduced motion (32.5s)
+
+
+  1) tests/browser.spec.ts:874:1 › freight story: visible shared finish, real antenna/nod frames, undo and replay without celebration flood
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 3
+
+      Array [
+    -   27,
+    -   46,
+    -   59,
+    +   28,
+    +   50,
+    +   66,
+      ]
+
+      901 |   });
+      902 |   expect(pixels.lamp.slice(0, 3)).toEqual([129, 228, 207]);
+    > 903 |   expect(pixels.floor.slice(0, 3)).toEqual([27, 46, 59]);
+          |                                    ^
+      904 |   await page.keyboard.press("z");
+      905 |   await expect(game).toHaveAttribute("data-won", "false");
+      906 |   await expect(caption).toHaveText("Bolt: Die Fracht hält. Solider Kollege.");
+        at /home/chris/code/shift-buddies/tests/browser.spec.ts:903:36
+
+    attachment #1: abschluss-frames.json (application/json) ────────────────────────────────────────
+    .cache/story-targeted-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/attachments/abschluss-frames-json-534752f36c0a12b11f02f20572e0f408c3b54750.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .cache/story-targeted-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .cache/story-targeted-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/error-context.md
+
+  1 failed
+    tests/browser.spec.ts:874:1 › freight story: visible shared finish, real antenna/nod frames, undo and replay without celebration flood
+  3 passed (1.2m)

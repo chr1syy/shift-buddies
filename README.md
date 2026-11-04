@@ -19,6 +19,8 @@ Devserver und `npm run preview -- --port 5173 --strictPort` binden an Loopback. 
 
 **Lokaler nächster Schritt · 04.11.2026:** [Sichtbare Modulübergabe](docs/2026-11-04-moduluebergabe.md): Magnet und Batterie wandern beim gültigen Tausch in 360 ms zum anderen Bot. Jede weitere Aktion kann sofort fortfahren; Reduced motion zeigt den neuen Zustand unmittelbar. Noch nicht veröffentlicht.
 
+**Lokaler Geschichtenpilot · 04.11.2026:** [Raum 04 / Schwere Fracht](docs/2026-11-04-geschichtenpilot.md) erhält einen Werkstattauftrag, zustandsgebundene Pip-/Bolt-Kommentare und einen sichtbaren gemeinsamen Abschluss. Mit Spieltestanleitung und lokalen Browserbelegen; noch nicht veröffentlicht.
+
 ```bash
 npm test
 npm run test:browser
@@ -70,7 +72,7 @@ Alle Räume sind direkt anwählbar; Raumwahl leert Undo. Raum 1 verlangt Pip am 
 - `src/game/drive.ts`: Physische Richtungstasten, eine nächste Fahrabsicht und Hindernissperre; keine Spielzustände oder Undo-Duplikate.
 - `src/main.ts`: Eine Phaser-Scene, gemeinsame Modulformen für beide Bots, Nase/Gesichter, Eingaben und HTML-Anzeige. Reihenfolge: Boden, Leitungen, Einrichtungen, Fracht/Bots; Zustandsbadges bleiben darüber lesbar. Bereitschaft und Effekte sind vorübergehende Darstellung.
 - `index.html` / `src/style.css`: Bedienung und vorhandenes Layout; keine zusätzlichen Abhängigkeiten.
-- `tests/`: Aktualisierte Lösungen für alle sechs Räume, Regelregressionen für Körper-/Modulrollen und fünfzehn Browserprüfungen mit Tastaturbedienung; Mehrframeprüfungen verbinden tatsächliche Renderkoordinaten mit Canvas-Pixelhashes und sichern die Modulübergabe als PNGs; keine Debug-Zustandssetter.
+- `tests/`: Aktualisierte Lösungen für alle sechs Räume, Regelregressionen für Körper-/Modulrollen und neunzehn Browserprüfungen mit Tastaturbedienung; Mehrframeprüfungen verbinden tatsächliche Renderkoordinaten mit Canvas-Pixelhashes und sichern die Modulübergabe als PNGs; keine Debug-Zustandssetter.
 - `deploy/`: Bestehende Releasewerkzeuge, SHA-256-Manifeste und Releasebelege; nur die drei Builddateien werden öffentlich ausgeliefert.
 
 Layoutzeichen: `#` Wand, `.` Boden, `v` Schacht, `S` Sockel, `D` Tor, `P` schwere Platte, `X` Ausgang, `O` feste Keramik, `~` Grube, `B` Brücke. Bots und optionale Fracht starten an separat definierten Positionen.

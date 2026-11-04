@@ -1,0 +1,32 @@
+
+> shift-buddies@0.1.0 test:browser
+> playwright test --trace off --output .cache/story-confirmation-results
+
+[WebServer] (node:4155948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 19 tests using 1 worker
+
+(node:4156003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/browser.spec.ts:40:1 › real keyboard solution, persistent power on Shift, exact full undo and restart (11.5s)
+  ✓   2 tests/browser.spec.ts:94:1 › buttons, focus recovery, stale OS repeat and narrow viewport (2.2s)
+  ✓   3 tests/browser.spec.ts:134:1 › first entry, two short lessons, next, room-local undo and direct test room selection (17.9s)
+  ✓   4 tests/browser.spec.ts:199:1 › six rooms in order, Enter once with button focus/repeat, full undo and final ending (59.5s)
+  ✓   5 tests/browser.spec.ts:244:1 › held E pull: no forward/lateral turn, repeat, release, blur, obstruction and resets (7.4s)
+  ✓   6 tests/browser.spec.ts:316:1 › Bolt pushes with either module, never E alone or normal driving; undo and E release (14.6s)
+  ✓   7 tests/browser.spec.ts:357:1 › in-flight Shift/restart/room, rotation views, supplied and occupied bridge, audio opt-in (11.4s)
+  ✓   8 tests/browser.spec.ts:404:1 › both modules leave both robots' eyes readable in all four directions (13.8s)
+  ✓   9 tests/browser.spec.ts:487:1 › module handoff: both physical shapes cross distinct arcs over real canvas frames and dock (2.8s)
+  ✓  10 tests/browser.spec.ts:521:1 › handoff interrupts: undo, restart, switch, another swap, movement, interaction, room and focus (12.8s)
+  ✓  11 tests/browser.spec.ts:582:1 › handoff validity, vertical exchange, reduced motion and changing motion preference (4.2s)
+  ✓  12 tests/browser.spec.ts:633:1 › continuous drive: tap, hold across centres, release, smooth turns, pixel/timing evidence and undo (4.8s)
+  ✓  13 tests/browser.spec.ts:676:1 › held magnet load stays synchronous, looks backward, stops at obstacle without feedback/undo flood (9.9s)
+  ✓  14 tests/browser.spec.ts:724:1 › held input resets on E release, commands, focus, hidden tab, frame pause and motion preference (10.4s)
+  ✓  15 tests/browser.spec.ts:786:1 › multiple directions: last pressed wins, aliases release independently, rapid corner tap waits for centre (6.1s)
+  ✓  16 tests/browser.spec.ts:820:1 › freight story: quiet order, real power and cargo captions, undo/reset/room stay truthful (10.8s)
+  ✓  17 tests/browser.spec.ts:876:1 › freight story: visible shared finish, real antenna/nod frames, undo and replay without celebration flood (17.3s)
+  ✓  18 tests/browser.spec.ts:922:1 › freight story: reduced motion has a static confirmed ending and opt-in sound (3.6s)
+  ✓  19 tests/browser.spec.ts:945:1 › freight story: active finish is cancelled by undo, reset, room, blur, suspension and reduced motion (22.2s)
+
+  19 passed (4.1m)

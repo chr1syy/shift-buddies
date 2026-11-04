@@ -348,3 +348,14 @@ select { max-width: 100%; padding: 9px; border: 1px solid #426073; border-radius
 
 .pull-status { margin: 0 16px 14px; padding: 9px 12px; background: #25343c; color: #d0c9b3; border-left: 3px solid #93866e; font-size: 12px; line-height: 1.5; }
 .pull-status.ready { background: #3c2d3c; border-color: #ffa0aa; color: #ffd0d7; }
+
+/* Quiet, state-based buddy captions; no modal, timer or live announcement. */
+.freight-story {
+  margin: 0 18px 14px;
+  padding: 10px 12px;
+  border-left: 3px solid #81e4cf;
+  background: #1b3040;
+  color: #eaf0f5;
+  font-size: 14px;
+  line-height: 1.5;
+}
