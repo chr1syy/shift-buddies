@@ -1,0 +1,631 @@
+{
+  "game_source_sha": "0ffc8e03c3f0096a43fa820a41c51674d1036e82",
+  "validation_sha": "0ffc8e03c3f0096a43fa820a41c51674d1036e82",
+  "release": "20261107T152749Z-0ffc8e03c3f0",
+  "previous": "releases/20261103T115853Z-d535f02edccc",
+  "backup": "/var/backups/shift-buddies-20261107T152749Z-0ffc8e03c3f0",
+  "assets": [
+    {
+      "path": "assets/index-Bb4QzEkq.js",
+      "sha256": "166fe74f07ce737303bb3ac476f6266f2291364dc0343bcfe0e60ca395d8978f"
+    },
+    {
+      "path": "assets/index-WfR_mLSn.css",
+      "sha256": "50928aae83abf0b925b7ff96ac05b0b7b0c655dbc6e4aaf779d1aedc59444d02"
+    },
+    {
+      "path": "index.html",
+      "sha256": "70c54103fd049bbfa9e041eae69b13f9db5414e83ffe21eed0aeb495c4d8d6a4"
+    }
+  ],
+  "url": "https://shift-buddies.clippmann.de/",
+  "release_path": "/var/www/shift-buddies/releases/20261107T152749Z-0ffc8e03c3f0",
+  "verified_at": "2026-11-07T15:51:15.515331+00:00",
+  "evidence_root": ".cache/deploy-story-2026-11-07",
+  "local_rule_tests": 32,
+  "local_browser_tests": 19,
+  "public_browser_tests": 19,
+  "validation": {
+    "source_sha": "0ffc8e03c3f0096a43fa820a41c51674d1036e82",
+    "node": "v24.22.1",
+    "npm": "11.9.0",
+    "playwright": "Version 1.64.1",
+    "local_url": "http://127.0.0.1:4175",
+    "public_url": "https://shift-buddies.clippmann.de",
+    "commands": [
+      "npm test",
+      "npm run typecheck",
+      "npm run build",
+      "npm run preview -- --port 4175 --strictPort",
+      "PLAYWRIGHT_BROWSERS_PATH=.cache/playwright PLAYWRIGHT_BASE_URL=http://127.0.0.1:4175 npm run test:browser -- --trace off --output .cache/deploy-story-2026-11-07/local-results",
+      "PLAYWRIGHT_BROWSERS_PATH=.cache/playwright PLAYWRIGHT_BASE_URL=https://shift-buddies.clippmann.de npm run test:browser -- --trace off --output .cache/deploy-story-2026-11-07/public-results",
+      "PLAYWRIGHT_BROWSERS_PATH=.cache/playwright PLAYWRIGHT_BASE_URL=https://shift-buddies.clippmann.de npm run test:browser -- --trace off --grep 'continuous drive:' --repeat-each 3 --output .cache/deploy-story-2026-11-07/public-timing-results",
+      "PLAYWRIGHT_BROWSERS_PATH=.cache/playwright PLAYWRIGHT_BASE_URL=https://shift-buddies.clippmann.de npm run test:browser -- --trace off --grep 'held E pull:' --repeat-each 3 --output .cache/deploy-story-2026-11-07/public-pull-results"
+    ],
+    "tls_dns_bypass": false,
+    "browser_retries": 0,
+    "test_or_product_changes": false,
+    "public_initial_suite": {
+      "passed": 18,
+      "failed": 1,
+      "duration_minutes": 5.3
+    },
+    "public_full_suite_repeats": 2,
+    "public_targeted_timing_repeats": 3,
+    "selection_note": "Anchored grep initially selected no tests because Playwright matches the full title including filename. Unanchored grep then selected the existing continuous drive case; no test change.",
+    "public_targeted_timing_results": {
+      "passed": 2,
+      "failed": 1,
+      "duration_seconds": 16.6
+    },
+    "public_confirmation_suite": {
+      "passed": 18,
+      "failed": 1,
+      "duration_minutes": 5.9,
+      "failure": "held E pull transient data-animating true missed while field position correct"
+    },
+    "public_targeted_pull_repeats": {
+      "passed": 3,
+      "failed": 0,
+      "duration_seconds": 25.7
+    },
+    "public_final_suite": {
+      "passed": 19,
+      "failed": 0,
+      "duration_minutes": 4.7
+    }
+  },
+  "bundle_presence": {
+    "game_source_sha": "0ffc8e03c3f0096a43fa820a41c51674d1036e82",
+    "bundle": {
+      "path": "assets/index-Bb4QzEkq.js",
+      "sha256": "166fe74f07ce737303bb3ac476f6266f2291364dc0343bcfe0e60ca395d8978f"
+    },
+    "strings": {
+      "Werkstattauftrag": true,
+      "Ersatzteile in die Abstellnische": true,
+      "Oh, hier summt": true,
+      "Feierabend zu zweit": true,
+      "handoff": true,
+      "visualMagnet": true,
+      "visualPower": true
+    },
+    "handoff_commit_in_source_history": true,
+    "public_bundle_sha256": "166fe74f07ce737303bb3ac476f6266f2291364dc0343bcfe0e60ca395d8978f",
+    "public_bundle_matches_local": true
+  },
+  "frames": {
+    "local": {
+      "continuous-canvas-frames.json": {
+        "path": "local-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/continuous-canvas-frames.json",
+        "frames": 48,
+        "pixel_states": 46,
+        "duration_ms": 777.2,
+        "boundary_velocity_px_ms": [
+          0.28354061033607764,
+          0.26464646512811835
+        ]
+      },
+      "turn-canvas-frames.json": {
+        "path": "local-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/turn-canvas-frames.json",
+        "frames": 19,
+        "pixel_states": 12,
+        "duration_ms": 295.3
+      },
+      "reduced-motion-frames.json": {
+        "path": "local-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/reduced-motion-frames.json",
+        "frames": 30,
+        "pixel_states": 1,
+        "duration_ms": 495.2
+      },
+      "abschluss-frames.json": {
+        "path": "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frames.json",
+        "frames": 84,
+        "pixel_states": 60,
+        "duration_ms": 1430.6,
+        "active_frames": 40,
+        "active_pixel_states": 40
+      },
+      "magnet-canvas-frames.json": {
+        "path": "local-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/magnet-canvas-frames.json",
+        "frames": 57,
+        "pixel_states": 30,
+        "duration_ms": 996.0
+      },
+      "push-canvas-frames.json": {
+        "path": "local-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/push-canvas-frames.json",
+        "frames": 37,
+        "pixel_states": 29,
+        "duration_ms": 598.1
+      },
+      "handoff-canvas-frames.json": {
+        "path": "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-canvas-frames.json",
+        "frames": 36,
+        "pixel_states": 21,
+        "duration_ms": 630.2,
+        "active_frames": 19,
+        "active_pixel_states": 19
+      }
+    },
+    "public": {
+      "continuous-canvas-frames.json": {
+        "path": "public-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/continuous-canvas-frames.json",
+        "frames": 48,
+        "pixel_states": 46,
+        "duration_ms": 785.2,
+        "boundary_velocity_px_ms": [
+          0.28311991854235,
+          0.26338238281782395
+        ]
+      },
+      "turn-canvas-frames.json": {
+        "path": "public-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/turn-canvas-frames.json",
+        "frames": 19,
+        "pixel_states": 13,
+        "duration_ms": 307.4
+      },
+      "reduced-motion-frames.json": {
+        "path": "public-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/reduced-motion-frames.json",
+        "frames": 18,
+        "pixel_states": 1,
+        "duration_ms": 488.3
+      },
+      "abschluss-frames.json": {
+        "path": "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frames.json",
+        "frames": 47,
+        "pixel_states": 31,
+        "duration_ms": 1419.4,
+        "active_frames": 22,
+        "active_pixel_states": 22
+      },
+      "magnet-canvas-frames.json": {
+        "path": "public-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/magnet-canvas-frames.json",
+        "frames": 47,
+        "pixel_states": 28,
+        "duration_ms": 1001.8
+      },
+      "push-canvas-frames.json": {
+        "path": "public-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/push-canvas-frames.json",
+        "frames": 33,
+        "pixel_states": 27,
+        "duration_ms": 586.2
+      },
+      "handoff-canvas-frames.json": {
+        "path": "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-canvas-frames.json",
+        "frames": 27,
+        "pixel_states": 14,
+        "duration_ms": 638.1,
+        "active_frames": 12,
+        "active_pixel_states": 12
+      }
+    }
+  },
+  "isolation": {
+    "file_count": 52,
+    "unchanged_files": 51,
+    "changed_files": [
+      "/etc/nginx/sites-available/shift-buddies.clippmann.de.conf"
+    ],
+    "nginx_pid": "633529",
+    "neighbor_count": 13,
+    "neighbors_identical": true,
+    "certificate_identical": true
+  },
+  "neighbor_results": [
+    {
+      "url": "https://clippmann.de/",
+      "status": 522,
+      "sha256": "c8b9f348c8635d7ffcd5d16ad4b9c65289302dc6c4fe2e0210346b23013fb280"
+    },
+    {
+      "url": "https://www.clippmann.de/",
+      "status": 522,
+      "sha256": "c8b9f348c8635d7ffcd5d16ad4b9c65289302dc6c4fe2e0210346b23013fb280"
+    },
+    {
+      "url": "https://clippmann.de/preview",
+      "status": 522,
+      "sha256": "c8b9f348c8635d7ffcd5d16ad4b9c65289302dc6c4fe2e0210346b23013fb280"
+    },
+    {
+      "url": "https://preview.clippmann.de/",
+      "status": 200,
+      "sha256": "0314aa2ef33543bb16c884512f8370693d81cc8f20342dd37c8230cf31f70be1"
+    },
+    {
+      "url": "https://preview.clippmann.de/styles.css",
+      "status": 200,
+      "sha256": "b328355f88569abc33382b638a68d2444722b1b806540d31e6cfae194c363406"
+    },
+    {
+      "url": "https://preview.clippmann.de/script.js",
+      "status": 200,
+      "sha256": "387046be7354f8432253099524472426a057e16699f14b86f5e279c9538cf31b"
+    },
+    {
+      "url": "https://preview.clippmann.de/favicon.svg",
+      "status": 200,
+      "sha256": "612ef4bbc7adf63977276d4a0c6399c4a4eada38f5069d1b4d6acfdd7c9912d1"
+    },
+    {
+      "url": "https://preview.clippmann.de/robots.txt",
+      "status": 200,
+      "sha256": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1"
+    },
+    {
+      "url": "https://rc-preview.clippmann.de/",
+      "status": 200,
+      "sha256": "fbcae2f5aa2ef2020ce4e856be3d7c8666a05d50fc770ec03d4f833b19ac5c65"
+    },
+    {
+      "url": "https://raidpresence.clippmann.de/",
+      "status": 200,
+      "sha256": "28392c9d326c4f9517a0be1604bead01bcf429e7d48800a660dcd33b19633006"
+    },
+    {
+      "url": "https://app.synapse-tp.de/",
+      "status": 200,
+      "sha256": "84a05f0ff312eac836f95c0d16d27a1903fd7e3edf5f6b947bd7be57632c3e34"
+    },
+    {
+      "url": "https://control.synapse-tp.de/",
+      "status": 200,
+      "sha256": "b20413069b3b0fdf6febdc65e1f2c1fa1e286cf23a20ec0b0525864b01ec89a1"
+    },
+    {
+      "url": "https://logs.parrotosocial.club/",
+      "status": 200,
+      "sha256": "fe82023ae719e78ba3d6773128a16be426f54a04a826192fa24f254745225b3d"
+    }
+  ],
+  "public_checks": {
+    "standard": 22,
+    "extra": 3,
+    "private_or_sourcemap_paths": 8,
+    "standard_rechecked_after_browsers": 22
+  },
+  "rollback": {
+    "executed": false,
+    "script": ".cache/deploy-story-2026-11-07/rollback.sh",
+    "previous_vhost": "/var/backups/shift-buddies-20261107T152749Z-0ffc8e03c3f0/previous-vhost.conf",
+    "previous_current": "/var/backups/shift-buddies-20261107T152749Z-0ffc8e03c3f0/previous-current.txt",
+    "previous_manifest": "/var/backups/shift-buddies-20261103T115853Z-d535f02edccc/manifest.sha256",
+    "previous_release_retained_and_hash_verified": true,
+    "shell_syntax_checked": true,
+    "live_rollback_rehearsed": false
+  },
+  "repository_visibility": {
+    "repository": "chr1syy/shift-buddies",
+    "visibility": "public",
+    "changed_by_this_release": false,
+    "note": "Existing GitHub repository is public. Authorized normal source push is public there. Preview host only serves build files; new raw evidence remains local and ignored."
+  },
+  "limits": [
+    "Human play, readability, personality and listening acceptance remain open.",
+    "Headless Chromium/Linux only; no Firefox, Safari or itch.io embedding test.",
+    "Focus/hidden-tab/frame suspension and reduced motion are simulated.",
+    "First fresh public suite: 18 passed, 1 timing failure. Unchanged targeted repeats and complete confirmation suite recorded separately.",
+    "Existing Phaser bundle size warning and foreign NGINX protocol warnings remain.",
+    "Three pre-existing neighbor HTTP 522 responses are unchanged.",
+    "No server restart, DNS/certificate/Cloudflare change, itch.io publication, new agent or worktree."
+  ],
+  "public_first_suite": {
+    "log": "public-browser-first.log",
+    "results": "public-first-results",
+    "passed": 18,
+    "failed": 1,
+    "original_log_result_prefix": "public-results",
+    "note": "First results directory renamed intact before the confirmation run; logs preserve original paths."
+  },
+  "public_second_suite": {
+    "log": "public-browser-second.log",
+    "results": "public-second-results",
+    "passed": 18,
+    "failed": 1,
+    "original_log_result_prefix": "public-results",
+    "failure": "Transient animation true assertion; field position was correct."
+  },
+  "public_first_timing": {
+    "boundary_velocity_px_ms": [
+      0.38575170472280107,
+      0.28726405940329164
+    ],
+    "frames": 19,
+    "max_frame_gap_ms": 86.40000009536743,
+    "expected_px_ms": [
+      0.2,
+      0.35
+    ],
+    "source_and_assertions_unchanged": true
+  },
+  "public_case_coverage": {
+    "cases_expected": 19,
+    "cases_successfully_observed": 19,
+    "successful_names": [
+      "Bolt pushes with either module, never E alone or normal driving; undo and E release",
+      "both modules leave both robots' eyes readable in all four directions",
+      "buttons, focus recovery, stale OS repeat and narrow viewport",
+      "continuous drive: tap, hold across centres, release, smooth turns, pixel/timing evidence and undo",
+      "first entry, two short lessons, next, room-local undo and direct test room selection",
+      "freight story: active finish is cancelled by undo, reset, room, blur, suspension and reduced motion",
+      "freight story: quiet order, real power and cargo captions, undo/reset/room stay truthful",
+      "freight story: reduced motion has a static confirmed ending and opt-in sound",
+      "freight story: visible shared finish, real antenna/nod frames, undo and replay without celebration flood",
+      "handoff interrupts: undo, restart, switch, another swap, movement, interaction, room and focus",
+      "handoff validity, vertical exchange, reduced motion and changing motion preference",
+      "held E pull: no forward/lateral turn, repeat, release, blur, obstruction and resets",
+      "held input resets on E release, commands, focus, hidden tab, frame pause and motion preference",
+      "held magnet load stays synchronous, looks backward, stops at obstacle without feedback/undo flood",
+      "in-flight Shift/restart/room, rotation views, supplied and occupied bridge, audio opt-in",
+      "module handoff: both physical shapes cross distinct arcs over real canvas frames and dock",
+      "multiple directions: last pressed wins, aliases release independently, rapid corner tap waits for centre",
+      "real keyboard solution, persistent power on Shift, exact full undo and restart",
+      "six rooms in order, Enter once with button focus/repeat, full undo and final ending"
+    ],
+    "single_clean_full_suite": true,
+    "full_suites": [
+      {
+        "log": "public-browser-first.log",
+        "passed": 18,
+        "failed": 1
+      },
+      {
+        "log": "public-browser-second.log",
+        "passed": 18,
+        "failed": 1
+      },
+      {
+        "log": "public-browser.log",
+        "passed": 19,
+        "failed": 0
+      }
+    ]
+  },
+  "timing_repeats": [
+    {
+      "path": "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/continuous-canvas-frames.json",
+      "frames": 43,
+      "boundary_velocity_px_ms": [
+        0.36829556660093854,
+        0.2690058481855939
+      ],
+      "passed_velocity": false,
+      "max_frame_gap_ms": 52.59999990463257
+    },
+    {
+      "path": "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat1/continuous-canvas-frames.json",
+      "frames": 47,
+      "boundary_velocity_px_ms": [
+        0.2804539149489679,
+        0.2741159235938579
+      ],
+      "passed_velocity": true,
+      "max_frame_gap_ms": 44.299999952316284
+    },
+    {
+      "path": "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat2/continuous-canvas-frames.json",
+      "frames": 46,
+      "boundary_velocity_px_ms": [
+        0.20345545746876142,
+        0.2624209581890294
+      ],
+      "passed_velocity": true,
+      "max_frame_gap_ms": 43.200000047683716
+    }
+  ],
+  "evidence_sha256": {
+    "activate.sh": "69b9064ed2caef136a1ceb520cf6446b3da2b9a504e22bbcb6344d30ff308e10",
+    "activation.log": "e1cf91ef72a5f179ed00e28c39f414bf3d93b95b4e281858fc0ce1f0996f5c0d",
+    "agents.preflight.json": "3ba8abf0c7afa6c7024a9a7f6ec77e93a340a2c546e8fa8e8573b4636f490ebf",
+    "atlas-preflight.log": "e400d768d246fd07117f534993542698700316b81f6ec0991f8bd7d30c5730ef",
+    "atlas.after.json": "18a3778f6a3658e0b7867f25d08ae73e3f95af5fe6e8becd8ab002267bf2e9b6",
+    "atlas.before.json": "1c7fb820303efe602d012889f527b794fce25057368033224788cdba0eb31a6f",
+    "atlas.final.json": "18a3778f6a3658e0b7867f25d08ae73e3f95af5fe6e8becd8ab002267bf2e9b6",
+    "atlas.preflight.json": "1c7fb820303efe602d012889f527b794fce25057368033224788cdba0eb31a6f",
+    "build.log": "17a28194fc6ccef867e7da77d382fca143852c3bd0b768c470843f7c650ca400",
+    "bundle-presence.json": "b72b97dcab8da148e60449cc7b7bb2cf185def502efd4902ef371cf40e6b8d23",
+    "certificate.after.txt": "5d38b2ae8a6fa77d01c2149c90e623ab6cf62d3aa0734581b3933067d93b20de",
+    "certificate.before.txt": "5d38b2ae8a6fa77d01c2149c90e623ab6cf62d3aa0734581b3933067d93b20de",
+    "extra-paths.json": "f343267bda45709c3b8b9042656a2d3e3d500742d45f896fa38dc0ca31ae6574",
+    "final-http/http-checks.json": "e28004192197b8d481d2821dca3f64476dd387e183bd70733337214ee7c912d9",
+    "final-http.log": "65e0b99bb83e4b8cddf66a6a70f8a3fa2d95227a2ffb335e2aa630bf1ac9aab1",
+    "final-verify.py": "3d426b5f6212262dc3bc7a368216c7d383bb98b74fcd83d847c5feb32e55fec7",
+    "http-checks.json": "db824ad84d9906c3f755129f65841c42b178ec4d753623a03be70ac02968fb2b",
+    "http-checks.log": "65e0b99bb83e4b8cddf66a6a70f8a3fa2d95227a2ffb335e2aa630bf1ac9aab1",
+    "isolation.json": "2b6ba99092204f1fe7cf409e396c2a3ff406cd2b5d2e359ee77c861e0be17845",
+    "load-first-public-failure.txt": "4003c11067027416a13a5d1f06ca37aa5b657c5530e6183f334dffa5aeb68e8f",
+    "local-browser.log": "5628894fbd5bd51b2645074aaef96b480bacb41aa3e629e46da2b925d58bad11",
+    "local-frame-summary.json": "88f5967ed278c0345549ae6af04a4f4ed66591c6849014de6251afc74cfc585b",
+    "local-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+    "local-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/attachments/continuous-canvas-frames-json-c8e3ef87ea25e457018fe6b18aff614a3466e734.json": "1dc9b59b207d1ec92061dc3be7b189110a54ab0be64c4e3398113425ddcf5edd",
+    "local-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/attachments/turn-canvas-frames-json-2b0d5ba88e92b97f30e89c0483e6513c3c268237.json": "07e2f07cff9367c44b97c07dd0f1a5e2030348e926f52d3aa14f4cdc51255c6f",
+    "local-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/continuous-canvas-frames.json": "1dc9b59b207d1ec92061dc3be7b189110a54ab0be64c4e3398113425ddcf5edd",
+    "local-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/turn-canvas-frames.json": "07e2f07cff9367c44b97c07dd0f1a5e2030348e926f52d3aa14f4cdc51255c6f",
+    "local-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/beginn.png": "69e72776aa902d8169f47f917a8c311cb5b85bc2e137f5464aa4d3add6d01b75",
+    "local-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/bolt-fracht.png": "8d14f50fdf2ca99610ce533cd47d9f674706340e23dd9e541dd89be2935eaf88",
+    "local-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/pip-strom.png": "78f52acce8d1ef82f0aa04d135f3ab76da77edb604752e2248e2124a78513ec4",
+    "local-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/abschluss-reduced-motion.png": "241d12440199ed7f1cecc79d3cf9b1aa4583df1791526dc2b3e3cea237294108",
+    "local-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/attachments/reduced-motion-frames-json-a8a1750f64e105035d3d0c03d43846db547e6694.json": "2fd99bad04086f46042a84e8ac44344b18bb15114e0d994c280d6235211e6ef8",
+    "local-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/reduced-motion-frames.json": "2fd99bad04086f46042a84e8ac44344b18bb15114e0d994c280d6235211e6ef8",
+    "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-0.png": "1d1d6a2cca7eb2b5d2f5ff19c65df2ca9e6a6e6dbcfae94a22258f00cbf8f971",
+    "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-1.png": "5f1ff7117d009b08d1e52b0532ab0f610740d952c0ea270948f59e37818bef89",
+    "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-2.png": "9891af89a7cd6a09ac02bc7f3709aa14b80e77b596cc4e92c3c9f51ced86d536",
+    "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-3.png": "06f177c82f7d7e4b68745e8fa4d0c8bfef5fc207049e496a90b01ef4045f35cc",
+    "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-4.png": "e087529b8bd67e86d576730a1d5f135398c0bf793422ca8ffc226d302211a0b7",
+    "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frames.json": "80578dcedb646e31966297d8f424d8a43044ce429e75012d42d3dc0b02781aa8",
+    "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss.png": "c85971e77824f7256295fdad72b26c263307040fcd83171fd54171919bebd04d",
+    "local-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/attachments/abschluss-frames-json-513ad513ad30ce7de40b490227b065e7164c15d6.json": "80578dcedb646e31966297d8f424d8a43044ce429e75012d42d3dc0b02781aa8",
+    "local-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/attachments/magnet-canvas-frames-json-945f120264c7afa351d31d15b0ab2cb50fb4a308.json": "443e9ae4be67e1897f5651a76f0ace1f13bdff5cb52a122a22df8b521a0d8d6a",
+    "local-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/attachments/push-canvas-frames-json-a7564003507489cea89fe1ae482d51f197c5c551.json": "45c4f9f64f59903db5d2ac121eef8719ed0404d21b821dd15f24b69e6a38595a",
+    "local-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/magnet-canvas-frames.json": "443e9ae4be67e1897f5651a76f0ace1f13bdff5cb52a122a22df8b521a0d8d6a",
+    "local-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/push-canvas-frames.json": "45c4f9f64f59903db5d2ac121eef8719ed0404d21b821dd15f24b69e6a38595a",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-0-ad89e07a31ac78c7e150253b2957e075291e5566.png": "cdacd18fa8334063658bdd3eb75d0886426642478d727af8d683ed02bf9c603f",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-1-dd89846f75b95abf2a0f27e12095489a0b71fa33.png": "72b06a9ef2387ff49a1fdc964cdee23685190fea7f9ef461a2738f0fc7efb4ec",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-2-c8dec82c084f9f1c14040536a503d237e12ccb05.png": "42fee5de9745040aea08848ee60d29413b6f7e65965cba6b33b2b6b4b0204c7b",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-3-9486d8cce54e13b33d2e744612f682e60505357f.png": "21a901f10c4505d6797c5a6995daf5252beb1c18dc8e7f1ac423617ce04e3ea2",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-4-377a969b865b543037aee83dbed667040852ad0c.png": "19c8d80255bb6134ad6273b337fe4f58f9b3d4739c8ce03d4e6415088e2eacef",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-canvas-frames-json-9a83a09b3d2ef0f3987fc1346133521a5ed7c464.json": "0166452642a45584178de8d523210069f6821232d7e289020b94b9fcf9f302c7",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-0.png": "cdacd18fa8334063658bdd3eb75d0886426642478d727af8d683ed02bf9c603f",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-1.png": "72b06a9ef2387ff49a1fdc964cdee23685190fea7f9ef461a2738f0fc7efb4ec",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-2.png": "42fee5de9745040aea08848ee60d29413b6f7e65965cba6b33b2b6b4b0204c7b",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-3.png": "21a901f10c4505d6797c5a6995daf5252beb1c18dc8e7f1ac423617ce04e3ea2",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-4.png": "19c8d80255bb6134ad6273b337fe4f58f9b3d4739c8ce03d4e6415088e2eacef",
+    "local-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-canvas-frames.json": "0166452642a45584178de8d523210069f6821232d7e289020b94b9fcf9f302c7",
+    "manifest.sha256": "ebaf766e5432af3de01f6d5da184c0ef9a58d65406564eb761e3215e5785d6e6",
+    "neighbors-after.log": "a04e1907fc86b14e1b0aa1f271dd053d7a9cbc8325603397276f9fb42730d06a",
+    "neighbors-before.log": "a04e1907fc86b14e1b0aa1f271dd053d7a9cbc8325603397276f9fb42730d06a",
+    "neighbors.after.json": "e7db867c5b1373229c5fd542a94c2908c9e4a4af9cad20b2428381c739a71fa1",
+    "neighbors.before.json": "993bd87232479db0679662f71d42976435e51d057f9cefd8ead6485fb74e8cee",
+    "new-vhost.conf": "a7b87f187548848809af9e789ee87af8ff1ac0737cca65e3ffbe36672c0bbebe",
+    "postship.py": "995905fa9c772e2f784ac01a5be29b2cccfe7f0438b3095975f34deb918b0085",
+    "pre-activation.py": "9b656191baded67517c1940a5501fd4e79fa4474d48ddf864bad5f8604a4d951",
+    "previous-manifest.sha256": "6827e159d412d0229102ba67e35757fb2b8eb356511ad1dbbce42a71329250d3",
+    "previous-vhost.conf": "4ef33c25e6f39a39763dc4fd59e4a109c734a4a29c81dcad6f5d6cdf98c93f4b",
+    "private-paths.json": "04912453e13172d14b33eb3705eefde1b861044b30c22668ecfb3cee4e00478b",
+    "public-browser-first.log": "410f9345a08f39610740a8708c72c4b483da2ecadf61025f87fb0f4a68bf6ffc",
+    "public-browser-second.log": "7d009aea30664926804e1a6a32d43853a0396b2cbeea9679ce6aea218044e7f8",
+    "public-browser.log": "be9edde59a3591082ac0a3821407768e785cd598679ef2c66c96dabca56d0c98",
+    "public-case-coverage.json": "2d82f66b3ea2a74bd5086a252148e34cadeeffc11716c371817fc2e49e23119a",
+    "public-first-results/.last-run.json": "795ad0109082f3c33679d08a5ca8f27fd7fd476d588cd3d0546e989214b6f6ac",
+    "public-first-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/attachments/continuous-canvas-frames-json-e82e5f13e328362e5c45d953524f4d215e21db5c.json": "3aa4cf89ca3b40739a38fd1d327aff3b3472ba8c0d112b37c7e5fad0a48e1d6e",
+    "public-first-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/continuous-canvas-frames.json": "3aa4cf89ca3b40739a38fd1d327aff3b3472ba8c0d112b37c7e5fad0a48e1d6e",
+    "public-first-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/error-context.md": "89961cdda68bfa3a5fb67ef9d02a0e7e8ec442347f4d786643a8707076b35d0d",
+    "public-first-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/test-failed-1.png": "3e448042d37181c8565e4e27a7e2695acdfa4995d82d990c3323aeb884bc342a",
+    "public-first-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/beginn.png": "69e72776aa902d8169f47f917a8c311cb5b85bc2e137f5464aa4d3add6d01b75",
+    "public-first-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/bolt-fracht.png": "aefeadc34f2128ce1a8461115377b1cff7ce83d707c15f61aa823a46f7177666",
+    "public-first-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/pip-strom.png": "f4a119b28d15afdbe2c4f854b1b5afd38eb1f64b51c58e8782c0ed6ff1423ecc",
+    "public-first-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/abschluss-reduced-motion.png": "241d12440199ed7f1cecc79d3cf9b1aa4583df1791526dc2b3e3cea237294108",
+    "public-first-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/attachments/reduced-motion-frames-json-ae6d7ebcfa44fb6114478242afac528f4569b87a.json": "0e035e408011651147b7465d10005771f55556444bfbc6fb51eab75b16e6031e",
+    "public-first-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/reduced-motion-frames.json": "0e035e408011651147b7465d10005771f55556444bfbc6fb51eab75b16e6031e",
+    "public-first-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-0.png": "138d7aab16122fb721d6ec04a62786a6bae8ab36c4b67d404e3c7ada7f60c042",
+    "public-first-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-1.png": "50d8837130dd0235584c7d5988e4af53f6b8d64f8b5f4cf2b12bda1d1c221091",
+    "public-first-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-2.png": "90035e40e71c02392c4914d8c4c286eafcfcc2215d1d4e46b9841086253adcd2",
+    "public-first-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-3.png": "d516bbd21006f31d9fd40093353251517862fcb2b4610b67c01d1a1353513f5a",
+    "public-first-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-4.png": "e087529b8bd67e86d576730a1d5f135398c0bf793422ca8ffc226d302211a0b7",
+    "public-first-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frames.json": "1a6b438ca6a88e5045059bdd9ac4484fda4c417c5e4d1cde953835b792dac5df",
+    "public-first-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss.png": "c85971e77824f7256295fdad72b26c263307040fcd83171fd54171919bebd04d",
+    "public-first-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/attachments/abschluss-frames-json-ce0fb1ee6e992d462a858459a4a08a82f97cbc87.json": "1a6b438ca6a88e5045059bdd9ac4484fda4c417c5e4d1cde953835b792dac5df",
+    "public-first-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/attachments/magnet-canvas-frames-json-48135429e65eb63abef286f406d7a58531bf50cc.json": "777b273d567f1cf21e1312a83a3af6d6c7961b32b3a9d816dec010ba0b8a5cbc",
+    "public-first-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/attachments/push-canvas-frames-json-3c696c89b5aea264fffa3d32ed915eb4b4515ee4.json": "eb22fc4fe47ae36f19954632951e490b4a669fb7e9bb43f65006962fcdb8097b",
+    "public-first-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/magnet-canvas-frames.json": "777b273d567f1cf21e1312a83a3af6d6c7961b32b3a9d816dec010ba0b8a5cbc",
+    "public-first-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/push-canvas-frames.json": "eb22fc4fe47ae36f19954632951e490b4a669fb7e9bb43f65006962fcdb8097b",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-0-aff5f7c623bbb52180bd192af73bb8e542f84481.png": "cdacd18fa8334063658bdd3eb75d0886426642478d727af8d683ed02bf9c603f",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-1-480b95b8acde106d6b34cc506debe4190bfb64fb.png": "a5dcf13a4b102a8f8a7d2126bb60c96d5f358a9c4b923deb9c43a75c525aea30",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-2-234131ade63a8425a23a08525bb71322096bfd9f.png": "f45b01613d160ef99658ad06afd28c3359401481dbc4a2f668c40afd3b9c7a64",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-3-26b6431bd7c1b6d01bd9e1c13b37b310261aec50.png": "4fef79bc276c9780a70814575869bc6aa955ae7461f22f8e70e792d3d5f8134c",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-4-2c198a47e1169f4abe63de35ca091a07b7ff5430.png": "19c8d80255bb6134ad6273b337fe4f58f9b3d4739c8ce03d4e6415088e2eacef",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-canvas-frames-json-6602c416f7eb4c9e7ffdc7d6c7498b33c44bdde5.json": "5052f52885e23cc07cd6df4034f41325386bbb719edba7b1736f9378ca767d4a",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-0.png": "cdacd18fa8334063658bdd3eb75d0886426642478d727af8d683ed02bf9c603f",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-1.png": "a5dcf13a4b102a8f8a7d2126bb60c96d5f358a9c4b923deb9c43a75c525aea30",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-2.png": "f45b01613d160ef99658ad06afd28c3359401481dbc4a2f668c40afd3b9c7a64",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-3.png": "4fef79bc276c9780a70814575869bc6aa955ae7461f22f8e70e792d3d5f8134c",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-4.png": "19c8d80255bb6134ad6273b337fe4f58f9b3d4739c8ce03d4e6415088e2eacef",
+    "public-first-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-canvas-frames.json": "5052f52885e23cc07cd6df4034f41325386bbb719edba7b1736f9378ca767d4a",
+    "public-first-timing.json": "0f6a871c222d498d649ffebe03542cf62d50579a00aae721dedbb7bc2baf3872",
+    "public-frame-summary.json": "895a3c71135a78da9775be127ebe57aebf203190324e374ab15d21113735c5d7",
+    "public-pull-repeat.log": "4e57d79c2efb9f8f2380bf08ca060a5c17ab7a2b080a91f229a44d2d338690e0",
+    "public-pull-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+    "public-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+    "public-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/attachments/continuous-canvas-frames-json-e82e5f13e328362e5c45d953524f4d215e21db5c.json": "8a51a3b89d5b8db061d14ec85cc0c3470fed007a07c51954ae31e58be8d24eed",
+    "public-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/attachments/turn-canvas-frames-json-6fe4a2be803ef13b7659f6e028832960d7bddbf0.json": "b806c04463e8d892abe1b751b69d170c9412913c949009829443b4b47f81d107",
+    "public-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/continuous-canvas-frames.json": "8a51a3b89d5b8db061d14ec85cc0c3470fed007a07c51954ae31e58be8d24eed",
+    "public-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/turn-canvas-frames.json": "b806c04463e8d892abe1b751b69d170c9412913c949009829443b4b47f81d107",
+    "public-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/beginn.png": "69e72776aa902d8169f47f917a8c311cb5b85bc2e137f5464aa4d3add6d01b75",
+    "public-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/bolt-fracht.png": "a40b028aa3266a03d69464bdb6ace467aa0c0ef2aeb382578e308d57c98da26a",
+    "public-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/pip-strom.png": "5031555da57810293073b29b846b0d5b6a7d8fecc5601a8735d3da228ece24cb",
+    "public-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/abschluss-reduced-motion.png": "241d12440199ed7f1cecc79d3cf9b1aa4583df1791526dc2b3e3cea237294108",
+    "public-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/attachments/reduced-motion-frames-json-ae6d7ebcfa44fb6114478242afac528f4569b87a.json": "d351eec6307b121663bca77311e11a23164c6b6acbc086579f09bf1d6fa790d3",
+    "public-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/reduced-motion-frames.json": "d351eec6307b121663bca77311e11a23164c6b6acbc086579f09bf1d6fa790d3",
+    "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-0.png": "138d7aab16122fb721d6ec04a62786a6bae8ab36c4b67d404e3c7ada7f60c042",
+    "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-1.png": "5bfe73d4f21766795586c3be6a690496d1b574a92a5994997f9205db9975e191",
+    "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-2.png": "ffc1f7d3b3fcbb72f12040c53dc362d41e9e11dd45ac95d1fdd2c7a1d59e94e3",
+    "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-3.png": "0d2f348508559bf0d7cf7cf5a75e4394527db519a329009eb3137d954b34715c",
+    "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-4.png": "e087529b8bd67e86d576730a1d5f135398c0bf793422ca8ffc226d302211a0b7",
+    "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frames.json": "c3835d8331b9b6957f27762e9c38b3811ba8e4b97347ed40ec233d78def4f2aa",
+    "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss.png": "241d12440199ed7f1cecc79d3cf9b1aa4583df1791526dc2b3e3cea237294108",
+    "public-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/attachments/abschluss-frames-json-ce0fb1ee6e992d462a858459a4a08a82f97cbc87.json": "c3835d8331b9b6957f27762e9c38b3811ba8e4b97347ed40ec233d78def4f2aa",
+    "public-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/attachments/magnet-canvas-frames-json-48135429e65eb63abef286f406d7a58531bf50cc.json": "cccdf4ca7f0db0600b06171b147b76968c952bb92308541afeaa254f7a0b2a9d",
+    "public-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/attachments/push-canvas-frames-json-3c696c89b5aea264fffa3d32ed915eb4b4515ee4.json": "577fafdd390bb46db2826d429cff222178cf1e2cd83d54bcc65f361a9d2bdf64",
+    "public-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/magnet-canvas-frames.json": "cccdf4ca7f0db0600b06171b147b76968c952bb92308541afeaa254f7a0b2a9d",
+    "public-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/push-canvas-frames.json": "577fafdd390bb46db2826d429cff222178cf1e2cd83d54bcc65f361a9d2bdf64",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-0-aff5f7c623bbb52180bd192af73bb8e542f84481.png": "cdacd18fa8334063658bdd3eb75d0886426642478d727af8d683ed02bf9c603f",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-1-480b95b8acde106d6b34cc506debe4190bfb64fb.png": "8e8498c1006ea53fdc07d0266245a81b1d75bb4f0a7a7eaacc7247e3a51b2464",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-2-234131ade63a8425a23a08525bb71322096bfd9f.png": "4aa6b0dd721de01abe8cc86a0da59e3330bd93bf71fbd088433336728bd2f835",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-3-26b6431bd7c1b6d01bd9e1c13b37b310261aec50.png": "0f623967196a3cb3f228b6aebbf4fa2071e9c21453ab1b94bdc7db7843812084",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-4-2c198a47e1169f4abe63de35ca091a07b7ff5430.png": "19c8d80255bb6134ad6273b337fe4f58f9b3d4739c8ce03d4e6415088e2eacef",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-canvas-frames-json-6602c416f7eb4c9e7ffdc7d6c7498b33c44bdde5.json": "cd3721c5e3bbb1a72c3ace8d3f18b5895ed9d06b53c0e2e66910fe34816c6eba",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-0.png": "cdacd18fa8334063658bdd3eb75d0886426642478d727af8d683ed02bf9c603f",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-1.png": "8e8498c1006ea53fdc07d0266245a81b1d75bb4f0a7a7eaacc7247e3a51b2464",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-2.png": "4aa6b0dd721de01abe8cc86a0da59e3330bd93bf71fbd088433336728bd2f835",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-3.png": "0f623967196a3cb3f228b6aebbf4fa2071e9c21453ab1b94bdc7db7843812084",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-4.png": "19c8d80255bb6134ad6273b337fe4f58f9b3d4739c8ce03d4e6415088e2eacef",
+    "public-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-canvas-frames.json": "cd3721c5e3bbb1a72c3ace8d3f18b5895ed9d06b53c0e2e66910fe34816c6eba",
+    "public-second-results/.last-run.json": "b6a3865b40d24eb52e26840b997930cb92c265103ff42ad4e17f5a74d9f45ee2",
+    "public-second-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/attachments/continuous-canvas-frames-json-e82e5f13e328362e5c45d953524f4d215e21db5c.json": "d051043d6628a7e69f877c8002b8afbc1fa184ff4c6a32cd085a82e268e90c8f",
+    "public-second-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/attachments/turn-canvas-frames-json-6fe4a2be803ef13b7659f6e028832960d7bddbf0.json": "e2b2e14bfd7f8f6e74f12cb59c85aadce64caea460ec5138ceeca899cdb9f7b9",
+    "public-second-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/continuous-canvas-frames.json": "d051043d6628a7e69f877c8002b8afbc1fa184ff4c6a32cd085a82e268e90c8f",
+    "public-second-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/turn-canvas-frames.json": "e2b2e14bfd7f8f6e74f12cb59c85aadce64caea460ec5138ceeca899cdb9f7b9",
+    "public-second-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/beginn.png": "69e72776aa902d8169f47f917a8c311cb5b85bc2e137f5464aa4d3add6d01b75",
+    "public-second-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/bolt-fracht.png": "48fa654a319b2a6ca6eacd2c1e0881b402cfc5ff25efc8c4cfa146115f695e16",
+    "public-second-results/browser-freight-story-quie-52b50-do-reset-room-stay-truthful/pip-strom.png": "c4c3b6dba6e8fdbc53b17ef48e714be3aedafd7da94e2dfbb75bcf51116b2661",
+    "public-second-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/abschluss-reduced-motion.png": "241d12440199ed7f1cecc79d3cf9b1aa4583df1791526dc2b3e3cea237294108",
+    "public-second-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/attachments/reduced-motion-frames-json-ae6d7ebcfa44fb6114478242afac528f4569b87a.json": "a7ec59bcaeb44930a2f71d017e4996bad14f201ccda1555db56bbd731330c7e3",
+    "public-second-results/browser-freight-story-redu-5bc94-med-ending-and-opt-in-sound/reduced-motion-frames.json": "a7ec59bcaeb44930a2f71d017e4996bad14f201ccda1555db56bbd731330c7e3",
+    "public-second-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-0.png": "138d7aab16122fb721d6ec04a62786a6bae8ab36c4b67d404e3c7ada7f60c042",
+    "public-second-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-1.png": "39c3f54029fcaf229333c755ed52042b1a55ba83ea6ccbdb65f3f93600054cde",
+    "public-second-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-2.png": "96ae32e78bf5daea57bf3bb552c73da88a28a9456c37b4d2d71817660c3861ce",
+    "public-second-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-3.png": "6e761f78186fd5a81864ea92e4397ff40f04e5a95c9ef31631e1396219b2f8ad",
+    "public-second-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frame-4.png": "e087529b8bd67e86d576730a1d5f135398c0bf793422ca8ffc226d302211a0b7",
+    "public-second-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss-frames.json": "ec3e18031259232b9673efc49ef861c3a58403a0d3d6d951e8b3004c59ac6ab6",
+    "public-second-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/abschluss.png": "c85971e77824f7256295fdad72b26c263307040fcd83171fd54171919bebd04d",
+    "public-second-results/browser-freight-story-visi-2bd07-y-without-celebration-flood/attachments/abschluss-frames-json-ce0fb1ee6e992d462a858459a4a08a82f97cbc87.json": "ec3e18031259232b9673efc49ef861c3a58403a0d3d6d951e8b3004c59ac6ab6",
+    "public-second-results/browser-held-E-pull-no-for-340ea-blur-obstruction-and-resets/error-context.md": "cc68508342413189d34519ea72fd3d082d32845a256220433e808707097080b2",
+    "public-second-results/browser-held-E-pull-no-for-340ea-blur-obstruction-and-resets/test-failed-1.png": "54589db0895e17fe09147ec46d88b961fd75b7dd1d936f1731dc7e0664914269",
+    "public-second-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/attachments/magnet-canvas-frames-json-48135429e65eb63abef286f406d7a58531bf50cc.json": "07177f93bb5dc12abc502ccd88807adfdac00d19a468ed2b22545cb0fbeae070",
+    "public-second-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/attachments/push-canvas-frames-json-3c696c89b5aea264fffa3d32ed915eb4b4515ee4.json": "d5446373f25469d49c306e6cb7a279c282dea2714452af547cdd4ba6487082ed",
+    "public-second-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/magnet-canvas-frames.json": "07177f93bb5dc12abc502ccd88807adfdac00d19a468ed2b22545cb0fbeae070",
+    "public-second-results/browser-held-magnet-load-s-af350-without-feedback-undo-flood/push-canvas-frames.json": "d5446373f25469d49c306e6cb7a279c282dea2714452af547cdd4ba6487082ed",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-0-aff5f7c623bbb52180bd192af73bb8e542f84481.png": "cdacd18fa8334063658bdd3eb75d0886426642478d727af8d683ed02bf9c603f",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-1-480b95b8acde106d6b34cc506debe4190bfb64fb.png": "153e902a74ebcb7e8526008673968e2738529c2d3aff2979f5c291dbd35ab667",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-2-234131ade63a8425a23a08525bb71322096bfd9f.png": "7949c02b17c6b1bb6053585a4ffec2912353de0711aae11da3a23973067da3ec",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-3-26b6431bd7c1b6d01bd9e1c13b37b310261aec50.png": "1dd7a9581afaa47855d4b38ef9af305f58acfa1653d831875f1c5d44c7ae36ec",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-4-2c198a47e1169f4abe63de35ca091a07b7ff5430.png": "19c8d80255bb6134ad6273b337fe4f58f9b3d4739c8ce03d4e6415088e2eacef",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/attachments/handoff-canvas-frames-json-6602c416f7eb4c9e7ffdc7d6c7498b33c44bdde5.json": "f344a4fb14187b2e39d346e5837d869a7e079571a373956ce5d4b718449f4341",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-0.png": "cdacd18fa8334063658bdd3eb75d0886426642478d727af8d683ed02bf9c603f",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-1.png": "153e902a74ebcb7e8526008673968e2738529c2d3aff2979f5c291dbd35ab667",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-2.png": "7949c02b17c6b1bb6053585a4ffec2912353de0711aae11da3a23973067da3ec",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-3.png": "1dd7a9581afaa47855d4b38ef9af305f58acfa1653d831875f1c5d44c7ae36ec",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-4.png": "19c8d80255bb6134ad6273b337fe4f58f9b3d4739c8ce03d4e6415088e2eacef",
+    "public-second-results/browser-module-handoff-bot-5246c-real-canvas-frames-and-dock/handoff-canvas-frames.json": "f344a4fb14187b2e39d346e5837d869a7e079571a373956ce5d4b718449f4341",
+    "public-timing-repeat.log": "d711249e9bb5a550e7c19f45e4fb98bb29963a9a47ec8f8e055d1dad829cd888",
+    "public-timing-results/.last-run.json": "795ad0109082f3c33679d08a5ca8f27fd7fd476d588cd3d0546e989214b6f6ac",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/attachments/continuous-canvas-frames-json-7c17682766c2d79fa2658a506cecbbae94f9ab4a.json": "0bd5dcb69990c848430db2a9b3387e4216ef27f95909cdaf529824df955b5aa9",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/continuous-canvas-frames.json": "0bd5dcb69990c848430db2a9b3387e4216ef27f95909cdaf529824df955b5aa9",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/error-context.md": "a13b8117edfa21d43fee3ecb0c817489c25c75bd1237fe7ea739c1b4ad397534",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo/test-failed-1.png": "3e448042d37181c8565e4e27a7e2695acdfa4995d82d990c3323aeb884bc342a",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat1/attachments/continuous-canvas-frames-json-88460b4918affccef2deb65159c20250b985b1c0.json": "f4671d4a0972d579598c172b32bdc1d617d8cf2d4573111639f827319a4434d0",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat1/attachments/turn-canvas-frames-json-b6e7f1098e6579ed3867c8ad99da4d8c790ea0b0.json": "5819c63957c5c85d1ecb9b90704a205859418ebf4bd3a009158f977a5d669a6a",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat1/continuous-canvas-frames.json": "f4671d4a0972d579598c172b32bdc1d617d8cf2d4573111639f827319a4434d0",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat1/turn-canvas-frames.json": "5819c63957c5c85d1ecb9b90704a205859418ebf4bd3a009158f977a5d669a6a",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat2/attachments/continuous-canvas-frames-json-813cef896b4e30a57041dc2f27646495a12cac89.json": "a9812250159726b7d085bef30a15a4dc6fee9aa42d627bf8a30890b39c8b987f",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat2/attachments/turn-canvas-frames-json-74fb573c4ee72632e111f5203f9cef44d4894dd6.json": "3b77a2e0e1e4ee71726b57330be3cef1f4262d525c44670288bab4e935e2cde2",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat2/continuous-canvas-frames.json": "a9812250159726b7d085bef30a15a4dc6fee9aa42d627bf8a30890b39c8b987f",
+    "public-timing-results/browser-continuous-drive-t-c0c10-el-timing-evidence-and-undo-repeat2/turn-canvas-frames.json": "3b77a2e0e1e4ee71726b57330be3cef1f4262d525c44670288bab4e935e2cde2",
+    "public-timing-selection.log": "5cb23281417645b9646fbfbe3cc6a050201c00a8455f4036ef97f70cc78258f2",
+    "public-timing-summary.json": "7e9489426582be3e62281ad29ac45e5c8f2024a6bc50b9634df50b5a4a39d70a",
+    "release.json": "78c1c4f22d3c2f264c8c614bd210a89dd1f6f31fc5e164fddfc01cee2d282149",
+    "remote-after-browser.log": "27f71c9cdf779462aa5c1d46cb4e4ead3babc64e9de9396d5462e4fe4caca0f8",
+    "remote-final.log": "e1134351ba2a7294980c15deb5cf99ff239c43a94f07b20c0850da455ca31a8e",
+    "rollback.sh": "ffdc51dded7eaa1c7af8e2394485d721788dd3864baee68577d9ab6fa852b135",
+    "rules.log": "2998ca73bb0e9314c1dff98abc53b8172bedf18fd2aa781a3d6f4ca0f7f29443",
+    "screenshot-review.json": "cb5d9b10f7e1ba7c6978196337d2764e3612d31ee71a28c887e806905c8ddf89",
+    "sessions.preflight.json": "8bffa76c184fd871eea7d097436cff81793e20d32359d0a74e9af097fb14b9a5",
+    "ship.py": "5c55e705a76abd4542b747b4a9407098339f8abb6d2d04204672965fdff9e114",
+    "source-files.json": "d488991b3ac6db763e4fdb658f3d24f84a18a4415ae7f4bcdf489679fa823bf9",
+    "source-push.log": "b82e0b66ef5a96a1ce018058ed8aedd3f35a896cc608d27d5d87205f92dbc74a",
+    "tls.log": "1a98e3ca185b8e21a1efe9d01ccbaceaf21baebc6112e144fda6312e0bb07e2d",
+    "typecheck.log": "262c8b81dba9a5295bb3d0dc72692f77755ea74c41381385fd7911fe4a07e242",
+    "validation.json": "8a220a7908450f27ab91b5b6f0b6aa2a7bf1797db000b8eed32e86d83bd243c7",
+    "write-report.py": "2ab1634977647fb04851221bbb14fd21377a319cf2790a7d4a8663b31d1c90fc"
+  }
+}

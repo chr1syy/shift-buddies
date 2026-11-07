@@ -1,5 +1,7 @@
 # Geschichtenpilot · Raum 04 / Schwere Fracht · 04.11.2026
 
+> Stand 07.11.2026: Dieser Bericht beschreibt die damalige lokale Abnahme. Der Stand ist inzwischen [öffentlich veröffentlicht und neu geprüft](2026-11-07-deployment-geschichtenpilot.md). Die damaligen Aussagen „nicht veröffentlicht“ sind historisch.
+
 Chris hat den begrenzten Geschichtenpilot ausdrücklich freigegeben, während der menschliche Test der Modulübergabe offen bleibt. Mira koordiniert und prüft den Rücklauf für den Vault. Ausgangspunkt: sauberes `main` bei `df68aca34310445668c39f3f5d9b8fad4acb5d4d`, ein lokaler Commit vor `origin/main`. Git-Status, Worktree-Liste, Maestro-Roster und Prozesse wurden geprüft: nur dieser registrierte Shift-Buddies-Agent, kein erkennbarer konkurrierender Bearbeiter. Im vorhandenen Checkout gearbeitet, ohne AutoRun, Delegation oder weiteren Worktree. Der bestehende Preview-Prozess auf 5173 (PID 2048333, gestartet am 02.11.) wurde nicht neu gestartet. Ein späterer HTTP-Lesecheck lieferte 200 und das neue lokale Build-Asset mit Auftrag und Kommentarzeile; das ist keine zusätzliche Browserabnahme des Produktionsbuilds.
 
 ## Was sich im Spiel ändert

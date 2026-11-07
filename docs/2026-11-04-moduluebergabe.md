@@ -1,5 +1,7 @@
 # Sichtbare Modulübergabe · 04.11.2026
 
+> Stand 07.11.2026: Dieser Bericht beschreibt die damalige lokale Abnahme. Der Stand ist inzwischen [öffentlich veröffentlicht und neu geprüft](2026-11-07-deployment-geschichtenpilot.md). Die damaligen Aussagen „nicht veröffentlicht“ sind historisch.
+
 Begrenzter nächster Schritt aus der [Roadmap](2026-11-03-roadmap.md), nach Chris’ positivem Fahrgefühltest. Start: sauberes `main` bei `317cbec014cda8ed8b53e5ddfd68ad690e872521`. Vor Änderung Git, Maestro-Roster/Timeline und laufende Prozesse geprüft: ein registrierter Shift-Buddies-Agent, keine erkennbare konkurrierende Arbeit; der vorhandene Preview-Prozess auf 5173 wurde nicht neu gestartet. Direkt im vorhandenen Checkout gearbeitet, ohne Delegation, AutoRun oder Worktree.
 
 ## Verhalten und Code

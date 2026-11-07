@@ -15,11 +15,13 @@ npm run build
 
 Devserver und `npm run preview -- --port 5173 --strictPort` binden an Loopback. Einen anderen freien Port verwenden, falls 5173 belegt ist.
 
-**Aktueller Spielstand geprüft und live:** https://shift-buddies.clippmann.de/ zeigt das Fahrgefühlpaket **`d535f02edccc9e95bd52ebab971666e85100e7f6`**. Chris hat Umsetzung und Update dieser bestehenden Vorschau ausdrücklich autorisiert. 32 Regel-/Inputtests, Typecheck/Build und jeweils zwölf lokale Produktions-/öffentliche Chromium-Browsertests bestanden; alle sechs Lösungen bestehen weiter. [Release, Mehrframebelege, Rückfall und Grenzen](docs/2026-11-03-deployment-fahrgefuehl.md).
+**Aktueller Spielstand geprüft und live:** https://shift-buddies.clippmann.de/ zeigt **Modulübergabe und Geschichtenpilot**, Spiel-SHA **`0ffc8e03c3f0096a43fa820a41c51674d1036e82`**. 32 Regel-/Inputtests, Typecheck/Produktionsbuild und jeweils **19/19 lokale Produktions-/öffentliche Chromium-Browserfälle** bestanden; der öffentliche Gesamtlauf wurde nach zwei dokumentierten 18/19-Timingfehlläufen vollständig grün. Alle sechs Lösungen und Undo bleiben geprüft. [Release, Buildhashes, Rückfallpaar, Rohbelege und Grenzen](docs/2026-11-07-deployment-geschichtenpilot.md). Menschlicher Spieltest bleibt offen.
 
-**Lokaler nächster Schritt · 04.11.2026:** [Sichtbare Modulübergabe](docs/2026-11-04-moduluebergabe.md): Magnet und Batterie wandern beim gültigen Tausch in 360 ms zum anderen Bot. Jede weitere Aktion kann sofort fortfahren; Reduced motion zeigt den neuen Zustand unmittelbar. Noch nicht veröffentlicht.
+**Sichtbare Modulübergabe:** [Verhalten und lokale Entwicklungsbelege](docs/2026-11-04-moduluebergabe.md). Magnet und Batterie wandern beim gültigen Tausch in 360 ms zum anderen Bot; weitere Aktionen wirken sofort. Reduced motion zeigt den neuen Zustand unmittelbar. Seit 07.11. in der öffentlichen Vorschau.
 
-**Lokaler Geschichtenpilot · 04.11.2026:** [Raum 04 / Schwere Fracht](docs/2026-11-04-geschichtenpilot.md) erhält einen Werkstattauftrag, zustandsgebundene Pip-/Bolt-Kommentare und einen sichtbaren gemeinsamen Abschluss. Mit Spieltestanleitung und lokalen Browserbelegen; noch nicht veröffentlicht.
+**Geschichtenpilot · Raum 04 / Schwere Fracht:** [Werkstattauftrag, Pip-/Bolt-Kommentare und gemeinsamer Abschluss](docs/2026-11-04-geschichtenpilot.md). Seit 07.11. in der öffentlichen Vorschau; Spieltestanleitung gilt jetzt auch dort.
+
+Der Vorschauhost liefert ausschließlich die drei Builddateien. Das bestehende GitHub-Repository ist öffentlich; Quellen sind durch den normalen Push dort sichtbar. Neue lokale Rohbelege bleiben aus Git und vom Webhost ausgeschlossen.
 
 ```bash
 npm test
